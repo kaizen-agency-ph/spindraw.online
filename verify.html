@@ -47,7 +47,17 @@
       <div><span class="label">Seed</span><code id="fSeed"></code></div>
       <div><span class="label">Public salt</span><code id="fSalt"></code></div>
     </div>
-    <p class="muted small" id="compareNote" hidden style="margin:-8px 0 0">The commitment above should match the one shown on stream <b>before</b> the first spin. If it does, the list and the seed weren't changed afterwards.</p>
+    <section id="compareSec" class="stack" hidden>
+      <label>Did it match the stream? Type the commitment shown on screen before the first spin (the first 8+ characters are enough)
+        <input id="compare" placeholder="e.g. bd340c2e14f9cd65" autocomplete="off" spellcheck="false">
+      </label>
+      <p id="compareResult" class="small" style="margin:0"></p>
+      <p class="muted small" style="margin:0">The green check above only proves the winners follow from this seed and list. The stream comparison is what proves the host didn’t swap either of them afterwards.</p>
+    </section>
+    <section id="fileSec" class="stack" hidden>
+      <p style="margin:0">Got a proof file (<code>…-proof.json</code>) from the host instead of a link? Open it here. It stays in your browser.</p>
+      <input type="file" id="proofFile" accept=".json,application/json" aria-label="Proof file">
+    </section>
     <section id="drawsSec" hidden>
       <h2>Draws</h2>
       <div class="table-wrap"><table><thead><tr><th>#</th><th>Prize</th><th>Winner</th><th>Result</th><th>Check</th></tr></thead><tbody id="draws"></tbody></table></div>

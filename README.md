@@ -43,7 +43,7 @@ commitment = SHA256("spindraw-v1|" + seed + "|" + SHA256(JSON(entries)))
 pick(k)    = HMAC_SHA256(seed, "spindraw-v1|" + entriesHash + "|" + salt + "|" + k)  → weighted slot
 ```
 
-The seed is secret until "Finish". The salt comes from chat *after* the commitment is on screen, so the host can't pre-pick a seed that favours someone. Winners leave the pool if "remove winners" is on, and no-shows always leave. The verify link carries the whole raffle (deflated, base64url) after the `#`, so no server stores anything. 3,000 entries ≈ 10 KB of URL.
+The seed is secret until "Finish", and the commitment pins both the seed and the entry list, so any later edit fails verification. The salt comes from chat *after* the commitment is on screen. **Limitation:** the host types the salt, so a host who tries several chat words could choose among outcomes. The UI tells hosts to use the first word posted, and the audit log records it. A drand public randomness beacon would close this gap (see the roadmap). Winners leave the pool if "remove winners" is on, and no-shows always leave. The verify link carries the whole raffle (deflated, base64url) after the `#`, so no server stores anything. 3,000 entries ≈ 10 KB of URL, which is too long for TikTok comments (150 chars) or YouTube live chat (200). For those, the Draw tab shows the length, and hosts can share the **proof file** (`…-proof.json`), which `verify.html` opens directly. Viewers type the commitment prefix they saw on stream into the verify page to confirm the list and seed weren't swapped.
 
 Code: `js/fair.js`. Tests: `tests/run.js`.
 
@@ -58,5 +58,5 @@ Code: `js/fair.js`. Tests: `tests/run.js`.
 
 ## Roadmap
 
-- Phase 2: auto-pull YouTube Live chat (Data API key) and Twitch chat (anonymous IRC over WebSocket); slot-machine / card-flip modes; SEO pages per platform ("Facebook Live raffle picker", …); Taglish UI copy.
-- Phase 3 (needs a backend): accounts, saved raffles, public draw history, a Pro tier (no watermark, brand kits) with Stripe.
+- Phase 2: commit to a future **drand** beacon round at lock time and mix its randomness into each pick, so the host can't influence the result even through the salt (check drand's HTTP API CORS first); auto-pull YouTube Live chat (Data API key) and Twitch chat (anonymous IRC over WebSocket); slot-machine / card-flip modes; SEO pages per platform ("Facebook Live raffle picker", …); Taglish UI copy.
+- Phase 3 (needs a backend): short verify links, accounts, saved raffles, public draw history, a Pro tier (no watermark, brand kits) with Stripe.

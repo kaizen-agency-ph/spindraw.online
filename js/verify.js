@@ -27,11 +27,33 @@ function renderEntries(entries, winners, term = '') {
   $('#more').textContent = list.length > SHOW ? `…and ${list.length - SHOW} more. Search to find a name.` : t && !list.length ? 'No match.' : '';
 }
 
+function showFilePicker() {
+  $('#fileSec').hidden = false;
+  $('#proofFile').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    let p;
+    try { p = JSON.parse(await f.text()); } catch { return fail('That file isn’t a SpinDraw proof file.'); }
+    if (!Array.isArray(p?.entries) || !Array.isArray(p?.draws) || !/^[0-9a-f]{64}$/.test(p.seed)) return fail('That file isn’t a SpinDraw proof file.');
+    $('#fileSec').hidden = true;
+    run(p);
+  });
+}
+
 async function main() {
   const m = location.hash.match(/d=([\w-]+)/);
-  if (!m) return fail('This link has no raffle data. Ask the host for the full verify link.');
+  if (!m) {
+    $('#title').textContent = 'Verify a raffle';
+    $('#meta').textContent = 'Open the verify link the host posted, or load their proof file below.';
+    return showFilePicker();
+  }
   let p;
   try { p = await fair.decodePayload(m[1]); } catch { return fail('This link is damaged or cut off. Copy the whole link and try again.'); }
+  run(p);
+}
+
+async function run(p) {
+  $('#verdict').hidden = true;
 
   const entries = p.entries.map(([name, weight]) => ({ name, weight }));
   const { eHash, commit, results } = await fair.replay({ entries, seed: p.seed, salt: p.salt ?? '', removeWinners: p.removeWinners, draws: p.draws });
@@ -54,7 +76,15 @@ async function main() {
     : 'Re-running the draws from the revealed seed gives different winners than the ones recorded.';
   v.append(small);
 
-  $('#facts').hidden = $('#compareNote').hidden = false;
+  $('#facts').hidden = $('#compareSec').hidden = false;
+  $('#compare').addEventListener('input', e => {
+    const typed = e.target.value.toLowerCase().replace(/[^0-9a-f]/g, '');
+    const out = $('#compareResult');
+    if (typed.length < 8) { out.textContent = ''; return; }
+    const match = commit.startsWith(typed);
+    out.textContent = match ? `✓ Matches the first ${typed.length} characters of the commitment` : '✗ Doesn’t match. This list or seed differs from what was locked on stream.';
+    out.style.color = match ? 'var(--ok)' : 'var(--coral)';
+  });
   $('#fCommit').textContent = commit;
   $('#fHash').textContent = eHash;
   $('#fSeed').textContent = p.seed;

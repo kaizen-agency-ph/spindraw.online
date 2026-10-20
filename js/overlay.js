@@ -31,7 +31,7 @@ function apply(s) {
   $('#ovTitle').textContent = s.title;
   $('#ovCount').textContent = `${s.pool.length} in the wheel${s.total !== s.pool.length ? ` · ${s.total} entered` : ''}`;
   $('#ovPrize').textContent = s.prize;
-  $('#ovCommit').textContent = s.commit ? `commitment ${s.commit.slice(0, 16)}…${s.salt ? ` · salt "${s.salt}"` : ''}${s.revealed ? ' · verify link in comments' : ''}` : '';
+  $('#ovCommit').textContent = s.commit ? `commitment ${s.commit.slice(0, 16)}…${s.salt ? ` · salt "${s.salt}"` : ''}${s.revealed ? ' · proof shared by host' : ''}` : '';
   if (s.palette !== palette) { palette = s.palette; wheel.setPalette(palette); }
   if (animating) return;
   wheel.setEntries(toEntries(s.pool));

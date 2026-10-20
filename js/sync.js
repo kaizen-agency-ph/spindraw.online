@@ -43,19 +43,27 @@ export class Channel {
     const hostId = `spindraw-${this.room}`;
     this.relay = 'connecting';
     if (this.role === 'host') {
-      this.peer = new Peer(hostId);
-      this.peer.on('open', () => { this.relay = 'online'; this.status(); });
-      this.peer.on('connection', c => {
-        c.on('open', () => { this.conns.add(c); this.status(); });
-        c.on('data', m => this.receive(m));
-        c.on('close', () => { this.conns.delete(c); this.status(); });
-      });
-      this.peer.on('disconnected', () => setTimeout(() => !this.peer.destroyed && this.peer.reconnect(), 2000));
-      this.peer.on('error', e => {
-        // unavailable-id: another control tab already owns this room.
-        this.relay = e.type === 'unavailable-id' ? 'room in use' : 'offline';
-        this.status();
-      });
+      const claim = () => {
+        const peer = this.peer = new Peer(hostId);
+        peer.on('open', () => { this.relay = 'online'; this.status(); });
+        peer.on('connection', c => {
+          c.on('open', () => { this.conns.add(c); this.status(); });
+          c.on('data', m => this.receive(m));
+          c.on('close', () => { this.conns.delete(c); this.status(); });
+        });
+        peer.on('disconnected', () => setTimeout(() => !peer.destroyed && peer.reconnect(), 2000));
+        peer.on('error', e => {
+          if (e.type === 'unavailable-id') {
+            // Another control tab owns the room, or the server still holds the
+            // id from before a refresh. Keep retrying so a refresh mid-stream recovers.
+            this.relay = 'room in use';
+            peer.destroy();
+            setTimeout(claim, 5000);
+          } else this.relay = 'offline';
+          this.status();
+        });
+      };
+      claim();
     } else {
       this.peer = new Peer();
       this.peer.on('open', () => this.connect(hostId));

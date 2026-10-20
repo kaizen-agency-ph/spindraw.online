@@ -198,19 +198,21 @@ async function reveal() {
     S.revealed = true;
     addLog(`Raffle finished. Seed revealed: ${S.locked.seed}`);
   }
-  const payload = {
-    v: 1,
-    title: S.title,
-    lockedAt: S.locked.at,
-    entries: S.entries.map(e => [e.name, e.weight]),
-    seed: S.locked.seed,
-    salt: S.salt,
-    removeWinners: S.removeWinners,
-    draws: S.draws.map(({ prize, winner, status, at }) => ({ prize, winner, status, at })),
-  };
-  S.verifyUrl = new URL(`verify.html#d=${await fair.encodePayload(payload)}`, location.href).href;
+  S.verifyUrl = new URL(`verify.html#d=${await fair.encodePayload(proofPayload())}`, location.href).href;
   update();
 }
+
+// Everything verify.html needs. Only built after the seed is revealed.
+const proofPayload = () => ({
+  v: 1,
+  title: S.title,
+  lockedAt: S.locked.at,
+  entries: S.entries.map(e => [e.name, e.weight]),
+  seed: S.locked.seed,
+  salt: S.salt,
+  removeWinners: S.removeWinners,
+  draws: S.draws.map(({ prize, winner, status, at }) => ({ prize, winner, status, at })),
+});
 
 function newRaffle() {
   if (S.draws.length && !S.revealed && !confirm('This raffle has winners but no verify link yet. Start over anyway?')) return;
@@ -239,6 +241,12 @@ function downloadEntries() {
   if (!S.entries.length) return toast('No entries yet');
   const rows = [['name', 'entries'], ...S.entries.map(e => [e.name, e.weight])];
   download(`${slug()}-entries.csv`, new Blob([toCSV(rows)], { type: 'text/csv' }));
+}
+
+// For when the link is too long to post: viewers open this file on verify.html.
+function downloadProof() {
+  if (!S.revealed) return toast('Finish the raffle first');
+  download(`${slug()}-proof.json`, new Blob([JSON.stringify(proofPayload())], { type: 'application/json' }));
 }
 
 function downloadCard() {
@@ -385,6 +393,11 @@ function render() {
   $('#revealBox').hidden = !S.verifyUrl;
   $('#verifyUrl').value = S.verifyUrl;
   $('#openVerify').href = S.verifyUrl || '#';
+  const len = S.verifyUrl.length;
+  // YouTube live chat allows 200 characters, TikTok comments 150.
+  $('#verifyLen').textContent = !len ? '' : len <= 150
+    ? `${len} characters: short enough for any chat or comment.`
+    : `${len} characters: too long for TikTok comments and YouTube live chat. Post it in a Facebook/YouTube comment, the video description or a pinned post, or share the proof file instead.`;
 
   const list = prizes();
   const done = S.draws.filter(d => d.status !== 'noshow');
@@ -451,6 +464,7 @@ $('#copyVerify').addEventListener('click', () => navigator.clipboard.writeText(S
 $('#dlResults').addEventListener('click', downloadResults);
 $('#dlEntries').addEventListener('click', downloadEntries);
 $('#dlCard').addEventListener('click', downloadCard);
+$('#dlProof').addEventListener('click', downloadProof);
 
 $('#ovLayout').addEventListener('change', e => { S.ovLayout = e.target.value; save(); render(); });
 $('#ovBg').addEventListener('change', e => { S.ovBg = e.target.value; save(); render(); });

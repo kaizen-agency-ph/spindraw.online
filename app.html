@@ -106,18 +106,19 @@
             <div class="row"><button id="lockBtn" class="btn primary" type="button">Lock entries</button><button id="unlockBtn" class="btn ghost" type="button">Unlock</button></div>
           </li>
           <li><b>Public salt (optional)</b>
-            <p>After locking, ask chat for a random word and type it here. Since chat picks it, you can't have pre-picked a result.</p>
+            <p>After locking, type the <b>first</b> word a viewer posts in chat. Taking the first one, rather than picking a word you like, is what makes the result hard to steer.</p>
             <input id="salt" maxlength="60" placeholder="e.g. mango" aria-label="Public salt">
           </li>
           <li><b>Spin</b>
             <p>Space to spin. C if the winner claims, R if they don't show up in time.</p>
           </li>
           <li><b>Finish &amp; share proof</b>
-            <p>Reveals the secret seed. Post the link in the comments so anyone can re-run every draw.</p>
+            <p>Reveals the secret seed. Share the link (or the proof file) so anyone can re-run every draw.</p>
             <button id="revealBtn" class="btn primary" type="button">Finish &amp; create verify link</button>
             <div id="revealBox" class="stack" hidden style="margin-top:10px">
               <div class="row"><input id="verifyUrl" readonly aria-label="Verify link"><button id="copyVerify" class="btn" type="button">Copy</button></div>
-              <a id="openVerify" target="_blank" rel="noopener" class="small">Open verify page ↗</a>
+              <p id="verifyLen" class="muted small" style="margin:0"></p>
+              <div class="row"><a id="openVerify" target="_blank" rel="noopener" class="small">Open verify page ↗</a><button id="dlProof" class="btn ghost" type="button" style="margin-left:auto">Proof file</button></div>
             </div>
           </li>
         </ol>

@@ -55,7 +55,7 @@
     <section class="hero">
       <div>
         <h1>The raffle wheel your <em>live chat</em> will actually trust.</h1>
-        <p>Paste the comments, spin on stream, then post one link that lets anyone re-run the draw. No sign-up, and the overlay has no ads.</p>
+        <p>Paste the comments, spin on stream, then share a proof that lets anyone re-run the draw. No sign-up, and the overlay has no ads.</p>
         <div class="row">
           <a class="btn primary big" href="app.html">Start a raffle, free</a>
           <a class="btn ghost big" href="#how">How it works</a>
@@ -69,7 +69,7 @@
       <h2>Made for giveaways on stream, not for classrooms</h2>
       <div class="feat">
         <div><h3>A transparent overlay for OBS</h3><p>Add one Browser source and the wheel, prize, countdown and winner sit right over your camera. 16:9 or vertical 9:16 for TikTok. A green-screen version works in apps without browser sources.</p></div>
-        <div><h3>Fairness anyone can check</h3><p>Entries get locked with a hash shown on screen, chat picks a salt word, and after the raffle a verify link re-runs every draw in the viewer’s own browser.</p></div>
+        <div><h3>Fairness anyone can check</h3><p>Entries get locked with a hash shown on screen, a viewer’s word from chat is mixed in, and after the raffle anyone can re-run every draw in their own browser and check it against what they saw live.</p></div>
         <div><h3>Paste comments as they are</h3><p>Copy a Facebook, TikTok or YouTube comment section and paste it. Likes, timestamps and “Reply” are stripped, duplicates removed, and you can count only comments that say #JOIN.</p></div>
         <div><h3>Several prizes and a claim timer</h3><p>Queue prizes 3rd → 1st. The winner gets 60 seconds to claim in chat. If they don’t, one key logs the no-show and redraws.</p></div>
         <div><h3>Proof to post</h3><p>Download a winner card PNG, the results CSV and the full entry list, so there’s no “scripted!” in the comments.</p></div>
@@ -98,7 +98,7 @@
       <div>
         <details><summary>Is it free?</summary><p>Yes. Ads on this site pay for it. They never show on the overlay your viewers see.</p></details>
         <details><summary>Where are my entries stored?</summary><p>Only in your browser. Nothing is uploaded. A verify link only exists if you choose to share one.</p></details>
-        <details><summary>How can viewers know the host didn’t cheat?</summary><p>The commitment hash shown before spinning locks both the list and a secret seed. Chat adds a salt word after that, so the host can’t pre-pick a result. The verify link reveals the seed and recomputes every winner.</p></details>
+        <details><summary>How can viewers know the host didn’t cheat?</summary><p>The commitment hash shown before spinning locks both the list and a secret seed, so nobody can be added or removed afterwards without the check failing. A word from chat is then mixed into every pick, and the verify link reveals the seed and recomputes every winner. For the most trust, use the first word a viewer or moderator posts as the salt rather than choosing one yourself.</p></details>
         <details><summary>Can I use it without OBS?</summary><p>Yes. Share your screen with the control panel, or open the overlay window with the dark background and share that.</p></details>
       </div>
     </section>
