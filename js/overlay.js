@@ -89,6 +89,7 @@ if (!room) {
     if (type === 'state') apply(data);
     else if (type === 'spin') onSpin(data);
     else if (type === 'images') applyImages(data);
+    else if (type === 'notice' && !animating) $('#ovTicker').textContent = data.text;
   });
   channel.send('hello');
   setInterval(() => channel.send('ping'), 4000);

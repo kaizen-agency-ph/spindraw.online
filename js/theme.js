@@ -22,6 +22,13 @@ document.addEventListener('click', e => {
   root.dataset.theme = isDark() ? 'light' : 'dark';
   try { localStorage.setItem(KEY, root.dataset.theme); } catch {}
   paint();
+  document.dispatchEvent(new Event('themechange'));
 });
-media.addEventListener('change', paint);
+media.addEventListener('change', () => { paint(); document.dispatchEvent(new Event('themechange')); });
 paint();
+
+// Close the phone menu after choosing a link (same-page anchors don't reload).
+document.addEventListener('click', e => {
+  const link = e.target.closest('.mnav-panel a');
+  if (link) link.closest('details').open = false;
+});

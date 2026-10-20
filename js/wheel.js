@@ -159,7 +159,8 @@ export class Wheel {
       let label = seg.entry.name;
       // Shrink to fit before truncating, so long names stay readable.
       const wide = g.measureText(label).width;
-      if (wide > maxW) { font = Math.max(minFont, font * maxW / wide); setFont(); }
+      // Long names shrink only to a readable floor, then get truncated with …
+      if (wide > maxW) { font = Math.max(Math.min(font, s * 0.024), font * maxW / wide); setFont(); }
       if (g.measureText(label).width > maxW) {
         while (label.length > 1 && g.measureText(`${label}…`).width > maxW) label = label.slice(0, -1);
         label += '…';
@@ -189,14 +190,19 @@ export class Wheel {
     const R = this.radius, cx = s / 2;
     c.clearRect(0, 0, s, s);
     if (!this.segs.length) {
+      // Empty state follows the page theme (CSS tokens); the overlay has none, so dark fallbacks.
+      const css = getComputedStyle(this.canvas);
+      const tok = (name, fallback) => css.getPropertyValue(name).trim() || fallback;
       c.beginPath();
       c.arc(cx, cx, R, 0, TAU);
-      c.fillStyle = '#1e2128';
+      c.fillStyle = tok('--panel-2', '#1e2128');
       c.fill();
-      c.lineWidth = s * 0.018;
-      c.strokeStyle = th.rim;
+      c.setLineDash([s * 0.02, s * 0.015]);
+      c.lineWidth = s * 0.006;
+      c.strokeStyle = tok('--line-strong', '#363a43');
       c.stroke();
-      c.fillStyle = '#9a9ca3';
+      c.setLineDash([]);
+      c.fillStyle = tok('--muted', '#9a9ca3');
       c.font = `600 ${s * 0.045}px 'Geist', system-ui, sans-serif`;
       c.textAlign = 'center';
       c.textBaseline = 'middle';

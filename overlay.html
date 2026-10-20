@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SpinDraw overlay</title>
   <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,7 +23,9 @@
     /* Everything is sized off the viewport so a 1920×1080 browser source and a small popup match. */
     .ov { position: absolute; inset: 0; display: grid; gap: 2vmin; padding: 4vmin; }
     .card { background: rgba(15, 16, 19, .9); border-radius: 2vmin; padding: 2vmin 3vmin; box-shadow: 0 1vmin 4vmin rgba(0, 0, 0, .35); }
-    .ov-title { font-weight: 800; font-size: 6vmin; line-height: 1; letter-spacing: -.02em; }
+    .ov-title { font-weight: 800; font-size: 6vmin; line-height: 1.05; letter-spacing: -.02em; }
+    /* Long titles/prizes are clamped so they never spill out of their cards. */
+    .ov-title, .ov-prize .v { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
     .ov-count { color: var(--muted); font-size: 2.6vmin; margin-top: 1vmin; }
     .ov-wheel { position: relative; min-height: 0; }
     .ov-wheel canvas { position: absolute; inset: 0; margin: auto; filter: drop-shadow(0 1.5vmin 3vmin rgba(0, 0, 0, .45)); }
@@ -41,7 +44,7 @@
     .ov-winner .box { background: var(--accent); color: var(--ink); border-radius: 3vmin; padding: 4vmin 7vmin; text-align: center; max-width: 86vw; box-shadow: 0 3vmin 8vmin rgba(0, 0, 0, .5); animation: pop .6s cubic-bezier(.2, 1.4, .4, 1); }
     .ov-winner .k { text-transform: uppercase; letter-spacing: .2em; font-weight: 800; font-size: 3vmin; }
     .ov-winner .name { font-weight: 800; font-size: 11vmin; line-height: 1; margin: 1.5vmin 0; overflow-wrap: anywhere; }
-    .ov-winner .prize { font-weight: 600; font-size: 4vmin; }
+    .ov-winner .prize { font-weight: 600; font-size: 4vmin; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
     .ov-winner .claim { margin-top: 2vmin; font: 600 3vmin 'Geist Mono', monospace; }
     @keyframes pop { from { transform: scale(.6); opacity: 0; } }
 
@@ -57,11 +60,12 @@
     body[data-layout="vertical"] .ov-head { text-align: center; }
     body[data-layout="vertical"] .ov-title { font-size: 8vmin; }
     body[data-layout="vertical"] .ov-count { font-size: 3.6vmin; }
-    body[data-layout="vertical"] .ov-side { display: grid; grid-auto-flow: column; gap: 2vmin; order: 1; }
+    body[data-layout="vertical"] .ov-side { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2vmin; order: 1; }
+    body[data-layout="vertical"] .ov-side .ov-ticker { grid-column: 1 / -1; }
+    body[data-layout="vertical"] .ov-prize .v { font-size: 4.6vmin; }
     body[data-layout="vertical"] .ov-wheel { order: 2; }
     body[data-layout="vertical"] .ov-ticker { order: 3; font-size: 7vmin; }
     body[data-layout="vertical"] .ov-foot { order: 4; flex-direction: column; align-items: center; font-size: 2.6vmin; }
-    body[data-layout="vertical"] .ov-prize .v { font-size: 5.5vmin; }
     body[data-layout="vertical"] .ov-winner .name { font-size: 14vmin; }
 
     .ov-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 6vmin; font-size: 3vmin; }

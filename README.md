@@ -70,8 +70,8 @@ Code: `js/fair.js`. Tests: `tests/run.js`.
 ## Before going live
 
 - [ ] Pick the name/domain and replace "SpinDraw" (brand text in the HTML files, the overlay watermark, the winner-card PNG in `js/app.js`).
-- [ ] Fill in `privacy.html` (date, contact email).
-- [ ] Apply for AdSense. Then put your `ca-pub-…` ID in `ads.txt` and in the commented script tag in `app.html`, and replace the `.ad-slot` placeholders in `app.html`, `index.html` and `verify.html` with `<ins class="adsbygoogle">` units.
+- [ ] Check `privacy.html`: the date is set to 2026-10-20 and the contact line points to kaizenagency.online. Change it if you want a direct email.
+- [ ] Apply for AdSense. Then put your `ca-pub-…` ID in `ads.txt` and in the commented script tag in `app.html`, and put `<ins class="adsbygoogle">` units inside the `.ad-slot` boxes in `app.html`, `verify.html` and `scripts/build-pages.mjs` (home), and add the class `live` to each box. They stay hidden until then.
 - [ ] Set up a Google-certified CMP (AdSense → Privacy & messaging) for EEA/UK visitors.
 - [ ] Test the overlay as a real OBS Browser source on your stream machine (PeerJS path).
 - [ ] Deploy: new repo → GitHub Pages → custom domain.

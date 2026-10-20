@@ -6,6 +6,13 @@
   <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
   <link rel="canonical" href="https://spindraw.online/app.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SpinDraw">
+  <meta property="og:title" content="Raffle Wheel Spinner | SpinDraw">
+  <meta property="og:description" content="Free online raffle wheel: paste names or comments, spin to pick a random winner, and show it on your stream.">
+  <meta property="og:url" content="https://spindraw.online/app.html">
+  <meta property="og:image" content="https://spindraw.online/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <title>Raffle Wheel Spinner – Spin to Pick a Winner | SpinDraw</title>
   <meta name="description" content="Free online raffle wheel: paste names or comments, spin the wheel to pick a random winner, and show it on your live stream with an OBS overlay.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,10 +37,12 @@
   </header>
 
   <main class="app">
+    <h1 class="sr-only">Raffle wheel spinner</h1>
     <section class="stage">
       <div class="stage-head">
         <input id="title" class="title-input" maxlength="60" aria-label="Raffle title">
         <span id="poolCount" class="pill"></span>
+        <button id="editEntriesBtn" class="btn" type="button">Edit entries</button>
       </div>
       <div class="wheel-box"><canvas id="wheel" aria-label="Raffle wheel"></canvas></div>
       <div id="ticker" class="ticker" aria-live="off">&nbsp;</div>
@@ -46,6 +55,10 @@
         <div class="wc-prize" id="wcPrize"></div>
         <div class="wc-name" id="wcName"></div>
         <div class="wc-timer" id="wcTimer"></div>
+      </div>
+      <div id="doneNote" class="note done-note" hidden>
+        <span>Everyone in the wheel has been drawn.</span>
+        <button id="doneReveal" class="btn primary" type="button">Finish &amp; create verify link</button>
       </div>
       <div class="proof">
         <div><span class="label">Commitment</span><code id="commitText">not locked yet</code></div>
@@ -150,7 +163,7 @@
         </label>
         <label class="check"><input type="checkbox" id="ovSound"> Play sounds in the overlay</label>
         <div class="row"><input id="overlayUrl" readonly aria-label="Overlay URL"><button id="copyOverlay" class="btn" type="button">Copy</button></div>
-        <p class="muted small" style="margin:0">OBS / Streamlabs / TikTok LIVE Studio: add a <b>Browser</b> source, paste the URL, set it to <span id="ovSize">1920×1080</span>. It connects to this tab on its own.</p>
+        <p class="muted small" style="margin:0">OBS / Streamlabs: add a <b>Browser</b> source. TikTok LIVE Studio: add a <b>Link</b> source. Paste the URL and set the size to <span id="ovSize">1920×1080</span>. It connects to this tab on its own.</p>
         <hr style="border:0;border-top:1px solid var(--line);width:100%">
         <label>Entries countdown (minutes)
           <div class="row"><input type="number" id="cdMinutes" min="0.25" step="0.25" value="2"><button id="cdStart" class="btn" type="button">Start</button><button id="cdStop" class="btn ghost" type="button">Stop</button></div>
@@ -220,6 +233,7 @@
       <dt><kbd>C</kbd></dt><dd>Winner claimed, move to next prize</dd>
       <dt><kbd>R</kbd></dt><dd>No-show: log it and redraw</dd>
       <dt><kbd>O</kbd></dt><dd>Open overlay window</dd>
+      <dt><kbd>?</kbd></dt><dd>Show this list</dd>
     </dl>
     <form method="dialog"><button class="btn primary">Got it</button></form>
   </dialog>

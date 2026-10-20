@@ -29,7 +29,7 @@ const GUIDES = [
   {
     slug: 'facebook-live-raffle',
     nav: 'Facebook Live raffle',
-    title: 'Facebook Live Raffle Picker & Comment Wheel (Free) | SpinDraw',
+    title: 'Facebook Live Raffle & Comment Picker (Free) | SpinDraw',
     description: 'Run a Facebook Live raffle from your comments: paste them in, filter by keyword, remove duplicates and spin a free raffle wheel on stream. No Facebook login.',
     h1: 'Facebook Live raffle picker that works from your comments',
     lede: 'Copy the comments from your live or post, paste them into SpinDraw and spin. Likes, timestamps and “Reply” are stripped out, duplicates are removed, and only people who typed your keyword get a slice.',
@@ -87,7 +87,7 @@ const GUIDES = [
   {
     slug: 'obs-spin-wheel',
     nav: 'OBS spin wheel overlay',
-    title: 'Spin the Wheel Overlay for OBS & Streamlabs (Free) | SpinDraw',
+    title: 'Spin the Wheel Overlay for OBS & Streamlabs | SpinDraw',
     description: 'Add a free spin-the-wheel overlay to OBS or Streamlabs as a browser source. Transparent background, 16:9 or 9:16, synced to a control panel. No sign-up.',
     h1: 'A spin-the-wheel overlay for OBS and Streamlabs',
     lede: 'One browser source, transparent background, no account. You run the raffle from a control panel in your normal browser and the wheel, prize, countdown and winner card appear over your stream.',
@@ -175,8 +175,8 @@ const GUIDES = [
   {
     slug: 'wheel-of-names-alternative',
     nav: 'Wheel of Names alternative',
-    title: 'Wheel of Names Alternative for Live Raffles & Giveaways | SpinDraw',
-    description: 'Looking for a Wheel of Names alternative for live streams? SpinDraw adds a verifiable fairness proof, comment pasting with keyword filters, claim timers and a vertical overlay.',
+    title: 'Wheel of Names Alternative for Live Raffles | SpinDraw',
+    description: 'A Wheel of Names alternative for live streams: verifiable draws, comment pasting with keyword filters, claim timers and a vertical overlay. Free.',
     h1: 'A Wheel of Names alternative made for live raffles',
     lede: 'Wheel of Names is a great general-purpose spinner. SpinDraw focuses on one job: running giveaways on a live stream in a way your audience can trust.',
     body: `
@@ -246,6 +246,15 @@ const header = `
       <a class="link" href="/#how">How it works</a>
       <a class="link" href="/obs-spin-wheel/">OBS overlay</a>
       <a class="link" href="/#faq">FAQ</a>
+      <details class="mnav">
+        <summary aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
+        <div class="mnav-panel">
+          <a href="/#features">Features</a>
+          <a href="/#how">How it works</a>
+          <a href="/obs-spin-wheel/">OBS overlay</a>
+          <a href="/#faq">FAQ</a>
+        </div>
+      </details>
       <button class="btn ghost theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button>
       <a class="btn primary" href="/app.html">Open the wheel</a>
     </nav>
@@ -403,7 +412,7 @@ function write(rel, html) {
 }
 
 write('index.html', `${head({
-  title: 'SpinDraw – Free Raffle Wheel & Random Name Picker for Live Streams',
+  title: 'SpinDraw: Free Raffle Wheel for Live Stream Giveaways',
   description: 'Spin a free raffle wheel on Facebook Live, TikTok, YouTube or Twitch. Paste comments, add the wheel to OBS, and give viewers proof the winner was picked fairly.',
   path: '/',
   extra: homeLd.map(ld).join('\n  '),
@@ -431,7 +440,7 @@ for (const g of GUIDES) {
       <div class="crumbs"><a href="/">SpinDraw</a> / ${esc(g.nav)}</div>
       <h1>${esc(g.h1)}</h1>
       <p>${esc(g.lede)}</p>
-      <div class="cta"><a class="btn primary big" href="/app.html">Open the raffle wheel</a><a class="btn big" href="/">How SpinDraw works</a></div>
+      <div class="cta"><a class="btn primary big" href="/app.html">Open the raffle wheel</a><a class="btn big" href="/#how">How SpinDraw works</a></div>
     </section>
     <article class="prose">${g.body}
       <h2>Questions</h2>
@@ -450,6 +459,23 @@ for (const g of GUIDES) {
 </html>
 `);
 }
+
+write('404.html', `${head({ title: 'Page not found | SpinDraw', description: 'This page doesn’t exist. Open the raffle wheel or read a guide.', path: '/404.html', noindex: true })}
+<body>${header}
+  <main class="page">
+    <section class="page-hero">
+      <div class="kicker">404</div>
+      <h1>That page isn’t on the wheel</h1>
+      <p>The link may be mistyped, or the page has moved. Here are the places people usually look for:</p>
+      <div class="cta"><a class="btn primary big" href="/app.html">Open the raffle wheel</a><a class="btn big" href="/">Go to the home page</a></div>
+    </section>
+    <section class="section">
+      <div class="grid">${GUIDES.map(g => `<a class="card" href="/${g.slug}/"><h3>${esc(g.nav)}</h3><p>${esc(g.description)}</p><span class="go">Read →</span></a>`).join('')}</div>
+    </section>
+  </main>${footer}
+</body>
+</html>
+`);
 
 const urls = [
   ['/', '1.0'],

@@ -157,12 +157,22 @@ function unlock() {
 
 async function spin() {
   if (spinning || pending() || S.revealed) return;
+  const wasLocked = !!S.locked;
   if (!(await lock())) return;
   const p = pool();
   if (!p.length) return toast('Nobody left in the wheel');
   sound.unlock();
   spinning = true;
   render();
+  // Spinning without locking first: show the fresh commitment before the wheel moves.
+  if (!wasLocked) {
+    for (let n = 3; n > 0; n--) {
+      const msg = `Entries locked · commitment ${S.locked.commit.slice(0, 8)}… · spinning in ${n}`;
+      $('#ticker').textContent = msg;
+      channel.send('notice', { text: msg });
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
   const k = S.draws.length;
   if (k === 0 && S.salt) addLog(`Public salt fixed: "${S.salt}"`);
   const idx = await fair.pickIndex(S.locked.seed, S.locked.eHash, S.salt, k, p);
@@ -244,8 +254,8 @@ const slug = () => S.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-
 
 function downloadResults() {
   if (!S.draws.length) return toast('No draws yet');
-  const rows = [['draw', 'prize', 'winner', 'status', 'time']];
-  S.draws.forEach((d, k) => rows.push([k + 1, d.prize, nameOf(d.winner), d.status, new Date(d.at).toISOString()]));
+  const rows = [['draw', 'prize', 'winner', 'status', `time (${Intl.DateTimeFormat().resolvedOptions().timeZone})`]];
+  S.draws.forEach((d, k) => rows.push([k + 1, d.prize, nameOf(d.winner), d.status, new Date(d.at).toLocaleString('sv-SE')]));
   rows.push([], ['commitment', S.locked?.commit ?? ''], ['seed', S.revealed ? S.locked.seed : '(revealed after finish)'], ['salt', S.salt], ['verify', S.verifyUrl]);
   download(`${slug()}-results.csv`, new Blob([toCSV(rows)], { type: 'text/csv' }));
 }
@@ -406,6 +416,7 @@ function render() {
   } else if (!spinning) card.hidden = true;
   renderTimers();
 
+  $('#doneNote').hidden = !(locked && drawn && !p && !S.revealed && !spinning && !pl.length);
   $('#revealBox').hidden = !S.verifyUrl;
   $('#verifyUrl').value = S.verifyUrl;
   $('#openVerify').href = S.verifyUrl || '#';
@@ -477,6 +488,10 @@ $('#claimBtn').addEventListener('click', claimed);
 $('#redrawBtn').addEventListener('click', noShow);
 $('#revealBtn').addEventListener('click', reveal);
 $('#newRaffle').addEventListener('click', newRaffle);
+$('#doneReveal').addEventListener('click', async () => { S.tab = 'draw'; await reveal(); $('.side').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+// Phones: the entry box sits below the wheel, so give first-time users a way to it.
+$('#editEntriesBtn').addEventListener('click', () => { S.tab = 'entries'; save(); render(); $('.side').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+document.addEventListener('themechange', () => wheel.draw());
 $('#copyVerify').addEventListener('click', () => navigator.clipboard.writeText(S.verifyUrl).then(() => toast('Verify link copied')));
 $('#dlResults').addEventListener('click', downloadResults);
 $('#dlEntries').addEventListener('click', downloadEntries);
@@ -509,6 +524,7 @@ document.addEventListener('keydown', e => {
   else if (k === 'c') claimed();
   else if (k === 'r') noShow();
   else if (k === 'o') openOverlay();
+  else if (k === '?') $('#helpDialog').showModal();
 });
 
 

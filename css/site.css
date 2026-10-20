@@ -1,4 +1,6 @@
 /* Marketing pages (home + guides). Tokens come from style.css. */
+html { scroll-padding-top: 80px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 .page { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
 .site-nav { display: flex; align-items: center; gap: 4px; }
 .site-nav a.link { color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 500; padding: 6px 10px; border-radius: 6px; }
@@ -57,13 +59,13 @@ ol.steps-row { padding: 0; margin: 0; }
 .table-scroll { overflow-x: auto; }
 
 .faq { display: grid; gap: 0; max-width: 760px; }
-.faq details { border-top: 1px solid var(--line); padding: 16px 0; }
+.faq details { border-top: 1px solid var(--line); padding: 4px 0; }
 .faq details:last-child { border-bottom: 1px solid var(--line); }
-.faq summary { cursor: pointer; font-weight: 500; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary { cursor: pointer; font-weight: 500; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 44px; padding: 8px 0; }
 .faq summary::-webkit-details-marker { display: none; }
 .faq summary::after { content: '+'; color: var(--muted); font-size: 1.2rem; line-height: 1; }
 .faq details[open] summary::after { content: '−'; }
-.faq details p { color: var(--muted); margin: 10px 0 0; }
+.faq details p { color: var(--muted); margin: 0 0 14px; }
 
 .cta-band { margin: 64px 0; border-radius: 16px; padding: 40px; background: var(--text); color: var(--bg); display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
 .cta-band h2 { margin: 0 0 6px; font-size: 1.6rem; letter-spacing: -.03em; }
@@ -78,7 +80,8 @@ ol.steps-row { padding: 0; margin: 0; }
 
 footer.site { border-top: 1px solid var(--line); margin-top: 32px; padding: 40px 20px 48px; display: grid; grid-template-columns: 1.4fr repeat(2, 1fr); gap: 32px; font-size: .9rem; }
 footer.site h4 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 12px; }
-footer.site ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+footer.site ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+footer.site li a { display: inline-block; padding: 10px 0; }
 footer.site a { color: var(--text); text-decoration: none; }
 footer.site a:hover { color: var(--accent-text); }
 footer.site p { color: var(--muted); margin: 10px 0 0; max-width: 28em; }
@@ -97,3 +100,14 @@ footer.site p { color: var(--muted); margin: 10px 0 0; max-width: 28em; }
   .cta-band { padding: 28px; }
   .section { padding: 48px 0; }
 }
+
+/* Phone menu (a <details> dropdown, no JS needed to open it). */
+.mnav { display: none; position: relative; }
+.mnav summary { list-style: none; cursor: pointer; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.mnav summary::-webkit-details-marker { display: none; }
+.mnav summary svg { width: 18px; height: 18px; }
+.mnav-panel { position: fixed; right: 16px; top: 64px; min-width: 220px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .3); padding: 6px; display: grid; z-index: 30; }
+.mnav-panel a { color: var(--text); text-decoration: none; padding: 12px 12px; border-radius: 8px; font-weight: 500; }
+.mnav-panel a:hover { background: var(--panel-2); }
+@media (max-width: 900px) { .mnav { display: block; } }
+footer.site .brand { padding: 8px 0; }
