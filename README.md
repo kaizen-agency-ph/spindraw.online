@@ -19,11 +19,12 @@ After the domain is live, add the site in Google Search Console (a DNS TXT recor
 
 ## Brand assets
 
-The logo mark was generated with Higgsfield (Recraft V4.1, vector mode), then cleaned up: background removed, colors snapped to the palette, cropped square.
+The logo mark is an "S" made of two half-circles on a shared spine (180° rotational symmetry, like a spinning wheel), with a yellow hub dot. The concept came from a Higgsfield round (Recraft V4.1 vector, minimal two-color brief). The final SVG is hand-built with exact geometry: half-disc radius 28, centers 28 apart, dot r 7.5, in a 100-unit grid. Colors: ink `#0f1013` (light `#f4f4f5` on dark), hub `#ffd23f`.
 
 - `logo-mark.svg` / `logo-mark-dark.svg`: the mark for light and dark backgrounds. The header swaps them with the theme.
 - `favicon.svg` switches its ring color with the browser's color scheme. `favicon.ico` (16/32/48) is the fallback.
 - `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`: app and manifest icons.
+- `brand/spindraw-app-icon.svg`: the ink-tile app icon.
 - `brand/`: wordmark lockups (`spindraw-logo-light.png` / `-dark.png`, 1200×320, transparent) and the mark SVGs for social profiles and press.
 
 ## Theme
