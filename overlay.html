@@ -7,13 +7,13 @@
   <meta name="robots" content="noindex">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- No ads on this page: it's what viewers see. -->
   <style>
     :root { --ink: #0f1013; --text: #f3f1ea; --muted: #b9bbc1; --accent: #ffd23f; --coral: #ff5d73; color-scheme: dark; }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
-    html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; color: var(--text); font-family: 'Bricolage Grotesque', system-ui, sans-serif; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; color: var(--text); font-family: 'Geist', system-ui, sans-serif; }
     body[data-bg="green"] { background: #00b140; }
     body[data-bg="dark"] { background: #0f1013; }
     .ov-bg { position: fixed; inset: 0; background: center / cover no-repeat; }
@@ -30,10 +30,10 @@
     .ov-ticker:empty { display: none; }
     .ov-prize .k, .ov-countdown .k { text-transform: uppercase; letter-spacing: .12em; font-size: 2.2vmin; color: var(--muted); font-weight: 600; }
     .ov-prize .v { font-weight: 800; font-size: 4.6vmin; line-height: 1.1; }
-    .ov-countdown .v { font: 600 7vmin 'IBM Plex Mono', monospace; color: var(--accent); }
+    .ov-countdown .v { font: 600 7vmin 'Geist Mono', monospace; color: var(--accent); }
     .ov-countdown.closed .v { color: var(--coral); font-size: 4.6vmin; font-family: inherit; font-weight: 800; }
     .ov-foot { display: flex; justify-content: space-between; align-items: end; gap: 2vmin; font-size: 1.8vmin; }
-    .ov-commit { background: rgba(15, 16, 19, .85); color: var(--muted); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-family: 'IBM Plex Mono', monospace; }
+    .ov-commit { background: rgba(15, 16, 19, .85); color: var(--muted); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-family: 'Geist Mono', monospace; }
     .ov-commit:empty { visibility: hidden; }
     .ov-mark { background: rgba(15, 16, 19, .85); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-weight: 600; }
 
@@ -42,7 +42,7 @@
     .ov-winner .k { text-transform: uppercase; letter-spacing: .2em; font-weight: 800; font-size: 3vmin; }
     .ov-winner .name { font-weight: 800; font-size: 11vmin; line-height: 1; margin: 1.5vmin 0; overflow-wrap: anywhere; }
     .ov-winner .prize { font-weight: 600; font-size: 4vmin; }
-    .ov-winner .claim { margin-top: 2vmin; font: 600 3vmin 'IBM Plex Mono', monospace; }
+    .ov-winner .claim { margin-top: 2vmin; font: 600 3vmin 'Geist Mono', monospace; }
     @keyframes pop { from { transform: scale(.6); opacity: 0; } }
 
     /* 16:9 */

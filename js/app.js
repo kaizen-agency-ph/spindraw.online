@@ -271,7 +271,7 @@ function downloadCard() {
   g.fillStyle = '#0f1013'; g.fillRect(0, 0, 1200, 630);
   g.fillStyle = '#ffd23f'; g.fillRect(0, 0, 1200, 14);
   const fit = (text, max, size, weight = 800) => {
-    do g.font = `${weight} ${size}px 'Bricolage Grotesque', system-ui, sans-serif`;
+    do g.font = `${weight} ${size}px 'Geist', system-ui, sans-serif`;
     while (g.measureText(text).width > max && (size -= 4) > 20);
   };
   g.textAlign = 'left';
@@ -280,11 +280,11 @@ function downloadCard() {
   g.fillStyle = '#f3f1ea'; fit(nameOf(d.winner), 1040, 120); g.fillText(nameOf(d.winner), 80, 340);
   g.fillStyle = '#f3f1ea'; fit(d.prize, 1040, 44, 600); g.fillText(d.prize, 80, 420);
   g.fillStyle = '#9a9ca3';
-  g.font = `400 22px 'IBM Plex Mono', monospace`;
+  g.font = `400 22px 'Geist Mono', monospace`;
   g.fillText(`${new Date(d.at).toLocaleString()} · ${S.entries.length} entries`, 80, 520);
   g.fillText(`commitment ${S.locked.commit.slice(0, 32)}…`, 80, 556);
   g.fillStyle = '#ffd23f';
-  g.font = `600 22px 'Bricolage Grotesque', system-ui, sans-serif`;
+  g.font = `600 22px 'Geist', system-ui, sans-serif`;
   g.textAlign = 'right';
   g.fillText('SpinDraw · provably fair', 1120, 556);
   c.toBlob(b => download(`${slug()}-winner.png`, b));

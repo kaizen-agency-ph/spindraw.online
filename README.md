@@ -4,11 +4,22 @@ A raffle wheel built for live streams (Facebook Live, YouTube, TikTok LIVE, Twit
 
 | Page | What it is |
 |---|---|
-| `index.html` | Landing / SEO page with a live demo wheel |
+| `index.html` | Home page, **generated** by `scripts/build-pages.mjs` |
+| `<guide>/index.html` | Six SEO guide pages (Facebook Live, TikTok LIVE, OBS, YouTube, random name picker, Wheel of Names alternative), also generated |
 | `app.html` | Host control panel (ads go here) |
 | `overlay.html` | What viewers see. Add it as an OBS Browser source. **Never put ads here.** |
 | `verify.html` | Public proof page. Re-runs every draw in the viewer's browser |
 | `privacy.html` | Privacy policy, required for AdSense |
+
+## SEO pages
+
+Edit the copy in `scripts/build-pages.mjs`, then run `node scripts/build-pages.mjs`. It rewrites `index.html`, the guide pages, `sitemap.xml` and `robots.txt`. Commit the output, because GitHub Pages has no build step. Each page gets a title, description, canonical URL, OG/Twitter tags with `og-image.png`, and JSON-LD (WebApplication + FAQPage on the home page, BreadcrumbList + FAQPage on guides).
+
+After the domain is live, add the site in Google Search Console (a DNS TXT record at Namecheap) and submit `https://spindraw.online/sitemap.xml`.
+
+## Theme
+
+Light is the default, and dark follows the system. The toggle in the top bar saves the choice under `spindraw:theme`. Color tokens are in `css/style.css`. The overlay stays dark on purpose.
 
 ## Run locally
 

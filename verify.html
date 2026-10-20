@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="canonical" href="https://spindraw.online/verify.html">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <title>Verify a raffle · SpinDraw</title>
   <meta name="description" content="Re-run a SpinDraw raffle yourself and check that every winner was picked fairly.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
     .wrap { max-width: 860px; margin: 0 auto; padding: 28px 16px 60px; display: grid; gap: 20px; }
@@ -33,7 +36,7 @@
   <script type="module" src="js/verify.js"></script>
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="./"><span class="brand-mark"></span>SpinDraw</a><a class="btn primary" href="app.html">Run your own raffle</a></header>
+  <header class="topbar"><a class="brand" href="./"><span class="brand-mark"></span>SpinDraw</a><div class="topbar-actions"><button class="btn ghost theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button><a class="btn primary" href="app.html">Run your own raffle</a></div></header>
   <main class="wrap">
     <div>
       <p class="muted small" style="margin:0 0 4px">Raffle verification</p>
@@ -77,5 +80,6 @@ pick(k)    = HMAC_SHA256(seed, "spindraw-v1|" + entriesHash + "|" + salt + "|" +
     </details>
     <div class="ad-slot" aria-label="Advertisement">Ad space</div>
   </main>
+  <script type="module" src="js/theme.js"></script>
 </body>
 </html>

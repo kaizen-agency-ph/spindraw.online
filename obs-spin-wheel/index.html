@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <title>Spin the Wheel Overlay for OBS &amp; Streamlabs (Free) | SpinDraw</title>
+  <meta name="description" content="Add a free spin-the-wheel overlay to OBS or Streamlabs as a browser source. Transparent background, 16:9 or 9:16, synced to a control panel. No sign-up.">
+  <link rel="canonical" href="https://spindraw.online/obs-spin-wheel/">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SpinDraw">
+  <meta property="og:title" content="Spin the Wheel Overlay for OBS &amp; Streamlabs (Free) | SpinDraw">
+  <meta property="og:description" content="Add a free spin-the-wheel overlay to OBS or Streamlabs as a browser source. Transparent background, 16:9 or 9:16, synced to a control panel. No sign-up.">
+  <meta property="og:url" content="https://spindraw.online/obs-spin-wheel/">
+  <meta property="og:image" content="https://spindraw.online/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#ffd23f">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"SpinDraw","item":"https://spindraw.online/"},{"@type":"ListItem","position":2,"name":"OBS spin wheel overlay","item":"https://spindraw.online/obs-spin-wheel/"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the overlay background transparent?","acceptedAnswer":{"@type":"Answer","text":"Yes, by default. You can also choose a green screen, a dark background or upload your own background image."}},{"@type":"Question","name":"Do ads show on the overlay?","acceptedAnswer":{"@type":"Answer","text":"No. The overlay page never shows ads. Ads only appear on the control panel and the website."}},{"@type":"Question","name":"Does it work with Twitch, YouTube and Kick?","acceptedAnswer":{"@type":"Answer","text":"Yes. The overlay is just a browser source, so it works with any platform you stream to from OBS or Streamlabs."}},{"@type":"Question","name":"Can I play sounds through OBS?","acceptedAnswer":{"@type":"Answer","text":"Yes. The overlay plays the tick and win sounds, so they’re captured with the browser source. You can turn them off in the Stream tab."}}]}</script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark"></span>SpinDraw</a>
+    <nav class="site-nav" aria-label="Main">
+      <a class="link" href="/#features">Features</a>
+      <a class="link" href="/#how">How it works</a>
+      <a class="link" href="/obs-spin-wheel/">OBS overlay</a>
+      <a class="link" href="/#faq">FAQ</a>
+      <button class="btn ghost theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button>
+      <a class="btn primary" href="/app.html">Open the wheel</a>
+    </nav>
+  </header>
+  <main class="page">
+    <section class="page-hero">
+      <div class="crumbs"><a href="/">SpinDraw</a> / OBS spin wheel overlay</div>
+      <h1>A spin-the-wheel overlay for OBS and Streamlabs</h1>
+      <p>One browser source, transparent background, no account. You run the raffle from a control panel in your normal browser and the wheel, prize, countdown and winner card appear over your stream.</p>
+      <div class="cta"><a class="btn primary big" href="/app.html">Open the raffle wheel</a><a class="btn big" href="/">How SpinDraw works</a></div>
+    </section>
+    <article class="prose">
+<h2>Add the wheel to OBS in a minute</h2>
+<ol>
+  <li>Open the <a href="/app.html">control panel</a> and go to the <strong>Stream</strong> tab.</li>
+  <li>Pick a layout (16:9 or 9:16) and a background: transparent for OBS/Streamlabs, green for chroma key, dark for screen sharing.</li>
+  <li>In OBS: <em>Sources → + → Browser</em>, paste the URL, set 1920×1080 (or 1080×1920). In Streamlabs: <em>Add Source → Browser Source</em>.</li>
+  <li>The pill at the top of the control panel turns green when the overlay is connected.</li>
+</ol>
+<h2>What shows on stream</h2>
+<ul>
+  <li>The wheel, with your colors, logo in the middle and an optional image on the wheel face</li>
+  <li>The prize being drawn and an entries countdown (“Entries close in 2:00”)</li>
+  <li>A large winner card with confetti, sound and the claim timer</li>
+  <li>The commitment code, so viewers can screenshot it before the spin</li>
+</ul>
+<h2>How the overlay stays in sync</h2>
+<p>OBS runs browser sources in their own process, separate from your browser. SpinDraw connects the two peer to peer over WebRTC, so the overlay mirrors the control panel without a server storing your raffle. If you refresh the control panel mid-stream, the overlay reconnects by itself.</p>
+<h2>Keyboard-driven</h2>
+<p>Space spins, C marks the winner as claimed, R logs a no-show and redraws, O opens a preview window. You never need to look away from your stream to run it.</p>
+      <h2>Questions</h2>
+      <div class="faq"><details><summary>Is the overlay background transparent?</summary><p>Yes, by default. You can also choose a green screen, a dark background or upload your own background image.</p></details><details><summary>Do ads show on the overlay?</summary><p>No. The overlay page never shows ads. Ads only appear on the control panel and the website.</p></details><details><summary>Does it work with Twitch, YouTube and Kick?</summary><p>Yes. The overlay is just a browser source, so it works with any platform you stream to from OBS or Streamlabs.</p></details><details><summary>Can I play sounds through OBS?</summary><p>Yes. The overlay plays the tick and win sounds, so they’re captured with the browser source. You can turn them off in the Stream tab.</p></details></div>
+    </article>
+    <section class="section" style="margin-top:48px">
+      <div class="section-head"><h2>More guides</h2></div>
+      <div class="grid"><a class="card" href="/facebook-live-raffle/"><h3>Facebook Live raffle</h3><p>Run a Facebook Live raffle from your comments: paste them in, filter by keyword, remove duplicates and spin a free raffle wheel on stream. No Facebook login.</p><span class="go">Read →</span></a><a class="card" href="/tiktok-live-giveaway-wheel/"><h3>TikTok LIVE giveaway</h3><p>A free giveaway wheel made for TikTok LIVE: vertical 9:16 overlay, comment and Google Form entries, claim timer and a proof link your viewers can check.</p><span class="go">Read →</span></a><a class="card" href="/youtube-live-giveaway/"><h3>YouTube Live giveaway</h3><p>Pick a random winner from YouTube Live chat or comments. Paste chat lines, count one entry per viewer, give members extra entries and spin on stream.</p><span class="go">Read →</span></a></div>
+    </section>
+    <div class="cta-band">
+      <div><h2>Run your raffle now</h2><p>Free, no sign-up, nothing to install.</p></div>
+      <a class="btn primary big" href="/app.html">Open the wheel</a>
+    </div>
+  </main>
+  <footer class="site page">
+    <div>
+      <a class="brand" href="/"><span class="brand-mark"></span>SpinDraw</a>
+      <p>The free raffle wheel for live streams. Fair draws your viewers can check.</p>
+    </div>
+    <div>
+      <h4>Guides</h4>
+      <ul><li><a href="/facebook-live-raffle/">Facebook Live raffle</a></li><li><a href="/tiktok-live-giveaway-wheel/">TikTok LIVE giveaway</a></li><li><a href="/obs-spin-wheel/">OBS spin wheel overlay</a></li><li><a href="/youtube-live-giveaway/">YouTube Live giveaway</a></li><li><a href="/random-name-picker/">Random name picker</a></li><li><a href="/wheel-of-names-alternative/">Wheel of Names alternative</a></li></ul>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="/app.html">Raffle wheel</a></li>
+        <li><a href="/verify.html">Verify a draw</a></li>
+        <li><a href="/privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+  </footer>
+  <script type="module" src="/js/theme.js"></script>
+</body>
+</html>

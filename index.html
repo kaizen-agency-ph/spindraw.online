@@ -3,116 +3,140 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SpinDraw · Raffle wheel for live streams</title>
-  <meta name="description" content="Free raffle wheel built for Facebook Live, YouTube, TikTok and Twitch giveaways. Paste comments, show a transparent OBS overlay, and give viewers a link that proves the draw was fair.">
-  <meta property="og:title" content="SpinDraw · Raffle wheel for live streams">
-  <meta property="og:description" content="Paste comments, spin on stream, post a proof link. Free.">
+  <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <title>SpinDraw – Free Raffle Wheel &amp; Random Name Picker for Live Streams</title>
+  <meta name="description" content="Spin a free raffle wheel on Facebook Live, TikTok, YouTube or Twitch. Paste comments, add the wheel to OBS, and give viewers proof the winner was picked fairly.">
+  <link rel="canonical" href="https://spindraw.online/">
+  
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SpinDraw">
+  <meta property="og:title" content="SpinDraw – Free Raffle Wheel &amp; Random Name Picker for Live Streams">
+  <meta property="og:description" content="Spin a free raffle wheel on Facebook Live, TikTok, YouTube or Twitch. Paste comments, add the wheel to OBS, and give viewers proof the winner was picked fairly.">
+  <meta property="og:url" content="https://spindraw.online/">
+  <meta property="og:image" content="https://spindraw.online/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#ffd23f">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    .page { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
-    .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; padding: 56px 0 40px; }
-    .hero h1 { font-size: clamp(2.4rem, 5.6vw, 4.6rem); font-weight: 800; letter-spacing: -.035em; line-height: .98; }
-    .hero h1 em { font-style: normal; color: var(--accent); }
-    .hero p { font-size: 1.15rem; color: var(--muted); max-width: 34em; }
-    .hero .row { margin-top: 24px; flex-wrap: wrap; }
-    .platforms { margin-top: 20px; font-size: .85rem; color: var(--muted); }
-    .demo { position: relative; aspect-ratio: 1; width: 100%; max-width: 480px; justify-self: end; }
-    .demo canvas { position: absolute; inset: 0; margin: auto; }
-    .demo-name { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); background: var(--accent); color: var(--accent-ink); font-weight: 800; padding: 6px 14px; border-radius: 99px; white-space: nowrap; transition: opacity .3s; }
-    .why { border-top: 1px solid var(--line); padding: 48px 0; display: grid; grid-template-columns: 280px 1fr; gap: 40px; }
-    .why h2 { font-size: 1.8rem; }
-    .feat { display: grid; gap: 0; counter-reset: f; }
-    .feat > div { display: grid; grid-template-columns: 48px 1fr; gap: 6px 16px; padding: 18px 0; border-top: 1px solid var(--line); }
-    .feat > div:first-child { border-top: 0; padding-top: 0; }
-    .feat > div::before { counter-increment: f; content: counter(f, decimal-leading-zero); font: 600 .9rem var(--mono); color: var(--accent); grid-row: span 2; padding-top: 3px; }
-    .feat h3 { font-size: 1.15rem; margin: 0; }
-    .feat p { margin: 0; color: var(--muted); }
-    .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 0 0 48px; }
-    .how article { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
-    .how h3 { font-size: 1.05rem; }
-    .how ol { margin: 0; padding-left: 1.1em; color: var(--muted); font-size: .92rem; display: grid; gap: 6px; }
-    .faq { border-top: 1px solid var(--line); padding: 48px 0; display: grid; grid-template-columns: 280px 1fr; gap: 40px; }
-    .faq details { border-top: 1px solid var(--line); padding: 14px 0; }
-    .faq summary { cursor: pointer; font-weight: 600; }
-    .faq details p { color: var(--muted); margin: 8px 0 0; }
-    footer.site { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--muted); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-    footer.site a { color: var(--muted); }
-    .ad-wide { min-height: 120px; margin-bottom: 48px; }
-    @media (max-width: 860px) {
-      .hero, .why, .faq { grid-template-columns: 1fr; gap: 24px; }
-      .hero { padding-top: 32px; }
-      .demo { justify-self: center; max-width: 360px; }
-      .how { grid-template-columns: 1fr; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"SpinDraw","url":"https://spindraw.online/","description":"Free raffle wheel and random name picker for live streams, with an OBS overlay and provably fair draws.","applicationCategory":"UtilitiesApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Spin the wheel","Random name picker","OBS and Streamlabs overlay","Comment picker with keyword filter","Weighted entries","Verifiable draws"]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"SpinDraw","url":"https://spindraw.online/"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is SpinDraw free?","acceptedAnswer":{"@type":"Answer","text":"Yes. SpinDraw is free with no sign-up. Ads on the website pay for it, and they never appear on the overlay your viewers see."}},{"@type":"Question","name":"Can I use the wheel in OBS or Streamlabs?","acceptedAnswer":{"@type":"Answer","text":"Yes. Copy the overlay URL from the Stream tab and add it as a Browser source. It has a transparent background and comes in 16:9 and vertical 9:16."}},{"@type":"Question","name":"Is the wheel really random?","acceptedAnswer":{"@type":"Answer","text":"Every pick is computed with HMAC-SHA256 from a secret 256-bit random seed. The seed is committed on screen before the draw and revealed afterwards, so anyone can replay the result."}},{"@type":"Question","name":"How can viewers know the draw wasn’t rigged?","acceptedAnswer":{"@type":"Answer","text":"Before spinning, SpinDraw shows a commitment code that locks the entry list and the seed. After the raffle, the verify page recomputes every winner and viewers compare the code with what they saw live."}},{"@type":"Question","name":"Is SpinDraw a Wheel of Names alternative?","acceptedAnswer":{"@type":"Answer","text":"Yes, one focused on live raffles: it adds a fairness proof, comment pasting with keyword filters, a prize queue with claim timers and a vertical overlay for TikTok."}},{"@type":"Question","name":"Where are my entries stored?","acceptedAnswer":{"@type":"Answer","text":"Only in your browser. Nothing is uploaded unless you share a verify link or proof file."}}]}</script>
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="./"><span class="brand-mark"></span>SpinDraw</a><a class="btn primary" href="app.html">Open the wheel</a></header>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark"></span>SpinDraw</a>
+    <nav class="site-nav" aria-label="Main">
+      <a class="link" href="/#features">Features</a>
+      <a class="link" href="/#how">How it works</a>
+      <a class="link" href="/obs-spin-wheel/">OBS overlay</a>
+      <a class="link" href="/#faq">FAQ</a>
+      <button class="btn ghost theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button>
+      <a class="btn primary" href="/app.html">Open the wheel</a>
+    </nav>
+  </header>
   <main class="page">
     <section class="hero">
       <div>
-        <h1>The raffle wheel your <em>live chat</em> will actually trust.</h1>
-        <p>Paste the comments, spin on stream, then share a proof that lets anyone re-run the draw. No sign-up, and the overlay has no ads.</p>
-        <div class="row">
-          <a class="btn primary big" href="app.html">Start a raffle, free</a>
-          <a class="btn ghost big" href="#how">How it works</a>
+        <span class="eyebrow"><b>Free</b> Raffle wheel for live streams</span>
+        <h1>Spin the wheel. <span class="mark">Prove</span> it was fair.</h1>
+        <p class="lede">SpinDraw is a free raffle wheel and random name picker for Facebook Live, TikTok LIVE, YouTube and Twitch. Paste the comments, show the wheel in OBS, and give viewers a link that replays the draw.</p>
+        <div class="cta">
+          <a class="btn primary big" href="/app.html">Start a raffle, free</a>
+          <a class="btn big" href="#how">See how it works</a>
         </div>
-        <p class="platforms">Works with Facebook Live · YouTube Live · TikTok LIVE · Twitch · Zoom</p>
+        <p class="fine">No sign-up · Entries never leave your browser · No ads on the overlay</p>
       </div>
-      <div class="demo" aria-hidden="true"><canvas id="demo"></canvas><span class="demo-name" id="demoName">Maria Santos</span></div>
-    </section>
-
-    <section class="why">
-      <h2>Made for giveaways on stream, not for classrooms</h2>
-      <div class="feat">
-        <div><h3>A transparent overlay for OBS</h3><p>Add one Browser source and the wheel, prize, countdown and winner sit right over your camera. 16:9 or vertical 9:16 for TikTok. A green-screen version works in apps without browser sources.</p></div>
-        <div><h3>Fairness anyone can check</h3><p>Entries get locked with a hash shown on screen, a viewer’s word from chat is mixed in, and after the raffle anyone can re-run every draw in their own browser and check it against what they saw live.</p></div>
-        <div><h3>Paste comments as they are</h3><p>Copy a Facebook, TikTok or YouTube comment section and paste it. Likes, timestamps and “Reply” are stripped, duplicates removed, and you can count only comments that say #JOIN.</p></div>
-        <div><h3>Several prizes and a claim timer</h3><p>Queue prizes 3rd → 1st. The winner gets 60 seconds to claim in chat. If they don’t, one key logs the no-show and redraws.</p></div>
-        <div><h3>Proof to post</h3><p>Download a winner card PNG, the results CSV and the full entry list, so there’s no “scripted!” in the comments.</p></div>
+      <div class="product" aria-hidden="true">
+        <div class="product-bar"><i></i><i></i><i></i></div>
+        <div class="demo"><canvas id="demo"></canvas><span class="demo-name" id="demoName">Maria Santos</span></div>
       </div>
     </section>
 
-    <section class="how" id="how">
-      <article>
-        <h3>Facebook Live raffle</h3>
-        <ol><li>Ask viewers to comment a keyword.</li><li>Copy the comments, paste them into SpinDraw and set the keyword.</li><li>Lock, spin, post the verify link as a comment.</li></ol>
-      </article>
-      <article>
-        <h3>TikTok LIVE giveaway</h3>
-        <ol><li>Pick the 9:16 overlay and add it in TikTok LIVE Studio or OBS.</li><li>Collect names from comments or a Google Form.</li><li>Spin on stream. The winner card fills the vertical screen.</li></ol>
-      </article>
-      <article>
-        <h3>YouTube / Twitch picker</h3>
-        <ol><li>Paste live chat lines (“Name: message”).</li><li>Use “1 entry per person” to stop spammers stacking entries.</li><li>Give members extra entries with “Name x3”.</li></ol>
-      </article>
+    <section class="section" id="features">
+      <div class="section-head">
+        <div class="kicker">Features</div>
+        <h2>Everything a live giveaway needs</h2>
+        <p>Wheel of Names-style spinning, plus the parts that matter when an audience is watching.</p>
+      </div>
+      <div class="grid">
+        <div class="card"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.9 19.1a10 10 0 0 1 0-14.2M7.8 16.2a6 6 0 0 1 0-8.4M16.2 7.8a6 6 0 0 1 0 8.4M19.1 4.9a10 10 0 0 1 0 14.2"/><circle cx="12" cy="12" r="2"/></svg></span><h3>OBS & Streamlabs overlay</h3><p>A transparent browser source with the wheel, prize, countdown and winner card. 16:9, or vertical 9:16 for TikTok.</p></div>
+        <div class="card"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span><h3>Provably fair draws</h3><p>A commitment code before the spin, a salt word from chat, and a verify link that replays every pick.</p></div>
+        <div class="card"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/></svg></span><h3>Paste comments as-is</h3><p>Copy a Facebook, TikTok or YouTube comment section. Likes and timestamps are stripped, duplicates removed, keywords filtered.</p></div>
+        <div class="card"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4a2 2 0 0 1 0-4h2M18 9h2a2 2 0 0 0 0-4h-2M6 4h12v6a6 6 0 0 1-12 0V4zM9 21h6M12 16v5"/></svg></span><h3>Prize queue & claim timer</h3><p>Draw 3rd → 1st in one go. Winners get a countdown to claim, and one key redraws a no-show.</p></div>
+        <div class="card"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.6 5.6 0 0 0 22 10c0-4.4-4.5-8-10-8z"/></svg></span><h3>Your brand on the wheel</h3><p>Custom slice colors, your logo in the center, an image on the wheel and a background for the overlay.</p></div>
+        <div class="card"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h3>Private by default</h3><p>No account, no upload. Lists, prizes and settings stay in your browser.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="section-head">
+        <div class="kicker">How it works</div>
+        <h2>From comments to a verified winner in four steps</h2>
+      </div>
+      <ol class="steps-row">
+        <li><h3>Paste entries</h3><p>Names, copied comments, live chat, a CSV or a Google Sheet.</p></li>
+        <li><h3>Lock the list</h3><p>A commitment code appears on stream. Viewers can screenshot it.</p></li>
+        <li><h3>Spin on stream</h3><p>Space to spin. The overlay in OBS spins in sync.</p></li>
+        <li><h3>Share the proof</h3><p>Post the verify link so anyone can replay the draw.</p></li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="kicker">Guides</div>
+        <h2>Run a raffle on any platform</h2>
+      </div>
+      <div class="grid">
+        <a class="card" href="/facebook-live-raffle/"><h3>Facebook Live raffle</h3><p>Run a Facebook Live raffle from your comments: paste them in, filter by keyword, remove duplicates and spin a free raffle wheel on stream. No Facebook login.</p><span class="go">Read the guide →</span></a>
+        <a class="card" href="/tiktok-live-giveaway-wheel/"><h3>TikTok LIVE giveaway</h3><p>A free giveaway wheel made for TikTok LIVE: vertical 9:16 overlay, comment and Google Form entries, claim timer and a proof link your viewers can check.</p><span class="go">Read the guide →</span></a>
+        <a class="card" href="/obs-spin-wheel/"><h3>OBS spin wheel overlay</h3><p>Add a free spin-the-wheel overlay to OBS or Streamlabs as a browser source. Transparent background, 16:9 or 9:16, synced to a control panel. No sign-up.</p><span class="go">Read the guide →</span></a>
+        <a class="card" href="/youtube-live-giveaway/"><h3>YouTube Live giveaway</h3><p>Pick a random winner from YouTube Live chat or comments. Paste chat lines, count one entry per viewer, give members extra entries and spin on stream.</p><span class="go">Read the guide →</span></a>
+        <a class="card" href="/random-name-picker/"><h3>Random name picker</h3><p>Free random name picker wheel. Paste names, spin the wheel and pick a winner for classrooms, teams, lucky draws and raffles. Weighted entries, no sign-up.</p><span class="go">Read the guide →</span></a>
+        <a class="card" href="/wheel-of-names-alternative/"><h3>Wheel of Names alternative</h3><p>Looking for a Wheel of Names alternative for live streams? SpinDraw adds a verifiable fairness proof, comment pasting with keyword filters, claim timers and a vertical overlay.</p><span class="go">Read the guide →</span></a>
+      </div>
     </section>
 
     <div class="ad-slot ad-wide" aria-label="Advertisement">Ad space</div>
 
-    <section class="faq">
-      <h2>Questions</h2>
-      <div>
-        <details><summary>Is it free?</summary><p>Yes. Ads on this site pay for it. They never show on the overlay your viewers see.</p></details>
-        <details><summary>Where are my entries stored?</summary><p>Only in your browser. Nothing is uploaded. A verify link only exists if you choose to share one.</p></details>
-        <details><summary>How can viewers know the host didn’t cheat?</summary><p>The commitment hash shown before spinning locks both the list and a secret seed, so nobody can be added or removed afterwards without the check failing. A word from chat is then mixed into every pick, and the verify link reveals the seed and recomputes every winner. For the most trust, use the first word a viewer or moderator posts as the salt rather than choosing one yourself.</p></details>
-        <details><summary>Can I use it without OBS?</summary><p>Yes. Share your screen with the control panel, or open the overlay window with the dark background and share that.</p></details>
-      </div>
+    <section class="section" id="faq">
+      <div class="section-head"><div class="kicker">FAQ</div><h2>Questions</h2></div>
+      <div class="faq"><details><summary>Is SpinDraw free?</summary><p>Yes. SpinDraw is free with no sign-up. Ads on the website pay for it, and they never appear on the overlay your viewers see.</p></details><details><summary>Can I use the wheel in OBS or Streamlabs?</summary><p>Yes. Copy the overlay URL from the Stream tab and add it as a Browser source. It has a transparent background and comes in 16:9 and vertical 9:16.</p></details><details><summary>Is the wheel really random?</summary><p>Every pick is computed with HMAC-SHA256 from a secret 256-bit random seed. The seed is committed on screen before the draw and revealed afterwards, so anyone can replay the result.</p></details><details><summary>How can viewers know the draw wasn’t rigged?</summary><p>Before spinning, SpinDraw shows a commitment code that locks the entry list and the seed. After the raffle, the verify page recomputes every winner and viewers compare the code with what they saw live.</p></details><details><summary>Is SpinDraw a Wheel of Names alternative?</summary><p>Yes, one focused on live raffles: it adds a fairness proof, comment pasting with keyword filters, a prize queue with claim timers and a vertical overlay for TikTok.</p></details><details><summary>Where are my entries stored?</summary><p>Only in your browser. Nothing is uploaded unless you share a verify link or proof file.</p></details></div>
     </section>
 
-    <footer class="site"><span>© <span id="yr"></span> SpinDraw</span><span><a href="privacy.html">Privacy</a> · <a href="app.html">Control panel</a></span></footer>
+    <div class="cta-band">
+      <div><h2>Ready for your next giveaway?</h2><p>Free, no sign-up, works in your browser.</p></div>
+      <a class="btn primary big" href="/app.html">Open the wheel</a>
+    </div>
   </main>
+  <footer class="site page">
+    <div>
+      <a class="brand" href="/"><span class="brand-mark"></span>SpinDraw</a>
+      <p>The free raffle wheel for live streams. Fair draws your viewers can check.</p>
+    </div>
+    <div>
+      <h4>Guides</h4>
+      <ul><li><a href="/facebook-live-raffle/">Facebook Live raffle</a></li><li><a href="/tiktok-live-giveaway-wheel/">TikTok LIVE giveaway</a></li><li><a href="/obs-spin-wheel/">OBS spin wheel overlay</a></li><li><a href="/youtube-live-giveaway/">YouTube Live giveaway</a></li><li><a href="/random-name-picker/">Random name picker</a></li><li><a href="/wheel-of-names-alternative/">Wheel of Names alternative</a></li></ul>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="/app.html">Raffle wheel</a></li>
+        <li><a href="/verify.html">Verify a draw</a></li>
+        <li><a href="/privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+  </footer>
+  <script type="module" src="/js/theme.js"></script>
   <script type="module">
-    import { Wheel } from './js/wheel.js';
-    document.getElementById('yr').textContent = new Date().getFullYear();
+    import { Wheel } from '/js/wheel.js';
     const names = ['Maria Santos', 'Juan Dela Cruz', 'Alex Reyes', 'Priya Patel', 'Sam Lee', 'Chris Tan', 'Jordan Kim', 'Aisha Bello', 'Leo Cruz', 'Bea Ramos', 'Noah Garcia', 'Mika Lim'];
     const w = new Wheel(document.getElementById('demo'));
     w.setEntries(names.map(name => ({ name, weight: 1 })));
     const tag = document.getElementById('demoName');
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     async function loop() {
       const i = Math.floor(Math.random() * names.length);
       const { from, to } = w.planSpin(i, 5);
@@ -123,7 +147,7 @@
       setTimeout(loop, 2600);
     }
     document.fonts?.ready.then(() => { w.cache = null; w.draw(); });
-    if (!reduce) setTimeout(loop, 800);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setTimeout(loop, 800);
   </script>
 </body>
 </html>

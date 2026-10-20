@@ -151,7 +151,7 @@ export class Wheel {
       if (font < minFont) continue;
       g.save();
       g.rotate((seg.start + seg.end) / 2);
-      const setFont = () => { g.font = `600 ${font}px 'Bricolage Grotesque', system-ui, sans-serif`; };
+      const setFont = () => { g.font = `600 ${font}px 'Geist', system-ui, sans-serif`; };
       setFont();
       const ink = th.text === 'light' ? LIGHT : th.text === 'dark' ? DARK : inkFor(th.colors[seg.c]);
       g.textAlign = 'right';
@@ -197,7 +197,7 @@ export class Wheel {
       c.strokeStyle = th.rim;
       c.stroke();
       c.fillStyle = '#9a9ca3';
-      c.font = `600 ${s * 0.045}px 'Bricolage Grotesque', system-ui, sans-serif`;
+      c.font = `600 ${s * 0.045}px 'Geist', system-ui, sans-serif`;
       c.textAlign = 'center';
       c.textBaseline = 'middle';
       c.fillText('Add entries to spin', cx, s * 0.7);
