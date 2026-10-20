@@ -32,3 +32,9 @@ document.addEventListener('click', e => {
   const link = e.target.closest('.mnav-panel a');
   if (link) link.closest('details').open = false;
 });
+
+// Count Ko-fi tip clicks in Google Analytics.
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-kofi]');
+  if (a && typeof window.gtag === 'function') window.gtag('event', 'kofi_click', { link_location: a.dataset.kofi });
+});

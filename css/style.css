@@ -192,3 +192,10 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
   .stage-head { flex-wrap: wrap; }
   .stage-head .title-input { flex: 1 1 100%; }
 }
+
+/* Ko-fi tip button: same link and colour as Ko-fi's widget, without its document.write script. */
+.kofi-btn { display: inline-flex; align-items: center; gap: 8px; background: #72a4f2; color: #fff; font: 600 .9rem var(--font); padding: 8px 14px; border-radius: 8px; text-decoration: none; box-shadow: var(--shadow); white-space: nowrap; }
+.kofi-btn:hover { background: #5b93ec; }
+.kofi-btn img { width: 20px; height: auto; }
+.support-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; justify-items: start; box-shadow: var(--shadow); }
+.support-card p { margin: 0; font-size: .85rem; color: var(--muted); }
