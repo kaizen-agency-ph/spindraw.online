@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpinDraw overlay</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <!-- No ads on this page: it's what viewers see. -->
+  <style>
+    :root { --ink: #0f1013; --text: #f3f1ea; --muted: #b9bbc1; --accent: #ffd23f; --coral: #ff5d73; color-scheme: dark; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; color: var(--text); font-family: 'Bricolage Grotesque', system-ui, sans-serif; }
+    body[data-bg="green"] { background: #00b140; }
+    body[data-bg="dark"] { background: #0f1013; }
+
+    /* Everything is sized off the viewport so a 1920×1080 browser source and a small popup match. */
+    .ov { position: absolute; inset: 0; display: grid; gap: 2vmin; padding: 4vmin; }
+    .card { background: rgba(15, 16, 19, .9); border-radius: 2vmin; padding: 2vmin 3vmin; box-shadow: 0 1vmin 4vmin rgba(0, 0, 0, .35); }
+    .ov-title { font-weight: 800; font-size: 6vmin; line-height: 1; letter-spacing: -.02em; }
+    .ov-count { color: var(--muted); font-size: 2.6vmin; margin-top: 1vmin; }
+    .ov-wheel { position: relative; min-height: 0; }
+    .ov-wheel canvas { position: absolute; inset: 0; margin: auto; filter: drop-shadow(0 1.5vmin 3vmin rgba(0, 0, 0, .45)); }
+    .ov-ticker { font-weight: 800; font-size: 5vmin; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ov-ticker:empty { display: none; }
+    .ov-prize .k, .ov-countdown .k { text-transform: uppercase; letter-spacing: .12em; font-size: 2.2vmin; color: var(--muted); font-weight: 600; }
+    .ov-prize .v { font-weight: 800; font-size: 4.6vmin; line-height: 1.1; }
+    .ov-countdown .v { font: 600 7vmin 'IBM Plex Mono', monospace; color: var(--accent); }
+    .ov-countdown.closed .v { color: var(--coral); font-size: 4.6vmin; font-family: inherit; font-weight: 800; }
+    .ov-foot { display: flex; justify-content: space-between; align-items: end; gap: 2vmin; font-size: 1.8vmin; }
+    .ov-commit { background: rgba(15, 16, 19, .85); color: var(--muted); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-family: 'IBM Plex Mono', monospace; }
+    .ov-commit:empty { visibility: hidden; }
+    .ov-mark { background: rgba(15, 16, 19, .85); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-weight: 600; }
+
+    .ov-winner { position: absolute; inset: 0; display: grid; place-items: center; z-index: 5; }
+    .ov-winner .box { background: var(--accent); color: var(--ink); border-radius: 3vmin; padding: 4vmin 7vmin; text-align: center; max-width: 86vw; box-shadow: 0 3vmin 8vmin rgba(0, 0, 0, .5); animation: pop .6s cubic-bezier(.2, 1.4, .4, 1); }
+    .ov-winner .k { text-transform: uppercase; letter-spacing: .2em; font-weight: 800; font-size: 3vmin; }
+    .ov-winner .name { font-weight: 800; font-size: 11vmin; line-height: 1; margin: 1.5vmin 0; overflow-wrap: anywhere; }
+    .ov-winner .prize { font-weight: 600; font-size: 4vmin; }
+    .ov-winner .claim { margin-top: 2vmin; font: 600 3vmin 'IBM Plex Mono', monospace; }
+    @keyframes pop { from { transform: scale(.6); opacity: 0; } }
+
+    /* 16:9 */
+    body[data-layout="wide"] .ov { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto; grid-template-areas: "wheel head" "wheel side" "wheel foot"; }
+    body[data-layout="wide"] .ov-head { grid-area: head; }
+    body[data-layout="wide"] .ov-wheel { grid-area: wheel; }
+    body[data-layout="wide"] .ov-side { grid-area: side; display: grid; gap: 2vmin; align-content: center; }
+    body[data-layout="wide"] .ov-foot { grid-area: foot; }
+
+    /* 9:16 */
+    body[data-layout="vertical"] .ov { grid-template-rows: auto auto minmax(0, 1fr) auto auto; padding: 5vmin 4vmin 14vh; }
+    body[data-layout="vertical"] .ov-head { text-align: center; }
+    body[data-layout="vertical"] .ov-title { font-size: 8vmin; }
+    body[data-layout="vertical"] .ov-count { font-size: 3.6vmin; }
+    body[data-layout="vertical"] .ov-side { display: grid; grid-auto-flow: column; gap: 2vmin; order: 1; }
+    body[data-layout="vertical"] .ov-wheel { order: 2; }
+    body[data-layout="vertical"] .ov-ticker { order: 3; font-size: 7vmin; }
+    body[data-layout="vertical"] .ov-foot { order: 4; flex-direction: column; align-items: center; font-size: 2.6vmin; }
+    body[data-layout="vertical"] .ov-prize .v { font-size: 5.5vmin; }
+    body[data-layout="vertical"] .ov-winner .name { font-size: 14vmin; }
+
+    .ov-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 6vmin; font-size: 3vmin; }
+    .ov-empty .card { max-width: 70vmin; }
+  </style>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
+  <script type="module" src="js/overlay.js"></script>
+</head>
+<body data-layout="wide" data-bg="transparent">
+  <div class="ov" id="ov">
+    <header class="ov-head card">
+      <div class="ov-title" id="ovTitle">Live Giveaway</div>
+      <div class="ov-count" id="ovCount"></div>
+    </header>
+    <div class="ov-wheel"><canvas id="wheel"></canvas></div>
+    <div class="ov-side">
+      <div class="ov-prize card"><div class="k">Drawing for</div><div class="v" id="ovPrize">—</div></div>
+      <div class="ov-countdown card" id="ovCountdown" hidden><div class="k">Entries close in</div><div class="v" id="ovCdValue"></div></div>
+      <div class="ov-ticker card" id="ovTicker"></div>
+    </div>
+    <footer class="ov-foot">
+      <span class="ov-commit" id="ovCommit"></span>
+      <span class="ov-mark">made with SpinDraw</span>
+    </footer>
+  </div>
+  <div class="ov-winner" id="ovWinner" hidden>
+    <div class="box">
+      <div class="k">Winner</div>
+      <div class="name" id="ovWinnerName"></div>
+      <div class="prize" id="ovWinnerPrize"></div>
+      <div class="claim" id="ovClaim"></div>
+    </div>
+  </div>
+  <div class="ov-empty" id="ovEmpty" hidden>
+    <div class="card">Open this overlay from the <b>SpinDraw control panel</b> (Stream tab) so it knows which raffle to follow.</div>
+  </div>
+</body>
+</html>

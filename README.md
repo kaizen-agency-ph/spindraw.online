@@ -1,0 +1,62 @@
+# SpinDraw
+
+A raffle wheel built for live streams (Facebook Live, YouTube, TikTok LIVE, Twitch, Zoom). It's a static site with no backend, so it can be hosted free on GitHub Pages and earn from AdSense.
+
+| Page | What it is |
+|---|---|
+| `index.html` | Landing / SEO page with a live demo wheel |
+| `app.html` | Host control panel (ads go here) |
+| `overlay.html` | What viewers see. Add it as an OBS Browser source. **Never put ads here.** |
+| `verify.html` | Public proof page. Re-runs every draw in the viewer's browser |
+| `privacy.html` | Privacy policy, required for AdSense |
+
+## Run locally
+
+```sh
+npm start          # serves on http://localhost:5173 (or: python3 -m http.server 5173)
+npm test           # fairness + comment-parser tests
+```
+
+It has to be served over http(s). Opening the files with `file://` breaks module imports and BroadcastChannel.
+
+## How a raffle runs
+
+1. **Entries tab:** paste names, a copied comment section, or live chat lines; import a CSV or a Google Sheet. Set a keyword (e.g. `#join`) and "one entry per person".
+2. **Prizes tab:** one prize per line, in draw order, plus the claim timer.
+3. **Draw tab:** **Lock** shows a commitment hash on stream. Then type a **salt word** that chat picks, and press **Space** to spin. **C** = claimed, **R** = no-show → redraw.
+4. **Finish & create verify link** reveals the seed. Post the link in the comments.
+
+## Overlay
+
+Copy the URL from the **Stream** tab into OBS / Streamlabs / TikTok LIVE Studio → Browser source, 1920×1080 (or 1080×1920 for `layout=vertical`).
+
+URL options: `room=` (required), `layout=vertical`, `bg=green|dark`, `sound=0`, `norelay`.
+
+Sync works two ways:
+- **BroadcastChannel:** for the overlay popup window ("Open overlay window", or press O) in the same browser. Instant, no network.
+- **PeerJS (WebRTC):** for OBS browser sources, which run in a separate process. It uses the free public PeerJS signalling server. Data goes peer-to-peer after that. If the relay status says "Room open in another tab", close the other control-panel tab.
+
+## Provably fair
+
+```
+commitment = SHA256("spindraw-v1|" + seed + "|" + SHA256(JSON(entries)))
+pick(k)    = HMAC_SHA256(seed, "spindraw-v1|" + entriesHash + "|" + salt + "|" + k)  → weighted slot
+```
+
+The seed is secret until "Finish". The salt comes from chat *after* the commitment is on screen, so the host can't pre-pick a seed that favours someone. Winners leave the pool if "remove winners" is on, and no-shows always leave. The verify link carries the whole raffle (deflated, base64url) after the `#`, so no server stores anything. 3,000 entries ≈ 10 KB of URL.
+
+Code: `js/fair.js`. Tests: `tests/run.js`.
+
+## Before going live
+
+- [ ] Pick the name/domain and replace "SpinDraw" (brand text in the HTML files, the overlay watermark, the winner-card PNG in `js/app.js`).
+- [ ] Fill in `privacy.html` (date, contact email).
+- [ ] Apply for AdSense. Then put your `ca-pub-…` ID in `ads.txt` and in the commented script tag in `app.html`, and replace the `.ad-slot` placeholders in `app.html`, `index.html` and `verify.html` with `<ins class="adsbygoogle">` units.
+- [ ] Set up a Google-certified CMP (AdSense → Privacy & messaging) for EEA/UK visitors.
+- [ ] Test the overlay as a real OBS Browser source on your stream machine (PeerJS path).
+- [ ] Deploy: new repo → GitHub Pages → custom domain.
+
+## Roadmap
+
+- Phase 2: auto-pull YouTube Live chat (Data API key) and Twitch chat (anonymous IRC over WebSocket); slot-machine / card-flip modes; SEO pages per platform ("Facebook Live raffle picker", …); Taglish UI copy.
+- Phase 3 (needs a backend): accounts, saved raffles, public draw history, a Pro tier (no watermark, brand kits) with Stripe.

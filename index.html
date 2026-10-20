@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpinDraw · Raffle wheel for live streams</title>
+  <meta name="description" content="Free raffle wheel built for Facebook Live, YouTube, TikTok and Twitch giveaways. Paste comments, show a transparent OBS overlay, and give viewers a link that proves the draw was fair.">
+  <meta property="og:title" content="SpinDraw · Raffle wheel for live streams">
+  <meta property="og:description" content="Paste comments, spin on stream, post a proof link. Free.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .page { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+    .hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; padding: 56px 0 40px; }
+    .hero h1 { font-size: clamp(2.4rem, 5.6vw, 4.6rem); font-weight: 800; letter-spacing: -.035em; line-height: .98; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p { font-size: 1.15rem; color: var(--muted); max-width: 34em; }
+    .hero .row { margin-top: 24px; flex-wrap: wrap; }
+    .platforms { margin-top: 20px; font-size: .85rem; color: var(--muted); }
+    .demo { position: relative; aspect-ratio: 1; width: 100%; max-width: 480px; justify-self: end; }
+    .demo canvas { position: absolute; inset: 0; margin: auto; }
+    .demo-name { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); background: var(--accent); color: var(--accent-ink); font-weight: 800; padding: 6px 14px; border-radius: 99px; white-space: nowrap; transition: opacity .3s; }
+    .why { border-top: 1px solid var(--line); padding: 48px 0; display: grid; grid-template-columns: 280px 1fr; gap: 40px; }
+    .why h2 { font-size: 1.8rem; }
+    .feat { display: grid; gap: 0; counter-reset: f; }
+    .feat > div { display: grid; grid-template-columns: 48px 1fr; gap: 6px 16px; padding: 18px 0; border-top: 1px solid var(--line); }
+    .feat > div:first-child { border-top: 0; padding-top: 0; }
+    .feat > div::before { counter-increment: f; content: counter(f, decimal-leading-zero); font: 600 .9rem var(--mono); color: var(--accent); grid-row: span 2; padding-top: 3px; }
+    .feat h3 { font-size: 1.15rem; margin: 0; }
+    .feat p { margin: 0; color: var(--muted); }
+    .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 0 0 48px; }
+    .how article { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+    .how h3 { font-size: 1.05rem; }
+    .how ol { margin: 0; padding-left: 1.1em; color: var(--muted); font-size: .92rem; display: grid; gap: 6px; }
+    .faq { border-top: 1px solid var(--line); padding: 48px 0; display: grid; grid-template-columns: 280px 1fr; gap: 40px; }
+    .faq details { border-top: 1px solid var(--line); padding: 14px 0; }
+    .faq summary { cursor: pointer; font-weight: 600; }
+    .faq details p { color: var(--muted); margin: 8px 0 0; }
+    footer.site { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--muted); font-size: .85rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    footer.site a { color: var(--muted); }
+    .ad-wide { min-height: 120px; margin-bottom: 48px; }
+    @media (max-width: 860px) {
+      .hero, .why, .faq { grid-template-columns: 1fr; gap: 24px; }
+      .hero { padding-top: 32px; }
+      .demo { justify-self: center; max-width: 360px; }
+      .how { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="./"><span class="brand-mark"></span>SpinDraw</a><a class="btn primary" href="app.html">Open the wheel</a></header>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <h1>The raffle wheel your <em>live chat</em> will actually trust.</h1>
+        <p>Paste the comments, spin on stream, then post one link that lets anyone re-run the draw. No sign-up, and the overlay has no ads.</p>
+        <div class="row">
+          <a class="btn primary big" href="app.html">Start a raffle, free</a>
+          <a class="btn ghost big" href="#how">How it works</a>
+        </div>
+        <p class="platforms">Works with Facebook Live · YouTube Live · TikTok LIVE · Twitch · Zoom</p>
+      </div>
+      <div class="demo" aria-hidden="true"><canvas id="demo"></canvas><span class="demo-name" id="demoName">Maria Santos</span></div>
+    </section>
+
+    <section class="why">
+      <h2>Made for giveaways on stream, not for classrooms</h2>
+      <div class="feat">
+        <div><h3>A transparent overlay for OBS</h3><p>Add one Browser source and the wheel, prize, countdown and winner sit right over your camera. 16:9 or vertical 9:16 for TikTok. A green-screen version works in apps without browser sources.</p></div>
+        <div><h3>Fairness anyone can check</h3><p>Entries get locked with a hash shown on screen, chat picks a salt word, and after the raffle a verify link re-runs every draw in the viewer’s own browser.</p></div>
+        <div><h3>Paste comments as they are</h3><p>Copy a Facebook, TikTok or YouTube comment section and paste it. Likes, timestamps and “Reply” are stripped, duplicates removed, and you can count only comments that say #JOIN.</p></div>
+        <div><h3>Several prizes and a claim timer</h3><p>Queue prizes 3rd → 1st. The winner gets 60 seconds to claim in chat. If they don’t, one key logs the no-show and redraws.</p></div>
+        <div><h3>Proof to post</h3><p>Download a winner card PNG, the results CSV and the full entry list, so there’s no “scripted!” in the comments.</p></div>
+      </div>
+    </section>
+
+    <section class="how" id="how">
+      <article>
+        <h3>Facebook Live raffle</h3>
+        <ol><li>Ask viewers to comment a keyword.</li><li>Copy the comments, paste them into SpinDraw and set the keyword.</li><li>Lock, spin, post the verify link as a comment.</li></ol>
+      </article>
+      <article>
+        <h3>TikTok LIVE giveaway</h3>
+        <ol><li>Pick the 9:16 overlay and add it in TikTok LIVE Studio or OBS.</li><li>Collect names from comments or a Google Form.</li><li>Spin on stream. The winner card fills the vertical screen.</li></ol>
+      </article>
+      <article>
+        <h3>YouTube / Twitch picker</h3>
+        <ol><li>Paste live chat lines (“Name: message”).</li><li>Use “1 entry per person” to stop spammers stacking entries.</li><li>Give members extra entries with “Name x3”.</li></ol>
+      </article>
+    </section>
+
+    <div class="ad-slot ad-wide" aria-label="Advertisement">Ad space</div>
+
+    <section class="faq">
+      <h2>Questions</h2>
+      <div>
+        <details><summary>Is it free?</summary><p>Yes. Ads on this site pay for it. They never show on the overlay your viewers see.</p></details>
+        <details><summary>Where are my entries stored?</summary><p>Only in your browser. Nothing is uploaded. A verify link only exists if you choose to share one.</p></details>
+        <details><summary>How can viewers know the host didn’t cheat?</summary><p>The commitment hash shown before spinning locks both the list and a secret seed. Chat adds a salt word after that, so the host can’t pre-pick a result. The verify link reveals the seed and recomputes every winner.</p></details>
+        <details><summary>Can I use it without OBS?</summary><p>Yes. Share your screen with the control panel, or open the overlay window with the dark background and share that.</p></details>
+      </div>
+    </section>
+
+    <footer class="site"><span>© <span id="yr"></span> SpinDraw</span><span><a href="privacy.html">Privacy</a> · <a href="app.html">Control panel</a></span></footer>
+  </main>
+  <script type="module">
+    import { Wheel } from './js/wheel.js';
+    document.getElementById('yr').textContent = new Date().getFullYear();
+    const names = ['Maria Santos', 'Juan Dela Cruz', 'Alex Reyes', 'Priya Patel', 'Sam Lee', 'Chris Tan', 'Jordan Kim', 'Aisha Bello', 'Leo Cruz', 'Bea Ramos', 'Noah Garcia', 'Mika Lim'];
+    const w = new Wheel(document.getElementById('demo'));
+    w.setEntries(names.map(name => ({ name, weight: 1 })));
+    const tag = document.getElementById('demoName');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    async function loop() {
+      const i = Math.floor(Math.random() * names.length);
+      const { from, to } = w.planSpin(i, 5);
+      tag.style.opacity = 0;
+      await w.animate(from, to, 5000);
+      tag.textContent = names[i];
+      tag.style.opacity = 1;
+      setTimeout(loop, 2600);
+    }
+    document.fonts?.ready.then(() => { w.cache = null; w.draw(); });
+    if (!reduce) setTimeout(loop, 800);
+  </script>
+</body>
+</html>

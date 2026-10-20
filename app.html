@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SpinDraw · Raffle control panel</title>
+  <meta name="description" content="Run a provably fair raffle on your live stream: paste comments, spin the wheel, show it in OBS.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- AdSense: replace ca-pub-XXXXXXXXXXXXXXXX with your publisher ID once approved, then uncomment.
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  -->
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span class="brand-mark"></span>SpinDraw</a>
+    <div class="topbar-actions">
+      <span id="syncStatus" class="pill">Overlay: not connected</span>
+      <button id="openOverlay" class="btn ghost" type="button">Open overlay window</button>
+      <button id="helpBtn" class="btn ghost" type="button" aria-label="Keyboard shortcuts">?</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <section class="stage">
+      <div class="stage-head">
+        <input id="title" class="title-input" maxlength="60" aria-label="Raffle title">
+        <span id="poolCount" class="pill"></span>
+      </div>
+      <div class="wheel-box"><canvas id="wheel" aria-label="Raffle wheel"></canvas></div>
+      <div id="ticker" class="ticker" aria-live="off">&nbsp;</div>
+      <div class="controls">
+        <button id="spinBtn" class="btn primary big" type="button">Spin<kbd>Space</kbd></button>
+        <button id="claimBtn" class="btn ok" type="button">Claimed<kbd>C</kbd></button>
+        <button id="redrawBtn" class="btn bad" type="button">No-show · redraw<kbd>R</kbd></button>
+      </div>
+      <div id="winnerCard" class="winner-card" hidden aria-live="polite">
+        <div class="wc-prize" id="wcPrize"></div>
+        <div class="wc-name" id="wcName"></div>
+        <div class="wc-timer" id="wcTimer"></div>
+      </div>
+      <div class="proof">
+        <div><span class="label">Commitment</span><code id="commitText">not locked yet</code></div>
+        <div><span class="label">Public salt</span><code id="saltText">—</code></div>
+        <div><span class="label">Countdown</span><code id="cdText">—</code></div>
+      </div>
+      <section class="log">
+        <h3>Audit log</h3>
+        <ol id="log"></ol>
+      </section>
+    </section>
+
+    <aside class="side">
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="entries" type="button">Entries</button>
+        <button role="tab" data-tab="prizes" type="button">Prizes</button>
+        <button role="tab" data-tab="draw" type="button">Draw</button>
+        <button role="tab" data-tab="stream" type="button">Stream</button>
+        <button role="tab" data-tab="settings" type="button">Settings</button>
+      </nav>
+
+      <div class="tab-panel" data-panel="entries">
+        <p id="lockedNote" class="note" hidden>Entries are locked for this raffle, so the list matches the commitment shown on stream. Unlock (before the first spin) or start a new raffle to change them.</p>
+        <label>Paste format
+          <select id="format">
+            <option value="lines">One name per line (Juan x3 = 3 entries)</option>
+            <option value="comments">Copied comments (Facebook, TikTok, YouTube)</option>
+            <option value="chat">Live chat lines (Name: message)</option>
+          </select>
+        </label>
+        <textarea id="rawText" rows="12" spellcheck="false" aria-label="Entries"></textarea>
+        <label id="keywordWrap">Only count comments containing
+          <input id="keyword" placeholder="#join, join (comma = any of)">
+        </label>
+        <label class="check"><input type="checkbox" id="dedupe"> One entry per person (remove duplicates)</label>
+        <div class="row">
+          <label class="btn ghost" style="flex:1">Import CSV<input type="file" id="csvFile" accept=".csv,text/csv" hidden></label>
+          <button id="clearEntries" class="btn ghost" type="button">Clear</button>
+        </div>
+        <div class="row">
+          <input id="sheetUrl" placeholder="Google Sheet link (anyone with link can view)" aria-label="Google Sheet link">
+          <button id="sheetBtn" class="btn ghost" type="button">Fetch</button>
+        </div>
+        <p id="entryStats" class="muted small" style="margin:0"></p>
+      </div>
+
+      <div class="tab-panel" data-panel="prizes" hidden>
+        <label>Prizes, in draw order (one per line)
+          <textarea id="prizesText" rows="6" placeholder="3rd: ₱500 GCash&#10;2nd: Earbuds&#10;1st: iPhone 17"></textarea>
+        </label>
+        <label class="check"><input type="checkbox" id="removeWinners"> Remove winners from the wheel</label>
+        <label>Claim timer (seconds, 0 = off)
+          <input type="number" id="claimSeconds" min="0" max="900" step="5">
+        </label>
+        <ul id="prizeList" class="prize-list"></ul>
+      </div>
+
+      <div class="tab-panel" data-panel="draw" hidden>
+        <ol class="steps">
+          <li><b>Lock entries</b>
+            <p>Freezes the list and puts a commitment hash on screen. Viewers can screenshot it.</p>
+            <div class="row"><button id="lockBtn" class="btn primary" type="button">Lock entries</button><button id="unlockBtn" class="btn ghost" type="button">Unlock</button></div>
+          </li>
+          <li><b>Public salt (optional)</b>
+            <p>After locking, ask chat for a random word and type it here. Since chat picks it, you can't have pre-picked a result.</p>
+            <input id="salt" maxlength="60" placeholder="e.g. mango" aria-label="Public salt">
+          </li>
+          <li><b>Spin</b>
+            <p>Space to spin. C if the winner claims, R if they don't show up in time.</p>
+          </li>
+          <li><b>Finish &amp; share proof</b>
+            <p>Reveals the secret seed. Post the link in the comments so anyone can re-run every draw.</p>
+            <button id="revealBtn" class="btn primary" type="button">Finish &amp; create verify link</button>
+            <div id="revealBox" class="stack" hidden style="margin-top:10px">
+              <div class="row"><input id="verifyUrl" readonly aria-label="Verify link"><button id="copyVerify" class="btn" type="button">Copy</button></div>
+              <a id="openVerify" target="_blank" rel="noopener" class="small">Open verify page ↗</a>
+            </div>
+          </li>
+        </ol>
+        <div class="row" style="flex-wrap:wrap">
+          <button id="dlCard" class="btn ghost" type="button">Winner card PNG</button>
+          <button id="dlResults" class="btn ghost" type="button">Results CSV</button>
+          <button id="dlEntries" class="btn ghost" type="button">Entries CSV</button>
+        </div>
+        <button id="newRaffle" class="btn bad ghost" type="button">New raffle</button>
+      </div>
+
+      <div class="tab-panel" data-panel="stream" hidden>
+        <label>Overlay layout
+          <select id="ovLayout">
+            <option value="wide">16:9 (YouTube, Facebook, Twitch)</option>
+            <option value="vertical">9:16 (TikTok, Reels, Shorts)</option>
+          </select>
+        </label>
+        <label>Background
+          <select id="ovBg">
+            <option value="transparent">Transparent (OBS / Streamlabs browser source)</option>
+            <option value="green">Green screen (for chroma key)</option>
+            <option value="dark">Dark (screen-share in Zoom / Meet)</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="ovSound"> Play sounds in the overlay</label>
+        <div class="row"><input id="overlayUrl" readonly aria-label="Overlay URL"><button id="copyOverlay" class="btn" type="button">Copy</button></div>
+        <p class="muted small" style="margin:0">OBS / Streamlabs / TikTok LIVE Studio: add a <b>Browser</b> source, paste the URL, set it to <span id="ovSize">1920×1080</span>. It connects to this tab on its own.</p>
+        <hr style="border:0;border-top:1px solid var(--line);width:100%">
+        <label>Entries countdown (minutes)
+          <div class="row"><input type="number" id="cdMinutes" min="0.25" step="0.25" value="2"><button id="cdStart" class="btn" type="button">Start</button><button id="cdStop" class="btn ghost" type="button">Stop</button></div>
+        </label>
+        <label class="check"><input type="checkbox" id="showCommit"> Show commitment hash on the overlay</label>
+      </div>
+
+      <div class="tab-panel" data-panel="settings" hidden>
+        <label>Spin length: <span id="spinLabel"></span>s
+          <input type="range" id="spinSeconds" min="3" max="15" step="1">
+        </label>
+        <label>Wheel colors
+          <select id="palette">
+            <option value="stream">Stream</option>
+            <option value="fiesta">Fiesta</option>
+            <option value="candy">Candy</option>
+            <option value="mono">Mono</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="soundOn"> Sounds in this tab</label>
+      </div>
+
+      <!-- Ad slot: the control panel only. Never put ads on overlay.html. -->
+      <div class="ad-slot" aria-label="Advertisement">Ad space</div>
+    </aside>
+  </main>
+
+  <dialog id="helpDialog">
+    <h3>Keyboard shortcuts</h3>
+    <dl>
+      <dt><kbd>Space</kbd></dt><dd>Spin</dd>
+      <dt><kbd>C</kbd></dt><dd>Winner claimed, move to next prize</dd>
+      <dt><kbd>R</kbd></dt><dd>No-show: log it and redraw</dd>
+      <dt><kbd>O</kbd></dt><dd>Open overlay window</dd>
+    </dl>
+    <form method="dialog"><button class="btn primary">Got it</button></form>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+</body>
+</html>

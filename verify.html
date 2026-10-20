@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verify a raffle · SpinDraw</title>
+  <meta name="description" content="Re-run a SpinDraw raffle yourself and check that every winner was picked fairly.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .wrap { max-width: 860px; margin: 0 auto; padding: 28px 16px 60px; display: grid; gap: 20px; }
+    .verdict { border-radius: 14px; padding: 18px 20px; font-weight: 800; font-size: 1.3rem; }
+    .verdict.ok { background: rgba(74, 222, 128, .12); border: 1px solid rgba(74, 222, 128, .45); color: var(--ok); }
+    .verdict.bad { background: rgba(255, 93, 115, .12); border: 1px solid rgba(255, 93, 115, .45); color: var(--coral); }
+    .verdict small { display: block; font-weight: 400; font-size: .9rem; color: var(--text); margin-top: 4px; }
+    .facts { display: grid; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+    .facts > div { display: flex; gap: 12px; align-items: baseline; }
+    .facts code { overflow-wrap: anywhere; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+    th, td { text-align: left; padding: 9px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; border-top: 0; }
+    td.ok { color: var(--ok); } td.bad { color: var(--coral); }
+    .table-wrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 10px; }
+    .entries { columns: 3 180px; list-style: none; padding: 0; margin: 0; font-size: .9rem; }
+    .entries li { padding: 2px 0; break-inside: avoid; }
+    .entries mark { background: var(--accent); color: var(--accent-ink); border-radius: 3px; padding: 0 3px; }
+    details { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+    summary { cursor: pointer; font-weight: 600; }
+    pre { overflow-x: auto; background: var(--bg); padding: 12px; border-radius: 8px; font-size: .8rem; }
+  </style>
+  <script type="module" src="js/verify.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="./"><span class="brand-mark"></span>SpinDraw</a><a class="btn primary" href="app.html">Run your own raffle</a></header>
+  <main class="wrap">
+    <div>
+      <p class="muted small" style="margin:0 0 4px">Raffle verification</p>
+      <h1 id="title">Checking…</h1>
+      <p class="muted" id="meta" style="margin:0"></p>
+    </div>
+    <div id="verdict" class="verdict" hidden></div>
+    <div class="facts" id="facts" hidden>
+      <div><span class="label">Commitment</span><code id="fCommit"></code></div>
+      <div><span class="label">Entries hash</span><code id="fHash"></code></div>
+      <div><span class="label">Seed</span><code id="fSeed"></code></div>
+      <div><span class="label">Public salt</span><code id="fSalt"></code></div>
+    </div>
+    <p class="muted small" id="compareNote" hidden style="margin:-8px 0 0">The commitment above should match the one shown on stream <b>before</b> the first spin. If it does, the list and the seed weren't changed afterwards.</p>
+    <section id="drawsSec" hidden>
+      <h2>Draws</h2>
+      <div class="table-wrap"><table><thead><tr><th>#</th><th>Prize</th><th>Winner</th><th>Result</th><th>Check</th></tr></thead><tbody id="draws"></tbody></table></div>
+    </section>
+    <section id="entriesSec" hidden class="stack">
+      <h2 style="margin:0">Entries <span class="muted" id="entryCount"></span></h2>
+      <input id="find" placeholder="Find your name" aria-label="Find your name">
+      <ul class="entries" id="entries"></ul>
+      <p class="muted small" id="more" style="margin:0"></p>
+    </section>
+    <details>
+      <summary>How the check works</summary>
+      <p>When the host locked the entries, SpinDraw made a secret random seed and showed only its fingerprint (the commitment) on stream. Each draw is then picked with HMAC-SHA256 of the seed, the entries hash, the public salt from chat and the draw number. After the raffle the seed is revealed here. This page recomputes everything in your browser: if one name or the seed had changed, the commitment wouldn't match.</p>
+      <pre>commitment = SHA256("spindraw-v1|" + seed + "|" + SHA256(JSON(entries)))
+pick(k)    = HMAC_SHA256(seed, "spindraw-v1|" + entriesHash + "|" + salt + "|" + k)
+             → first 8 bytes mod total entries → weighted slot</pre>
+    </details>
+    <div class="ad-slot" aria-label="Advertisement">Ad space</div>
+  </main>
+</body>
+</html>
