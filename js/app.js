@@ -14,7 +14,7 @@ const SAMPLE = 'Juan Dela Cruz\nMaria Santos x2\nAlex Reyes\nSam Lee\nPriya Pate
 const defaults = () => ({
   room: Math.random().toString(36).slice(2, 10),
   tab: 'entries',
-  title: 'Live Giveaway',
+  title: 'Raffle Draw',
   format: 'lines', rawText: SAMPLE, keyword: '', dedupe: true,
   entries: [], stats: null,
   prizesText: '', removeWinners: true, claimSeconds: 60,
@@ -335,7 +335,10 @@ function renderSync() {
   const el = $('#syncStatus');
   if (!el) return;
   const n = overlays.size;
-  el.textContent = n ? `Overlay connected${n > 1 ? ` ×${n}` : ''}` : channel?.relay === 'room in use' ? 'Room open in another tab' : 'Overlay: not connected';
+  const inUse = channel?.relay === 'room in use';
+  // Only shown when it matters: most people never open the Present/overlay view.
+  el.hidden = !n && !inUse;
+  el.textContent = n ? `Present view connected${n > 1 ? ` ×${n}` : ''}` : 'Room open in another tab';
   el.classList.toggle('live', n > 0);
 }
 setInterval(renderSync, 4000);
@@ -641,7 +644,7 @@ document.querySelectorAll('.img-slot').forEach(el => {
 });
 
 // ---------- boot ----------
-if (!S.log.length) addLog('Ready. Paste entries, then lock and spin.');
+if (!S.log.length) addLog('Ready. Paste names, then lock and spin.');
 if (S.locked) wheel.setEntries(wheelPool()); else applyEntries();
 render();
 applyImages();

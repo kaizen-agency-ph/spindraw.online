@@ -82,7 +82,7 @@ async function run(p) {
     const out = $('#compareResult');
     if (typed.length < 8) { out.textContent = ''; return; }
     const match = commit.startsWith(typed);
-    out.textContent = match ? `✓ Matches the first ${typed.length} characters of the commitment` : '✗ Doesn’t match. This list or seed differs from what was locked on stream.';
+    out.textContent = match ? `✓ Matches the first ${typed.length} characters of the commitment` : '✗ Doesn’t match. This list or seed differs from what was locked before the draw.';
     out.style.color = match ? 'var(--ok)' : 'var(--coral)';
   });
   $('#fCommit').textContent = commit;

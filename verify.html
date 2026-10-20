@@ -75,11 +75,11 @@
       <div><span class="label">Public salt</span><code id="fSalt"></code></div>
     </div>
     <section id="compareSec" class="stack" hidden>
-      <label>Did it match the stream? Type the commitment shown on screen before the first spin (the first 8+ characters are enough)
+      <label>Did it match what you saw? Type the code shown on screen before the first spin (the first 8+ characters are enough)
         <input id="compare" placeholder="e.g. bd340c2e14f9cd65" autocomplete="off" spellcheck="false">
       </label>
       <p id="compareResult" class="small" style="margin:0"></p>
-      <p class="muted small" style="margin:0">The green check above only proves the winners follow from this seed and list. The stream comparison is what proves the host didn’t swap either of them afterwards.</p>
+      <p class="muted small" style="margin:0">The green check above only proves the winners follow from this seed and list. Comparing it with the code you saw is what proves the host didn’t swap either of them afterwards.</p>
     </section>
     <section id="fileSec" class="stack" hidden>
       <p style="margin:0">Got a proof file (<code>…-proof.json</code>) from the host instead of a link? Open it here. It stays in your browser.</p>
@@ -97,7 +97,7 @@
     </section>
     <details>
       <summary>How the check works</summary>
-      <p>When the host locked the entries, SpinDraw made a secret random seed and showed only its fingerprint (the commitment) on stream. Each draw is then picked with HMAC-SHA256 of the seed, the entries hash, the public salt from chat and the draw number. After the raffle the seed is revealed here. This page recomputes everything in your browser: if one name or the seed had changed, the commitment wouldn't match.</p>
+      <p>When the host locked the entries, SpinDraw made a secret random seed and showed only its fingerprint (the commitment) on screen. Each draw is then picked with HMAC-SHA256 of the seed, the entries hash, the public salt from chat and the draw number. After the raffle the seed is revealed here. This page recomputes everything in your browser: if one name or the seed had changed, the commitment wouldn't match.</p>
       <pre>commitment = SHA256("spindraw-v1|" + seed + "|" + SHA256(JSON(entries)))
 pick(k)    = HMAC_SHA256(seed, "spindraw-v1|" + entriesHash + "|" + salt + "|" + k)
              → first 8 bytes mod total entries → weighted slot</pre>

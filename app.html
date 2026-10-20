@@ -20,7 +20,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SpinDraw">
   <meta property="og:title" content="Raffle Wheel Spinner | SpinDraw">
-  <meta property="og:description" content="Free online raffle wheel: paste names or comments, spin to pick a random winner, and show it on your stream.">
+  <meta property="og:description" content="Free online raffle wheel: paste names, spin to pick a random winner, and prove it was fair.">
   <meta property="og:url" content="https://spindraw.online/app.html">
   <meta property="og:image" content="https://spindraw.online/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -29,7 +29,7 @@
   <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
   <title>Raffle Wheel Spinner – Spin to Pick a Winner | SpinDraw</title>
-  <meta name="description" content="Free online raffle wheel: paste names or comments, spin the wheel to pick a random winner, and show it on your live stream with an OBS overlay.">
+  <meta name="description" content="Free online raffle wheel: paste names, spin to pick a random winner, and prove it was fair. Works on a big screen, in a video call or on a live stream.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -45,7 +45,7 @@
     <a class="brand" href="./"><span class="brand-mark"></span>SpinDraw</a>
     <div class="topbar-actions">
       <span id="syncStatus" class="pill">Overlay: not connected</span>
-      <button id="openOverlay" class="btn ghost" type="button">Open overlay window</button>
+      <button id="openOverlay" class="btn ghost" type="button" title="Open a clean view of the wheel for a projector, a video call or your stream">Present</button>
       <button class="btn ghost theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button>
       <button id="helpBtn" class="btn ghost" type="button" aria-label="Keyboard shortcuts">?</button>
     </div>
@@ -134,15 +134,15 @@
       <div class="tab-panel" data-panel="draw" hidden>
         <ol class="steps">
           <li><b>Lock entries</b>
-            <p>Freezes the list and puts a commitment hash on screen. Viewers can screenshot it.</p>
+            <p>Freezes the list and shows a code on screen. Everyone watching can take a screenshot.</p>
             <div class="row"><button id="lockBtn" class="btn primary" type="button">Lock entries</button><button id="unlockBtn" class="btn ghost" type="button">Unlock</button></div>
           </li>
           <li><b>Public salt (optional)</b>
-            <p>After locking, type the <b>first</b> word a viewer posts in chat. Taking the first one, rather than picking a word you like, is what makes the result hard to steer.</p>
+            <p>After locking, ask someone else (a coworker, a guest or the first viewer in chat) for any word and type it exactly. Letting someone else choose it is what makes the result hard to steer.</p>
             <input id="salt" maxlength="60" placeholder="e.g. mango" aria-label="Public salt">
           </li>
           <li><b>Spin</b>
-            <p>Space to spin. C if the winner claims, R if they don't show up in time.</p>
+            <p>Press Space to spin. C if the winner claims the prize, R if they don’t respond in time.</p>
           </li>
           <li><b>Finish &amp; share proof</b>
             <p>Reveals the secret seed. Share the link (or the proof file) so anyone can re-run every draw.</p>
@@ -252,7 +252,7 @@
       <dt><kbd>Space</kbd></dt><dd>Spin</dd>
       <dt><kbd>C</kbd></dt><dd>Winner claimed, move to next prize</dd>
       <dt><kbd>R</kbd></dt><dd>No-show: log it and redraw</dd>
-      <dt><kbd>O</kbd></dt><dd>Open overlay window</dd>
+      <dt><kbd>O</kbd></dt><dd>Present (open the wheel view)</dd>
       <dt><kbd>?</kbd></dt><dd>Show this list</dd>
     </dl>
     <form method="dialog"><button class="btn primary">Got it</button></form>

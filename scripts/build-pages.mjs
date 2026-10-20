@@ -21,6 +21,11 @@ const ICONS = {
   timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4"/>',
   phone: '<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
   lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+  home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M12 14.5c-1.2-1.3-3-.4-3 1 0 1.6 3 3 3 3s3-1.4 3-3c0-1.4-1.8-2.3-3-1z"/>',
+  school: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',
+  party: '<path d="M4 20 9 8l7 7z"/><path d="M14 4v2M19 9h2M17 6l1.5-1.5M12 2.5l.5 1.5M20 13l1 .5"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3.2-5.5 6.5-5.5s6 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.5 5.2"/>',
 };
 const icon = name => `<span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg></span>`;
 
@@ -177,10 +182,10 @@ const GUIDES = [
   {
     slug: 'wheel-of-names-alternative',
     nav: 'Wheel of Names alternative',
-    title: 'Wheel of Names Alternative for Live Raffles | SpinDraw',
-    description: 'A Wheel of Names alternative for live streams: verifiable draws, comment pasting with keyword filters, claim timers and a vertical overlay. Free.',
-    h1: 'A Wheel of Names alternative made for live raffles',
-    lede: 'Wheel of Names is a great general-purpose spinner. SpinDraw focuses on one job: running giveaways on a live stream in a way your audience can trust.',
+    title: 'Wheel of Names Alternative for Fair Raffles | SpinDraw',
+    description: 'A Wheel of Names alternative for raffles people trust: verifiable draws, paste names or comments, several prizes, claim timers and a stream overlay. Free.',
+    h1: 'A Wheel of Names alternative made for fair raffles',
+    lede: 'Wheel of Names is a great general-purpose spinner. SpinDraw focuses on one job: running raffles and giveaways people can trust, from office parties and family draws to live streams.',
     body: `
 <h2>How they compare</h2>
 <div class="table-scroll"><table class="compare">
@@ -201,7 +206,7 @@ const GUIDES = [
 <h2>When to stay with Wheel of Names</h2>
 <p>For classroom spinning, saving many wheels to an account, or sharing wheels with others, Wheel of Names is excellent and more mature.</p>
 <h2>When SpinDraw fits better</h2>
-<p>When you’re giving something away in front of an audience. Viewers often suspect live draws are scripted. SpinDraw shows a commitment code before the spin, mixes in a word from chat, and lets anyone replay the draw afterwards. It also handles the messy parts of live raffles: pasting raw comments, filtering by keyword, several prizes in a row and winners who never reply.</p>`,
+<p>When you’re giving something away and people need to trust the result: a company raffle, a family draw, a community giveaway or a live stream. People often suspect draws are rigged. SpinDraw shows a commitment code before the spin, mixes in a word someone else picks, and lets anyone replay the draw afterwards. It also handles the messy parts of real raffles: pasting raw comments, filtering by keyword, several prizes in a row and winners who never reply.</p>`,
     faq: [
       ['Is SpinDraw affiliated with Wheel of Names?', 'No. SpinDraw is an independent tool. Wheel of Names is a trademark of its owner.'],
       ['Can I import my list from Wheel of Names?', 'Yes. Copy the names from your wheel and paste them into SpinDraw, one per line.'],
@@ -261,14 +266,14 @@ const header = `
     <nav class="site-nav" aria-label="Main">
       <a class="link" href="/#features">Features</a>
       <a class="link" href="/#how">How it works</a>
-      <a class="link" href="/obs-spin-wheel/">OBS overlay</a>
+      <a class="link" href="/#use-cases">Use cases</a>
       <a class="link" href="/#faq">FAQ</a>
       <details class="mnav">
         <summary aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
         <div class="mnav-panel">
           <a href="/#features">Features</a>
           <a href="/#how">How it works</a>
-          <a href="/obs-spin-wheel/">OBS overlay</a>
+          <a href="/#use-cases">Use cases</a>
           <a href="/#faq">FAQ</a>
         </div>
       </details>
@@ -281,7 +286,7 @@ const footer = `
   <footer class="site page">
     <div>
       <a class="brand" href="/"><span class="brand-mark"></span>SpinDraw</a>
-      <p>The free raffle wheel for live streams. Fair draws your viewers can check.</p>
+      <p>The free raffle wheel for every draw: office raffles, family picks, events and live streams. Fair results anyone can check.</p>
       <p style="margin-top:16px">SpinDraw is free. Tips keep it running.</p>
       <div style="margin-top:10px"><a class="kofi-btn" href="https://ko-fi.com/M5P629543M" target="_blank" rel="noopener" data-kofi="footer"><img src="https://storage.ko-fi.com/cdn/cup-border.png" alt="" width="20" height="13">Buy me a coffee</a></div>
     </div>
@@ -309,11 +314,12 @@ const faqHtml = faq => `<div class="faq">${faq.map(([q, a]) => `<details><summar
 
 // ---------- home ----------
 const HOME_FAQ = [
-  ['Is SpinDraw free?', 'Yes. SpinDraw is free with no sign-up. Ads on the website pay for it, and they never appear on the overlay your viewers see.'],
+  ['Is SpinDraw free?', 'Yes. SpinDraw is free with no sign-up. Ads on the website pay for it, and they never appear on the wheel people watch.'],
+  ['Can I use it for an office raffle or a family draw?', 'Yes. Paste the names, put the wheel on a big screen or share your screen in a video call, and spin. Afterwards, send the verify link so anyone can check the result, even people who weren’t there.'],
   ['Can I use the wheel in OBS or Streamlabs?', 'Yes. Copy the overlay URL from the Stream tab and add it as a Browser source. It has a transparent background and comes in 16:9 and vertical 9:16.'],
   ['Is the wheel really random?', 'Every pick is computed with HMAC-SHA256 from a secret 256-bit random seed. The seed is committed on screen before the draw and revealed afterwards, so anyone can replay the result.'],
-  ['How can viewers know the draw wasn’t rigged?', 'Before spinning, SpinDraw shows a commitment code that locks the entry list and the seed. After the raffle, the verify page recomputes every winner and viewers compare the code with what they saw live.'],
-  ['Is SpinDraw a Wheel of Names alternative?', 'Yes, one focused on live raffles: it adds a fairness proof, comment pasting with keyword filters, a prize queue with claim timers and a vertical overlay for TikTok.'],
+  ['How can people know the draw wasn’t rigged?', 'Before spinning, SpinDraw shows a code that locks the entry list and a secret seed. After the draw, the verify page recomputes every winner, and anyone can compare the code with the one they saw.'],
+  ['Is SpinDraw a Wheel of Names alternative?', 'Yes. It spins like Wheel of Names and adds a fairness proof, pasting names straight from comments or spreadsheets, several prizes with claim timers, and an overlay for live streams.'],
   ['Where are my entries stored?', 'Only in your browser. Nothing is uploaded unless you share a verify link or proof file.'],
   ['Do I need a permit to run a raffle?', 'It depends on where you are and how people enter. Free giveaways are usually simple, but raffles tied to purchases are often regulated as sales promotions (in the Philippines, by the DTI), and selling raffle slots can count as gambling. Check your local rules. SpinDraw picks the winner fairly; it doesn’t make a promotion legal.'],
 ];
@@ -322,14 +328,14 @@ const homeBody = `
   <main class="page">
     <section class="hero">
       <div>
-        <span class="eyebrow"><b>Free</b> Raffle wheel for live streams</span>
+        <span class="eyebrow"><b>Free</b> Raffle wheel &amp; name picker</span>
         <h1>The raffle wheel that <span class="mark">proves</span> it was fair.</h1>
-        <p class="lede">SpinDraw is a free raffle wheel and random name picker for Facebook Live, TikTok LIVE, YouTube and Twitch. Paste the comments, show the wheel in OBS, and give viewers a link that replays the draw.</p>
+        <p class="lede">Pick a winner for your office raffle, family gift exchange, classroom, event or live stream. Paste the names, spin the wheel, and share a link that proves nobody rigged it.</p>
         <div class="cta">
           <a class="btn primary big" href="/app.html">Start a raffle, free</a>
           <a class="btn big" href="#how">See how it works</a>
         </div>
-        <p class="fine">No sign-up · Entries never leave your browser · No ads on the overlay</p>
+        <p class="fine">No sign-up · Names never leave your browser · Works on any screen</p>
       </div>
       <div class="product" aria-hidden="true">
         <div class="product-bar"><i></i><i></i><i></i></div>
@@ -341,46 +347,62 @@ const homeBody = `
       <div class="section-head">
         <div class="kicker">Watch</div>
         <h2>SpinDraw in 46 seconds</h2>
-        <p>Paste, lock, spin, prove: the whole raffle, start to finish.</p>
+        <p>Paste, lock, spin, prove: the whole draw, start to finish.</p>
       </div>
       <div class="video-frame">
-        <video id="explainer" src="/media/spindraw-explainer.mp4" poster="/media/spindraw-explainer-poster.jpg" muted loop playsinline preload="none" controls width="1920" height="1080" aria-label="SpinDraw explainer: paste comments, lock the entries, spin the wheel live in OBS, and prove the draw was fair"></video>
+        <video id="explainer" src="/media/spindraw-explainer.mp4" poster="/media/spindraw-explainer-poster.jpg" muted loop playsinline preload="none" controls width="1920" height="1080" aria-label="SpinDraw explainer: paste the names, lock the list, spin the wheel on any screen, and prove the draw was fair"></video>
+      </div>
+    </section>
+
+    <section class="section" id="use-cases">
+      <div class="section-head">
+        <div class="kicker">Use cases</div>
+        <h2>For any draw, big or small</h2>
+        <p>Whenever a group needs a winner, a name or an order, and everyone wants it to be fair.</p>
+      </div>
+      <div class="grid">
+        <div class="card">${icon('briefcase')}<h3>Office &amp; company raffles</h3><p>Year-end party prizes, door prizes and team giveaways. Put the wheel on the big screen or share it in a video call.</p></div>
+        <div class="card">${icon('home')}<h3>Friends &amp; family</h3><p>Gift exchanges, Secret Santa order, who hosts next, who pays for dinner. Settle it in one spin.</p></div>
+        <div class="card">${icon('school')}<h3>Classrooms &amp; teams</h3><p>Pick who answers next, set a presentation order or choose the next task owner, with no arguments.</p></div>
+        <div class="card">${icon('party')}<h3>Events &amp; parties</h3><p>Weddings, birthdays, fundraisers and lucky draws, with your logo in the middle of the wheel.</p></div>
+        <div class="card">${icon('users')}<h3>Online communities</h3><p>Facebook groups, Discord servers and newsletters. Paste comments or Google Form entries and filter by keyword.</p></div>
+        <a class="card" href="/obs-spin-wheel/">${icon('broadcast')}<h3>Live streams</h3><p>Facebook Live, TikTok LIVE, YouTube and Twitch, with a transparent overlay for OBS and Streamlabs.</p><span class="go">Streaming guide →</span></a>
       </div>
     </section>
 
     <section class="section" id="features">
       <div class="section-head">
         <div class="kicker">Features</div>
-        <h2>Everything a live giveaway needs</h2>
-        <p>Wheel of Names-style spinning, plus the parts that matter when an audience is watching.</p>
+        <h2>Everything a fair draw needs</h2>
+        <p>Wheel of Names-style spinning, plus the parts that matter when people are counting on a fair result.</p>
       </div>
       <div class="grid">
-        <div class="card">${icon('broadcast')}<h3>OBS & Streamlabs overlay</h3><p>A transparent browser source with the wheel, prize, countdown and winner card. 16:9, or vertical 9:16 for TikTok.</p></div>
-        <div class="card">${icon('shield')}<h3>Provably fair draws</h3><p>A commitment code before the spin, a salt word from chat, and a verify link that replays every pick.</p></div>
-        <div class="card">${icon('paste')}<h3>Paste comments as-is</h3><p>Copy a Facebook, TikTok or YouTube comment section. Likes and timestamps are stripped, duplicates removed, keywords filtered.</p></div>
-        <div class="card">${icon('trophy')}<h3>Prize queue & claim timer</h3><p>Draw 3rd → 1st in one go. Winners get a countdown to claim, and one key redraws a no-show.</p></div>
-        <div class="card">${icon('palette')}<h3>Your brand on the wheel</h3><p>Custom slice colors, your logo in the center, an image on the wheel and a background for the overlay.</p></div>
-        <div class="card">${icon('lock')}<h3>Private by default</h3><p>No account, no upload. Lists, prizes and settings stay in your browser.</p></div>
+        <div class="card">${icon('shield')}<h3>Provably fair draws</h3><p>A code is shown before the spin, and a verify link afterwards lets anyone replay every pick.</p></div>
+        <div class="card">${icon('paste')}<h3>Paste names any way</h3><p>One per line, a spreadsheet, a Google Form, or a copied Facebook, TikTok or YouTube comment section. Duplicates are removed.</p></div>
+        <div class="card">${icon('trophy')}<h3>Several prizes in a row</h3><p>Draw 3rd → 1st in one go. Give winners time to claim, and redraw a no-show with one key.</p></div>
+        <div class="card">${icon('broadcast')}<h3>Big screen or live stream</h3><p>Present the wheel on a projector or in a video call, or add the transparent overlay to OBS and Streamlabs.</p></div>
+        <div class="card">${icon('palette')}<h3>Your brand on the wheel</h3><p>Custom colors, your logo in the center, an image on the wheel and a background of your own.</p></div>
+        <div class="card">${icon('lock')}<h3>Private by default</h3><p>No account, no upload. Names, prizes and settings stay in your browser.</p></div>
       </div>
     </section>
 
     <section class="section" id="how">
       <div class="section-head">
         <div class="kicker">How it works</div>
-        <h2>From comments to a verified winner in four steps</h2>
+        <h2>From a list of names to a verified winner in four steps</h2>
       </div>
       <ol class="steps-row">
-        <li><h3>Paste entries</h3><p>Names, copied comments, live chat, a CSV or a Google Sheet.</p></li>
-        <li><h3>Lock the list</h3><p>A commitment code appears on stream. Viewers can screenshot it.</p></li>
-        <li><h3>Spin on stream</h3><p>Space to spin. The overlay in OBS spins in sync.</p></li>
-        <li><h3>Share the proof</h3><p>Post the verify link so anyone can replay the draw.</p></li>
+        <li><h3>Paste the names</h3><p>Type them, paste a list or comments, or import a CSV or Google Sheet.</p></li>
+        <li><h3>Lock the list</h3><p>A code appears on screen. Everyone can take a screenshot.</p></li>
+        <li><h3>Spin</h3><p>Press Space. Show it on a big screen, a video call or your stream.</p></li>
+        <li><h3>Share the proof</h3><p>Send the verify link so anyone can replay the draw.</p></li>
       </ol>
     </section>
 
     <section class="section">
       <div class="section-head">
         <div class="kicker">Guides</div>
-        <h2>Run a raffle on any platform</h2>
+        <h2>Step-by-step guides</h2>
       </div>
       <div class="grid">
         ${GUIDES.map(g => `<a class="card" href="/${g.slug}/"><h3>${esc(g.nav)}</h3><p>${esc(g.description)}</p><span class="go">Read the guide →</span></a>`).join('\n        ')}
@@ -395,7 +417,7 @@ const homeBody = `
     </section>
 
     <div class="cta-band">
-      <div><h2>Ready for your next giveaway?</h2><p>Free, no sign-up, works in your browser.</p></div>
+      <div><h2>Ready for your next draw?</h2><p>Free, no sign-up, works in your browser.</p></div>
       <a class="btn primary big" href="/app.html">Open the wheel</a>
     </div>
   </main>`;
@@ -433,11 +455,11 @@ const homeLd = [
     '@type': 'WebApplication',
     name: 'SpinDraw',
     url: SITE + '/',
-    description: 'Free raffle wheel and random name picker for live streams, with an OBS overlay and provably fair draws.',
+    description: 'Free raffle wheel and random name picker for office raffles, family draws, classrooms, events and live streams, with provably fair results.',
     applicationCategory: 'UtilitiesApplication',
     operatingSystem: 'Web browser',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    featureList: ['Spin the wheel', 'Random name picker', 'OBS and Streamlabs overlay', 'Comment picker with keyword filter', 'Weighted entries', 'Verifiable draws'],
+    featureList: ['Spin the wheel', 'Random name picker', 'Verifiable draws', 'Several prizes with claim timers', 'Comment picker with keyword filter', 'Weighted entries', 'Big-screen and OBS overlay'],
   },
   { '@context': 'https://schema.org', '@type': 'WebSite', name: 'SpinDraw', url: SITE + '/' },
   { '@context': 'https://schema.org', '@type': 'Organization', name: 'SpinDraw', url: SITE + '/', logo: SITE + '/icon-512.png' },
@@ -446,7 +468,7 @@ const homeLd = [
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
     name: 'SpinDraw in 46 seconds',
-    description: 'How to run a fair live-stream raffle with SpinDraw: paste the comments, lock the entries, spin the wheel in OBS, and prove the draw was fair.',
+    description: 'How to run a fair raffle with SpinDraw: paste the names, lock the list, spin the wheel on any screen, and prove the draw was fair.',
     thumbnailUrl: [SITE + '/media/spindraw-explainer-poster.jpg'],
     uploadDate: '2026-10-20',
     duration: 'PT46S',
@@ -461,8 +483,8 @@ function write(rel, html) {
 }
 
 write('index.html', `${head({
-  title: 'SpinDraw: Free Raffle Wheel for Live Stream Giveaways',
-  description: 'Spin a free raffle wheel on Facebook Live, TikTok, YouTube or Twitch. Paste comments, add the wheel to OBS, and give viewers proof the winner was picked fairly.',
+  title: 'SpinDraw: Free Raffle Wheel & Random Name Picker',
+  description: 'Free raffle wheel and name picker for office raffles, family draws, events and live streams. Paste names, spin, and share proof the winner was fair.',
   path: '/',
   extra: homeLd.map(ld).join('\n  '),
 })}
