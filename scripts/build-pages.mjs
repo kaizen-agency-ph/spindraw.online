@@ -45,8 +45,10 @@ const GUIDES = [
 </ol>
 <h2>Why not just use a comment picker app?</h2>
 <p>Most Facebook comment pickers connect to your Page through a Facebook login and only support business Pages. SpinDraw doesn't ask for any Facebook access. You paste text you already have, so it works for Pages, profiles, groups and shared posts alike, and your entry list never leaves your browser.</p>
-<h2>Selling live? Give buyers extra entries</h2>
-<p>Live sellers often reward orders with extra chances. In the one-name-per-line format, write <em>Maria Santos x3</em> to give Maria three entries. The wheel shows her slice three times bigger, and the odds follow.</p>`,
+<h2>Giving some people extra entries</h2>
+<p>To reward loyal followers, for example people who shared the post, write <em>Maria Santos x3</em> in the one-name-per-line format. Maria gets three entries: her slice is three times bigger, and so are her odds. The verify page lists every weight, so it stays transparent.</p>
+<h2>Check the rules before tying entries to purchases</h2>
+<p>A free giveaway is usually simple. A raffle where buying something earns entries is a <strong>sales promotion</strong> in many countries, and selling raffle “slots” can be treated as gambling. In the Philippines, sales promotions generally need a DTI permit, applied for before the promo starts, and paid raffles without a license can break gambling laws. Rules differ by country and change over time, so check with the DTI or a lawyer before you run a purchase-linked raffle. This guide isn’t legal advice.</p>`,
     faq: [
       ['Do I need to connect my Facebook account?', 'No. SpinDraw never asks for a Facebook login. You copy the comments yourself and paste them in.'],
       ['Can I only count comments with a hashtag?', 'Yes. In the “Copied comments” format, type one or more keywords (comma-separated) and comments without them are skipped. The page tells you how many were skipped.'],
@@ -226,9 +228,15 @@ function head({ title, description, path, extra = '', noindex = false }) {
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${url}">
   <meta property="og:image" content="${SITE}/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="SpinDraw raffle wheel: spin the wheel, prove it was fair">
+  <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#ffd23f">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -296,6 +304,7 @@ const HOME_FAQ = [
   ['How can viewers know the draw wasn’t rigged?', 'Before spinning, SpinDraw shows a commitment code that locks the entry list and the seed. After the raffle, the verify page recomputes every winner and viewers compare the code with what they saw live.'],
   ['Is SpinDraw a Wheel of Names alternative?', 'Yes, one focused on live raffles: it adds a fairness proof, comment pasting with keyword filters, a prize queue with claim timers and a vertical overlay for TikTok.'],
   ['Where are my entries stored?', 'Only in your browser. Nothing is uploaded unless you share a verify link or proof file.'],
+  ['Do I need a permit to run a raffle?', 'It depends on where you are and how people enter. Free giveaways are usually simple, but raffles tied to purchases are often regulated as sales promotions (in the Philippines, by the DTI), and selling raffle slots can count as gambling. Check your local rules. SpinDraw picks the winner fairly; it doesn’t make a promotion legal.'],
 ];
 
 const homeBody = `
@@ -303,7 +312,7 @@ const homeBody = `
     <section class="hero">
       <div>
         <span class="eyebrow"><b>Free</b> Raffle wheel for live streams</span>
-        <h1>Spin the wheel. <span class="mark">Prove</span> it was fair.</h1>
+        <h1>The raffle wheel that <span class="mark">proves</span> it was fair.</h1>
         <p class="lede">SpinDraw is a free raffle wheel and random name picker for Facebook Live, TikTok LIVE, YouTube and Twitch. Paste the comments, show the wheel in OBS, and give viewers a link that replays the draw.</p>
         <div class="cta">
           <a class="btn primary big" href="/app.html">Start a raffle, free</a>
@@ -402,6 +411,7 @@ const homeLd = [
     featureList: ['Spin the wheel', 'Random name picker', 'OBS and Streamlabs overlay', 'Comment picker with keyword filter', 'Weighted entries', 'Verifiable draws'],
   },
   { '@context': 'https://schema.org', '@type': 'WebSite', name: 'SpinDraw', url: SITE + '/' },
+  { '@context': 'https://schema.org', '@type': 'Organization', name: 'SpinDraw', url: SITE + '/', logo: SITE + '/icon-512.png' },
   faqLd(HOME_FAQ),
 ];
 
@@ -481,7 +491,6 @@ const urls = [
   ['/', '1.0'],
   ['/app.html', '0.9'],
   ...GUIDES.map(g => [`/${g.slug}/`, '0.8']),
-  ['/verify.html', '0.4'],
   ['/privacy.html', '0.2'],
 ];
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
@@ -491,7 +500,6 @@ ${urls.map(([u, p]) => `  <url><loc>${SITE}${u}</loc><lastmod>${TODAY}</lastmod>
 `);
 write('robots.txt', `User-agent: *
 Allow: /
-Disallow: /overlay.html
 
 Sitemap: ${SITE}/sitemap.xml
 `);

@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /overlay.html
 
 Sitemap: https://spindraw.online/sitemap.xml
