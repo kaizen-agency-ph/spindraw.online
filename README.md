@@ -17,6 +17,15 @@ Edit the copy in `scripts/build-pages.mjs`, then run `node scripts/build-pages.m
 
 After the domain is live, add the site in Google Search Console (a DNS TXT record at Namecheap) and submit `https://spindraw.online/sitemap.xml`.
 
+## Brand assets
+
+The logo mark was generated with Higgsfield (Recraft V4.1, vector mode), then cleaned up: background removed, colors snapped to the palette, cropped square.
+
+- `logo-mark.svg` / `logo-mark-dark.svg`: the mark for light and dark backgrounds. The header swaps them with the theme.
+- `favicon.svg` switches its ring color with the browser's color scheme. `favicon.ico` (16/32/48) is the fallback.
+- `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`: app and manifest icons.
+- `brand/`: wordmark lockups (`spindraw-logo-light.png` / `-dark.png`, 1200×320, transparent) and the mark SVGs for social profiles and press.
+
 ## Theme
 
 Light is the default, and dark follows the system. The toggle in the top bar saves the choice under `spindraw:theme`. Color tokens are in `css/style.css`. The overlay stays dark on purpose.

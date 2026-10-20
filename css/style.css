@@ -84,7 +84,9 @@ label.check input { width: auto; accent-color: var(--accent); }
 
 /* Brand */
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: var(--text); text-decoration: none; letter-spacing: -.02em; }
-.brand-mark { width: 22px; height: 22px; border-radius: 50%; background: conic-gradient(var(--accent) 0 25%, var(--coral) 0 50%, var(--teal) 0 75%, #3a86ff 0); box-shadow: 0 0 0 3px var(--bg), 0 0 0 4px var(--line); }
+.brand-mark { width: 26px; height: 26px; flex: none; background: url(../logo-mark.svg) center / contain no-repeat; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .brand-mark { background-image: url(../logo-mark-dark.svg); } }
+:root[data-theme="dark"] .brand-mark { background-image: url(../logo-mark-dark.svg); }
 .theme-toggle { width: 36px; height: 36px; padding: 0; }
 .theme-toggle svg { width: 18px; height: 18px; }
 

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SpinDraw overlay</title>
   <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,7 +39,8 @@
     .ov-foot { display: flex; justify-content: space-between; align-items: end; gap: 2vmin; font-size: 1.8vmin; }
     .ov-commit { background: rgba(15, 16, 19, .85); color: var(--muted); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-family: 'Geist Mono', monospace; }
     .ov-commit:empty { visibility: hidden; }
-    .ov-mark { background: rgba(15, 16, 19, .85); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-weight: 600; }
+    .ov-mark { background: rgba(15, 16, 19, .85); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-weight: 600; display: inline-flex; align-items: center; gap: .8vmin; }
+    .ov-mark img { width: 2.2vmin; height: 2.2vmin; }
 
     .ov-winner { position: absolute; inset: 0; display: grid; place-items: center; z-index: 5; }
     .ov-winner .box { background: var(--accent); color: var(--ink); border-radius: 3vmin; padding: 4vmin 7vmin; text-align: center; max-width: 86vw; box-shadow: 0 3vmin 8vmin rgba(0, 0, 0, .5); animation: pop .6s cubic-bezier(.2, 1.4, .4, 1); }
@@ -89,7 +91,7 @@
     </div>
     <footer class="ov-foot">
       <span class="ov-commit" id="ovCommit"></span>
-      <span class="ov-mark">made with SpinDraw</span>
+      <span class="ov-mark"><img src="logo-mark-dark.svg" alt="" width="18" height="18">made with SpinDraw</span>
     </footer>
   </div>
   <div class="ov-winner" id="ovWinner" hidden>
