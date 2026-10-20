@@ -41,6 +41,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"SpinDraw","url":"https://spindraw.online/"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"SpinDraw","url":"https://spindraw.online/","logo":"https://spindraw.online/icon-512.png"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is SpinDraw free?","acceptedAnswer":{"@type":"Answer","text":"Yes. SpinDraw is free with no sign-up. Ads on the website pay for it, and they never appear on the overlay your viewers see."}},{"@type":"Question","name":"Can I use the wheel in OBS or Streamlabs?","acceptedAnswer":{"@type":"Answer","text":"Yes. Copy the overlay URL from the Stream tab and add it as a Browser source. It has a transparent background and comes in 16:9 and vertical 9:16."}},{"@type":"Question","name":"Is the wheel really random?","acceptedAnswer":{"@type":"Answer","text":"Every pick is computed with HMAC-SHA256 from a secret 256-bit random seed. The seed is committed on screen before the draw and revealed afterwards, so anyone can replay the result."}},{"@type":"Question","name":"How can viewers know the draw wasn’t rigged?","acceptedAnswer":{"@type":"Answer","text":"Before spinning, SpinDraw shows a commitment code that locks the entry list and the seed. After the raffle, the verify page recomputes every winner and viewers compare the code with what they saw live."}},{"@type":"Question","name":"Is SpinDraw a Wheel of Names alternative?","acceptedAnswer":{"@type":"Answer","text":"Yes, one focused on live raffles: it adds a fairness proof, comment pasting with keyword filters, a prize queue with claim timers and a vertical overlay for TikTok."}},{"@type":"Question","name":"Where are my entries stored?","acceptedAnswer":{"@type":"Answer","text":"Only in your browser. Nothing is uploaded unless you share a verify link or proof file."}},{"@type":"Question","name":"Do I need a permit to run a raffle?","acceptedAnswer":{"@type":"Answer","text":"It depends on where you are and how people enter. Free giveaways are usually simple, but raffles tied to purchases are often regulated as sales promotions (in the Philippines, by the DTI), and selling raffle slots can count as gambling. Check your local rules. SpinDraw picks the winner fairly; it doesn’t make a promotion legal."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoObject","name":"SpinDraw in 46 seconds","description":"How to run a fair live-stream raffle with SpinDraw: paste the comments, lock the entries, spin the wheel in OBS, and prove the draw was fair.","thumbnailUrl":["https://spindraw.online/media/spindraw-explainer-poster.jpg"],"uploadDate":"2026-10-20","duration":"PT46S","contentUrl":"https://spindraw.online/media/spindraw-explainer.mp4"}</script>
 </head>
 <body>
   <header class="topbar">
@@ -78,6 +79,17 @@
       <div class="product" aria-hidden="true">
         <div class="product-bar"><i></i><i></i><i></i></div>
         <div class="demo"><canvas id="demo"></canvas><span class="demo-name" id="demoName">Maria Santos</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="video">
+      <div class="section-head">
+        <div class="kicker">Watch</div>
+        <h2>SpinDraw in 46 seconds</h2>
+        <p>Paste, lock, spin, prove: the whole raffle, start to finish.</p>
+      </div>
+      <div class="video-frame">
+        <video id="explainer" src="/media/spindraw-explainer.mp4" poster="/media/spindraw-explainer-poster.jpg" muted loop playsinline preload="none" controls width="1920" height="1080" aria-label="SpinDraw explainer: paste comments, lock the entries, spin the wheel live in OBS, and prove the draw was fair"></video>
       </div>
     </section>
 
@@ -175,6 +187,13 @@
     }
     document.fonts?.ready.then(() => { w.cache = null; w.draw(); });
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setTimeout(loop, 800);
+    // Explainer: play muted while on screen, pause when scrolled away (never autoplay with reduced motion).
+    const v = document.getElementById('explainer');
+    if (v && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
+      }, { threshold: 0.5 }).observe(v);
+    }
   </script>
 </body>
 </html>

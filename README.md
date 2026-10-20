@@ -27,6 +27,17 @@ The logo mark is an "S" made of two half-circles on a shared spine (180° rotati
 - `brand/spindraw-app-icon.svg`: the ink-tile app icon.
 - `brand/`: wordmark lockups (`spindraw-logo-light.png` / `-dark.png`, 1200×320, transparent) and the mark SVGs for social profiles and press.
 
+## Explainer video
+
+`media/spindraw-explainer.mp4` (46s, 1920×1080, silent, about 3.3MB) plays on the home page, loads only when scrolled to, and has VideoObject structured data.
+It's a Motion (motion.dev) composition, `scripts/explainer/explainer.html`, that uses the real wheel and logo. `render.mjs` seeks it frame by frame in headless Chrome and encodes it with ffmpeg:
+
+```sh
+npm start   # serve on :5173
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --remote-debugging-port=9333 &
+node scripts/explainer/render.mjs /tmp/frames 30
+```
+
 ## Theme
 
 Light is the default, and dark follows the system. The toggle in the top bar saves the choice under `spindraw:theme`. Color tokens are in `css/style.css`. The overlay stays dark on purpose.

@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SpinDraw explainer (render source)</title>
+<meta name="robots" content="noindex">
+<!-- 1920×1080 motion composition. render.mjs seeks it frame by frame with window.seek(t). -->
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=block" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/motion@13.4.6/dist/motion.js"></script>
+<style>
+  :root { --bg: #fafafa; --panel: #fff; --line: #e4e4e7; --text: #18181b; --muted: #71717a; --accent: #ffd23f; --ink: #0f1013; --ok: #16a34a; --coral: #ff5d73; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--text); font-family: Geist, sans-serif; -webkit-font-smoothing: antialiased; }
+  .scene { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; }
+  .mono { font-family: 'Geist Mono', monospace; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 30px 80px -30px rgba(24, 24, 27, .25), 0 2px 6px rgba(24, 24, 27, .05); }
+  .kicker { font: 600 26px Geist; color: #a16207; letter-spacing: .08em; text-transform: uppercase; }
+  .title { font: 700 84px/1.02 Geist; letter-spacing: -.045em; margin: 14px 0 0; }
+  .mark-hl { background: linear-gradient(transparent 62%, var(--accent) 62%, var(--accent) 92%, transparent 92%); }
+
+  /* Step progress (scenes 3–6) */
+  #steps { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); display: flex; gap: 14px; opacity: 0; }
+  #steps span { font: 600 22px Geist; color: var(--muted); padding: 10px 20px 10px 14px; border-radius: 99px; border: 1px solid var(--line); background: #fff; display: flex; gap: 10px; align-items: center; }
+  #steps b { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #f4f4f5; font: 600 16px 'Geist Mono'; }
+  #steps span.on { color: var(--text); border-color: var(--text); }
+  #steps span.on b { background: var(--text); color: #fff; }
+
+  /* 1 · logo */
+  #s1 .lock { display: flex; align-items: center; gap: 40px; }
+  #s1 svg { width: 230px; height: 230px; }
+  #s1 .word { font: 600 190px Geist; letter-spacing: -.055em; }
+  #s1 .tag { position: absolute; top: 700px; width: 100%; text-align: center; font: 500 48px Geist; color: var(--muted); letter-spacing: -.02em; }
+
+  /* 2 · trust problem */
+  #s2 h2 { position: absolute; top: 170px; width: 100%; text-align: center; }
+  .bubble { position: absolute; font: 500 40px Geist; padding: 22px 30px; border-radius: 26px 26px 26px 6px; background: #fff; border: 1px solid var(--line); box-shadow: 0 18px 40px -20px rgba(0,0,0,.25); display: flex; gap: 16px; align-items: center; }
+  .bubble i { font-style: normal; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font: 600 24px Geist; color: #fff; }
+
+  /* 3 · paste */
+  #s3 .wrap { display: grid; grid-template-columns: 640px 120px 640px; align-items: center; gap: 0; margin-top: 120px; }
+  .dump { padding: 30px 34px; font: 400 25px/1.55 Geist; color: #3f3f46; height: 560px; overflow: hidden; }
+  .dump .n { font-weight: 600; color: var(--text); }
+  .dump .m { color: #a1a1aa; font-size: 21px; }
+  .arrow { font: 400 84px Geist; color: #a1a1aa; text-align: center; }
+  .list { padding: 26px 30px; height: 560px; }
+  .list .row { display: flex; align-items: center; gap: 16px; font: 500 30px Geist; padding: 11px 6px; border-bottom: 1px solid #f4f4f5; }
+  .list .row::before { content: ''; width: 14px; height: 14px; border-radius: 50%; background: var(--c, #ffd23f); flex: none; }
+  .chip { display: inline-flex; gap: 10px; font: 600 24px Geist; padding: 10px 18px; border-radius: 99px; background: #f4f4f5; margin-top: 18px; }
+  .chip.ok { background: rgba(22,163,74,.1); color: var(--ok); }
+  #s3 .cap, #s4 .cap, #s5 .cap, #s6 .cap { position: absolute; top: 160px; width: 100%; text-align: center; }
+
+  /* 4 · lock */
+  #s4 .lockcard { margin-top: 120px; width: 1180px; padding: 54px 64px; display: grid; grid-template-columns: 170px 1fr; gap: 50px; align-items: center; }
+  #s4 .padlock { position: relative; width: 150px; height: 170px; }
+  #s4 .shackle { position: absolute; left: 30px; top: 0; width: 90px; height: 100px; border: 18px solid var(--ink); border-bottom: 0; border-radius: 60px 60px 0 0; }
+  #s4 .body { position: absolute; left: 0; bottom: 0; width: 150px; height: 110px; border-radius: 22px; background: var(--accent); }
+  #s4 .lbl { font: 600 24px Geist; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+  #s4 .hash { font: 500 44px/1.35 'Geist Mono'; word-break: break-all; margin-top: 12px; min-height: 120px; }
+  #s4 .note { font: 500 30px Geist; color: var(--muted); margin-top: 20px; }
+
+  /* 5 · spin live */
+  #s5 .stream { position: absolute; place-self: start; top: 328px; left: calc(50% - 620px); width: 1240px; height: 698px; border-radius: 26px; background: #111317; position: relative; overflow: hidden; box-shadow: 0 40px 90px -30px rgba(0,0,0,.5); }
+  #s5 .live { position: absolute; top: 28px; left: 30px; display: flex; gap: 12px; font: 700 24px Geist; color: #fff; }
+  #s5 .live b { background: #e11d48; padding: 6px 14px; border-radius: 8px; }
+  #s5 .live span { background: rgba(255,255,255,.12); padding: 6px 14px; border-radius: 8px; font-weight: 500; }
+  #s5 .wheelbox { position: absolute; left: 60px; top: 64px; width: 590px; height: 590px; }
+  #s5 .wheelbox canvas { position: absolute; inset: 0; }
+  #s5 .side { position: absolute; left: 710px; top: 150px; width: 480px; color: #f4f4f5; }
+  #s5 .side .k { font: 600 22px Geist; letter-spacing: .12em; color: #a1a1aa; }
+  #s5 .side .v { font: 700 46px/1.1 Geist; letter-spacing: -.03em; margin-top: 8px; }
+  #s5 .ticker { margin-top: 60px; font: 700 52px Geist; min-height: 64px; }
+  #s5 .win { position: absolute; left: 50%; top: 50%; width: 880px; margin-left: -440px; margin-top: -170px; padding: 40px; border-radius: 28px; background: var(--accent); color: var(--ink); text-align: center; opacity: 0; }
+  #s5 .win .k { font: 800 26px Geist; letter-spacing: .24em; }
+  #s5 .win .v { font: 700 104px Geist; letter-spacing: -.04em; margin: 8px 0; }
+  #s5 .win .p { font: 600 34px Geist; }
+  #confetti { position: absolute; inset: 0; pointer-events: none; }
+
+  /* 6 · prove */
+  #s6 .vcard { margin-top: 120px; width: 1180px; padding: 46px 56px; }
+  #s6 .verdict { font: 700 46px Geist; color: var(--ok); background: rgba(22,163,74,.08); border: 2px solid rgba(22,163,74,.4); border-radius: 18px; padding: 24px 30px; }
+  #s6 .verdict small { display: block; font: 500 26px Geist; color: #3f3f46; margin-top: 6px; }
+  #s6 .rowc { display: grid; grid-template-columns: 300px 1fr 70px; gap: 20px; align-items: center; margin-top: 30px; font: 500 30px Geist; }
+  #s6 .rowc .l { font: 600 22px Geist; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+  #s6 .rowc .h { font: 500 34px 'Geist Mono'; padding: 10px 14px; border-radius: 10px; }
+  #s6 .rowc .ck { font: 700 40px Geist; color: var(--ok); opacity: 0; }
+
+  /* 7 · end */
+  #s7 .center { text-align: center; }
+  #s7 .lock { display: inline-flex; align-items: center; gap: 30px; }
+  #s7 svg { width: 150px; height: 150px; }
+  #s7 .word { font: 600 120px Geist; letter-spacing: -.055em; }
+  #s7 .sub { font: 500 40px Geist; color: var(--muted); margin-top: 34px; letter-spacing: -.01em; }
+  #s7 .plats { display: flex; gap: 14px; justify-content: center; margin-top: 30px; }
+  #s7 .plats span { font: 600 28px Geist; padding: 12px 22px; border-radius: 99px; background: #fff; border: 1px solid var(--line); }
+  #s7 .cta { display: inline-flex; align-items: center; gap: 18px; margin-top: 56px; font: 700 46px Geist; background: var(--accent); color: var(--ink); padding: 22px 44px; border-radius: 18px; letter-spacing: -.02em; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="mark"><path fill="#0f1013" d="M50 8A28 28 0 0 0 50 64Z"/><path fill="#0f1013" d="M50 36A28 28 0 0 1 50 92Z"/><circle cx="50" cy="50" r="7.5" fill="#ffd23f"/></g>
+</defs></svg>
+
+<div id="steps"><span data-s="1"><b>1</b>Paste</span><span data-s="2"><b>2</b>Lock</span><span data-s="3"><b>3</b>Spin</span><span data-s="4"><b>4</b>Prove</span></div>
+
+<section class="scene" id="s1">
+  <div class="lock"><svg viewBox="4 4 92 92" id="s1mark"><use href="#mark"/></svg><div class="word" id="s1word">SpinDraw</div></div>
+  <div class="tag" id="s1tag">The raffle wheel that <span class="mark-hl" style="color:var(--text)">proves</span> it was fair.</div>
+</section>
+
+<section class="scene" id="s2">
+  <h2 class="title" id="s2h">Live giveaways have a<br>trust problem.</h2>
+  <div class="bubble" id="b1" style="left:250px;top:520px"><i style="background:#3a86ff">JK</i>scripted 🙄</div>
+  <div class="bubble" id="b2" style="left:1090px;top:470px"><i style="background:#ff5d73">MS</i>did you even include my name??</div>
+  <div class="bubble" id="b3" style="left:420px;top:750px"><i style="background:#2ec4b6">AR</i>rigged lol, it's always the same people</div>
+  <div class="bubble" id="b4" style="left:1260px;top:700px"><i style="background:#f59e0b">PP</i>who actually won?</div>
+</section>
+
+<section class="scene" id="s3">
+  <div class="cap"><div class="kicker">Step 1</div><h2 class="title">Paste the comments.</h2></div>
+  <div class="wrap">
+    <div class="card dump" id="dump">
+      <div class="n">Juan Dela Cruz</div><div>#JOIN po sana manalo 🙏</div><div class="m">2m · Like · Reply</div>
+      <div class="n">Maria Santos</div><div>#join!!</div><div class="m">3m · Like · Reply</div>
+      <div class="n">Alex Reyes</div><div>nice stream</div><div class="m">4m · Like · Reply</div>
+      <div class="n">Juan Dela Cruz</div><div>#JOIN ulit</div><div class="m">5m · Like · Reply</div>
+      <div class="n">Priya Patel</div><div>#join 🎉</div>
+    </div>
+    <div class="arrow" id="arrow">→</div>
+    <div class="card list" id="list">
+      <div class="row" style="--c:#ffd23f">Juan Dela Cruz</div>
+      <div class="row" style="--c:#ff5d73">Maria Santos</div>
+      <div class="row" style="--c:#2ec4b6">Priya Patel</div>
+      <div class="row" style="--c:#3a86ff">Sam Lee</div>
+      <div class="row" style="--c:#ff9f1c">Chris Tan</div>
+      <div class="row" style="--c:#ffd23f">Aisha Bello</div>
+      <div><span class="chip ok" id="chip1"><span id="count">0</span> entries</span> <span class="chip" id="chip2">duplicates &amp; spam removed</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="s4">
+  <div class="cap"><div class="kicker">Step 2</div><h2 class="title">Lock it before you spin.</h2></div>
+  <div class="card lockcard">
+    <div class="padlock"><div class="shackle" id="shackle"></div><div class="body"></div></div>
+    <div>
+      <div class="lbl">Commitment · shown on stream</div>
+      <div class="hash" id="hash"></div>
+      <div class="note" id="lnote">Viewers can screenshot it. Nobody can be added or removed after this.</div>
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="s5">
+  <div class="cap"><div class="kicker">Step 3</div><h2 class="title">Spin it live, right in OBS.</h2></div>
+  <div class="stream" id="stream">
+    <div class="live"><b>LIVE</b><span>👁 1.2K watching</span></div>
+    <div class="wheelbox"><canvas id="wheel"></canvas></div>
+    <div class="side">
+      <div class="k">DRAWING FOR</div><div class="v">₱5,000 GCash</div>
+      <div class="ticker" id="ticker"></div>
+    </div>
+    <div class="win" id="win"><div class="k">WINNER</div><div class="v">Maria Santos</div><div class="p">₱5,000 GCash · claim in chat</div></div>
+    <canvas id="confetti" width="1240" height="698"></canvas>
+  </div>
+</section>
+
+<section class="scene" id="s6">
+  <div class="cap"><div class="kicker">Step 4</div><h2 class="title">Prove it was fair.</h2></div>
+  <div class="card vcard">
+    <div class="verdict" id="verdict">✓ All draws check out<small>Anyone can re-run the draw from the verify link.</small></div>
+    <div class="rowc"><div class="l">Shown on stream</div><div class="h mono" id="h1">3f9a1c7e…</div><div></div></div>
+    <div class="rowc"><div class="l">Verify page</div><div class="h mono" id="h2">3f9a1c7e…</div><div class="ck" id="ck">✓</div></div>
+  </div>
+</section>
+
+<section class="scene" id="s7">
+  <div class="center">
+    <div class="lock"><svg viewBox="4 4 92 92"><use href="#mark"/></svg><div class="word">SpinDraw</div></div>
+    <div class="sub">Free · No sign-up · Works in your browser</div>
+    <div class="plats"><span>Facebook Live</span><span>TikTok LIVE</span><span>YouTube</span><span>Twitch</span></div>
+    <div class="cta" id="cta">spindraw.online</div>
+  </div>
+</section>
+
+<script type="module">
+import { Wheel } from '/js/wheel.js';
+const { animate } = window.Motion;
+const $ = s => document.querySelector(s);
+const E = [0.22, 1, 0.36, 1];          // ease-out-quint-ish
+const fadeIn = (el, at, d = .6, y = 30) => [el, { opacity: [0, 1], transform: [`translateY(${y}px)`, 'translateY(0px)'] }, { at, duration: d, ease: E }];
+const fadeOut = (el, at, d = .45) => [el, { opacity: [1, 0] }, { at, duration: d, ease: 'easeIn' }];
+const show = (el, at, d = .5) => [el, { opacity: [0, 1] }, { at, duration: d }];
+
+// Scene windows (seconds)
+const T = { s1: [0, 5], s2: [5, 11], s3: [11, 18], s4: [18, 24], s5: [24, 34.5], s6: [34.5, 40.5], s7: [40.5, 46] };
+export const DURATION = 46;
+
+const seq = [
+  // 1 · logo
+  show('#s1', 0, .01),
+  ['#s1mark', { opacity: [0, 1], transform: ['rotate(-200deg) scale(.5)', 'rotate(0deg) scale(1)'] }, { at: .3, duration: 1.3, ease: E }],
+  ['#s1word', { opacity: [0, 1], transform: ['translateX(-40px)', 'translateX(0px)'] }, { at: 1.0, duration: .8, ease: E }],
+  fadeIn('#s1tag', 1.9, .8),
+  fadeOut('#s1', 4.5),
+  // 2 · trust problem
+  show('#s2', 5, .01), fadeIn('#s2h', 5.2, .7),
+  ...['#b1', '#b2', '#b3', '#b4'].map((b, i) => [b, { opacity: [0, 1], transform: ['scale(.7) translateY(20px)', 'scale(1) translateY(0px)'] }, { at: 6.2 + i * .7, duration: .5, ease: [0.34, 1.56, 0.64, 1] }]),
+  fadeOut('#s2', 10.5),
+  // step chips
+  show('#steps', 11, .5), fadeOut('#steps', 40),
+  // 3 · paste
+  show('#s3', 11, .01), fadeIn('#s3 .cap', 11.2, .7),
+  fadeIn('#dump', 11.8, .7, 40),
+  ['#arrow', { opacity: [0, 1], transform: ['translateX(-20px)', 'translateX(0px)'] }, { at: 13, duration: .5, ease: E }],
+  fadeIn('#list', 13.2, .6, 40),
+  ...[...document.querySelectorAll('#list .row')].map((r, i) => [r, { opacity: [0, 1], transform: ['translateX(24px)', 'translateX(0px)'] }, { at: 13.6 + i * .22, duration: .4, ease: E }]),
+  fadeIn('#chip1', 15.1, .5, 10), fadeIn('#chip2', 15.4, .5, 10),
+  fadeOut('#s3', 17.5),
+  // 4 · lock
+  show('#s4', 18, .01), fadeIn('#s4 .cap', 18.2, .7), fadeIn('#s4 .lockcard', 18.6, .7, 40),
+  ['#shackle', { transform: ['translateY(-36px)', 'translateY(0px)'] }, { at: 19.4, duration: .45, ease: [0.5, 0, 0.75, 0] }],
+  fadeIn('#lnote', 21.6, .6, 12),
+  fadeOut('#s4', 23.5),
+  // 5 · spin
+  show('#s5', 24, .01), fadeIn('#s5 .cap', 24.1, .6), fadeIn('#stream', 24.4, .7, 50),
+  ['#win', { opacity: [0, 1], transform: ['scale(.6)', 'scale(1)'] }, { at: 31.4, duration: .6, ease: [0.34, 1.56, 0.64, 1] }],
+  fadeOut('#s5', 34),
+  // 6 · prove
+  show('#s6', 34.5, .01), fadeIn('#s6 .cap', 34.7, .7), fadeIn('#s6 .vcard', 35.1, .7, 40),
+  ['#ck', { opacity: [0, 1], transform: ['scale(.4)', 'scale(1)'] }, { at: 37.2, duration: .5, ease: [0.34, 1.56, 0.64, 1] }],
+  ['#h1', { backgroundColor: ['rgba(22,163,74,0)', 'rgba(22,163,74,.14)'] }, { at: 37.2, duration: .5 }],
+  ['#h2', { backgroundColor: ['rgba(22,163,74,0)', 'rgba(22,163,74,.14)'] }, { at: 37.2, duration: .5 }],
+  fadeOut('#s6', 40),
+  // 7 · end
+  show('#s7', 40.5, .01),
+  fadeIn('#s7 .lock', 40.6, .8), fadeIn('#s7 .sub', 41.3, .7, 16), fadeIn('#s7 .plats', 41.8, .7, 16),
+  ['#cta', { opacity: [0, 1], transform: ['scale(.85)', 'scale(1)'] }, { at: 42.6, duration: .6, ease: [0.34, 1.56, 0.64, 1] }],
+];
+const controls = animate(seq);
+controls.pause();
+
+// The real SpinDraw wheel, driven by time so every frame is reproducible.
+const names = ['Juan Dela Cruz', 'Maria Santos', 'Priya Patel', 'Sam Lee', 'Chris Tan', 'Aisha Bello', 'Leo Cruz', 'Bea Ramos', 'Jordan Kim', 'Mika Lim'];
+const wheel = new Wheel($('#wheel'));
+wheel.setEntries(names.map(name => ({ name, weight: 1 })));
+const winIdx = 1;
+const plan = (() => { const r0 = wheel.rotation; Math.random = (() => { let s = 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; })(); const p = wheel.planSpin(winIdx, 6); wheel.rotation = r0; return p; })();
+const ease = t => 1 - Math.pow(1 - t, 4);
+const SPIN = [25.2, 31.2];
+
+// Deterministic confetti
+const cv = $('#confetti'), g = cv.getContext('2d');
+const COLORS = ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c', '#f4f1e8'];
+let seed = 42; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const parts = Array.from({ length: 160 }, (_, i) => { const left = i % 2 === 0; const a = (left ? -62 : -118) * Math.PI / 180 + (rnd() - .5) * .9; const v = 900 + rnd() * 700; return { x0: left ? 0 : 1240, y0: 640, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: rnd() * 6, vr: (rnd() - .5) * 10, w: 10 + rnd() * 10, h: 7 + rnd() * 8, c: COLORS[i % 6] }; });
+function confettiAt(dt) {
+  g.clearRect(0, 0, 1240, 698);
+  if (dt < 0 || dt > 2.6) return;
+  g.globalAlpha = Math.min(1, (2.6 - dt) / .6);
+  for (const p of parts) {
+    const k = 1.6; // drag
+    const x = p.x0 + p.vx * (1 - Math.exp(-k * dt)) / k;
+    const y = p.y0 + p.vy * (1 - Math.exp(-k * dt)) / k + 0.5 * 1500 * dt * dt * .55;
+    const r = p.r + p.vr * dt;
+    g.save(); g.translate(x, y); g.rotate(r); g.fillStyle = p.c; g.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(r * 2))); g.restore();
+  }
+}
+
+const HASH = '3f9a1c7e8b2d4f60a91e5c3b7d2a8f14e6b09c5d3a7f2e81';
+function render(t) {
+  controls.time = t;
+  // wheel
+  const s = Math.min(1, Math.max(0, (t - SPIN[0]) / (SPIN[1] - SPIN[0])));
+  wheel.rotation = plan.from + (plan.to - plan.from) * ease(s);
+  wheel.draw();
+  $('#ticker').textContent = t >= SPIN[0] && t < 31.4 ? names[wheel.indexAt()] : '';
+  confettiAt(t - 31.4);
+  // typed commitment
+  const typed = Math.max(0, Math.min(HASH.length, Math.floor((t - 19.9) * 26)));
+  $('#hash').textContent = HASH.slice(0, typed) + (typed < HASH.length && t > 19.9 ? '▍' : '');
+  // entry counter
+  const c = Math.round(212 * Math.min(1, Math.max(0, (t - 15.1) / 1.1)));
+  $('#count').textContent = c;
+  // step chips
+  const step = t < 18 ? 1 : t < 24 ? 2 : t < 34.5 ? 3 : 4;
+  document.querySelectorAll('#steps span').forEach(sp => sp.classList.toggle('on', +sp.dataset.s === step));
+}
+
+window.seek = async t => { render(t); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); };
+window.DURATION = DURATION;
+await document.fonts.ready;
+wheel.cache = null;
+render(0);
+window.ready = true;
+</script>
+</body>
+</html>

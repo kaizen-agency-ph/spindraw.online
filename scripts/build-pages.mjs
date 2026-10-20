@@ -337,6 +337,17 @@ const homeBody = `
       </div>
     </section>
 
+    <section class="section" id="video">
+      <div class="section-head">
+        <div class="kicker">Watch</div>
+        <h2>SpinDraw in 46 seconds</h2>
+        <p>Paste, lock, spin, prove: the whole raffle, start to finish.</p>
+      </div>
+      <div class="video-frame">
+        <video id="explainer" src="/media/spindraw-explainer.mp4" poster="/media/spindraw-explainer-poster.jpg" muted loop playsinline preload="none" controls width="1920" height="1080" aria-label="SpinDraw explainer: paste comments, lock the entries, spin the wheel live in OBS, and prove the draw was fair"></video>
+      </div>
+    </section>
+
     <section class="section" id="features">
       <div class="section-head">
         <div class="kicker">Features</div>
@@ -407,6 +418,13 @@ const homeDemo = `
     }
     document.fonts?.ready.then(() => { w.cache = null; w.draw(); });
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setTimeout(loop, 800);
+    // Explainer: play muted while on screen, pause when scrolled away (never autoplay with reduced motion).
+    const v = document.getElementById('explainer');
+    if (v && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
+      }, { threshold: 0.5 }).observe(v);
+    }
   </script>`;
 
 const homeLd = [
@@ -424,6 +442,16 @@ const homeLd = [
   { '@context': 'https://schema.org', '@type': 'WebSite', name: 'SpinDraw', url: SITE + '/' },
   { '@context': 'https://schema.org', '@type': 'Organization', name: 'SpinDraw', url: SITE + '/', logo: SITE + '/icon-512.png' },
   faqLd(HOME_FAQ),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: 'SpinDraw in 46 seconds',
+    description: 'How to run a fair live-stream raffle with SpinDraw: paste the comments, lock the entries, spin the wheel in OBS, and prove the draw was fair.',
+    thumbnailUrl: [SITE + '/media/spindraw-explainer-poster.jpg'],
+    uploadDate: '2026-10-20',
+    duration: 'PT46S',
+    contentUrl: SITE + '/media/spindraw-explainer.mp4',
+  },
 ];
 
 function write(rel, html) {

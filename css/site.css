@@ -112,3 +112,6 @@ footer.site p { color: var(--muted); margin: 10px 0 0; max-width: 28em; }
 @media (max-width: 900px) { .mnav { display: block; } }
 footer.site .brand { padding: 8px 0; }
 footer.site a.kofi-btn, footer.site a.kofi-btn:hover { color: #fff; padding: 8px 14px; }
+
+.video-frame { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fafafa; box-shadow: 0 20px 50px -20px rgba(24, 24, 27, .25), var(--shadow); aspect-ratio: 16 / 9; }
+.video-frame video { display: block; width: 100%; height: 100%; }
