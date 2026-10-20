@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <!-- Google tag (gtag.js). page_location drops the #hash, which holds entrants' names. -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z58QLX9W8M"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Z58QLX9W8M', { page_location: location.origin + location.pathname });
+  </script>
   <link rel="canonical" href="https://spindraw.online/verify.html">
   <!-- Each raffle lives in the URL hash, so the bare page has nothing to index. -->
   <meta name="robots" content="noindex, follow">

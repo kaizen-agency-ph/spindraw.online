@@ -4,6 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z58QLX9W8M"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Z58QLX9W8M');
+  </script>
   <link rel="canonical" href="https://spindraw.online/privacy.html">
   <link rel="icon" href="favicon.ico" sizes="32x32">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -37,6 +45,8 @@
     <p>Entry lists, prizes, settings and raffle seeds are saved only in your browser’s local storage. They are never sent to our servers. A verify link holds the raffle data in the part of the URL after <code>#</code>, which browsers don’t send to servers. It is only shared if you share it.</p>
     <h2>Overlay connection</h2>
     <p>To reach an OBS browser source, the control panel and overlay connect peer-to-peer over WebRTC using the public PeerJS signalling service (peerjs.com). Raffle state then travels directly between the two windows.</p>
+    <h2>Analytics</h2>
+    <p>We use Google Analytics 4 to understand how many people visit and which pages they use. It sets cookies and collects data such as pages viewed, approximate location, device and browser. We don’t send your entry lists or raffle details to Google Analytics: on the verify page we report the page address without the raffle data after the <code>#</code>, and the stream overlay has no analytics at all. You can opt out with the <a href="https://tools.google.com/dlpage/gaoptout">Google Analytics opt-out add-on</a>.</p>
     <h2>Advertising and cookies</h2>
     <p>We use Google AdSense to show ads. Google and its partners use cookies to serve ads based on your visits to this and other websites. You can opt out of personalised advertising at <a href="https://www.google.com/settings/ads">Google Ads Settings</a> or <a href="https://www.aboutads.info">aboutads.info</a>. See <a href="https://policies.google.com/technologies/partner-sites">how Google uses data from partner sites</a>.</p>
     <p>Visitors in the EEA, UK and Switzerland are asked for consent through a Google-certified consent banner before personalised ads load.</p>
