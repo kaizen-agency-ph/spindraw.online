@@ -1,4 +1,5 @@
-import { Wheel } from './wheel.js';
+import { Wheel, PALETTES, DEFAULT_THEME } from './wheel.js';
+import { fileToDataURL, loadAll } from './images.js';
 import * as fair from './fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl, toCSV } from './intake.js';
 import { Channel } from './sync.js';
@@ -7,6 +8,7 @@ import { confetti, sound } from './fx.js';
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const KEY = 'spindraw:v1';
+const IMG_KEY = 'spindraw:images';
 const SAMPLE = 'Juan Dela Cruz\nMaria Santos x2\nAlex Reyes\nSam Lee\nPriya Patel\nChris Tan\nJordan Kim\nAisha Bello';
 
 const defaults = () => ({
@@ -16,7 +18,7 @@ const defaults = () => ({
   format: 'lines', rawText: SAMPLE, keyword: '', dedupe: true,
   entries: [], stats: null,
   prizesText: '', removeWinners: true, claimSeconds: 60,
-  spinSeconds: 7, sound: true, palette: 'stream', showCommit: true,
+  spinSeconds: 7, sound: true, theme: { ...DEFAULT_THEME }, showCommit: true,
   ovLayout: 'wide', ovBg: 'transparent', ovSound: true,
   locked: null, salt: '', draws: [], revealed: false, verifyUrl: '',
   countdownEndsAt: 0, claimEndsAt: 0, log: [],
@@ -25,7 +27,12 @@ const defaults = () => ({
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY));
-    if (s) return { ...defaults(), ...s };
+    if (s) {
+      // Older saves only had a palette name.
+      if (!s.theme) s.theme = { ...DEFAULT_THEME, preset: s.palette ?? 'stream', colors: PALETTES[s.palette] ?? DEFAULT_THEME.colors };
+      delete s.palette;
+      return { ...defaults(), ...s, theme: { ...DEFAULT_THEME, ...s.theme } };
+    }
   } catch {}
   return defaults();
 }
@@ -35,7 +42,12 @@ const S = load();
 let spinning = false;
 const overlays = new Map(); // overlay id → last seen
 
-const wheel = new Wheel($('#wheel'), { palette: S.palette });
+const wheel = new Wheel($('#wheel'), S.theme);
+
+// Image data URLs live under their own key so the frequent state saves stay small.
+let IMG = {};
+try { IMG = JSON.parse(localStorage.getItem(IMG_KEY)) || {}; } catch {}
+let imgVersion = 0;
 let channel;
 channel = new Channel(S.room, 'host', onMessage, renderSync);
 sound.enabled = S.sound;
@@ -61,7 +73,8 @@ function overlayState() {
     title: S.title,
     pool: wheelPool().map(e => [e.name, e.weight]),
     total: S.entries.length,
-    palette: S.palette,
+    theme: S.theme,
+    imgVersion,
     commit: S.showCommit && S.locked ? S.locked.commit : '',
     salt: S.draws.length ? S.salt : '',
     prize: p ? p.prize : nextPrize(),
@@ -298,7 +311,10 @@ function onMessage(type, data, from) {
   if (type === 'hello' || type === 'ping') {
     const fresh = !overlays.has(from);
     overlays.set(from, Date.now());
-    if (type === 'hello' || fresh) channel.send('state', overlayState());
+    if (type === 'hello' || fresh) {
+      channel.send('state', overlayState());
+      channel.send('images', IMG);
+    }
     renderSync();
   }
 }
@@ -352,7 +368,7 @@ function render() {
   $('#ovSound').checked = S.ovSound;
   $('#spinSeconds').value = S.spinSeconds;
   $('#spinLabel').textContent = S.spinSeconds;
-  $('#palette').value = S.palette;
+  renderStyle();
   $('#ovLayout').value = S.ovLayout;
   $('#ovBg').value = S.ovBg;
   $('#ovSize').textContent = S.ovLayout === 'vertical' ? '1080×1920' : '1920×1080';
@@ -423,6 +439,7 @@ function render() {
 
 // ---------- events ----------
 $$('.tabs button').forEach(b => b.addEventListener('click', () => { S.tab = b.dataset.tab; save(); render(); }));
+if (S.tab === 'settings') S.tab = 'style';
 
 $('#title').addEventListener('input', e => { S.title = e.target.value; save(); broadcast(); });
 $('#format').addEventListener('change', e => { S.format = e.target.value; applyEntries(); });
@@ -482,7 +499,6 @@ $('#cdStop').addEventListener('click', () => { S.countdownEndsAt = 0; update(); 
 $('#showCommit').addEventListener('change', e => { S.showCommit = e.target.checked; update(); });
 
 $('#spinSeconds').addEventListener('input', e => { S.spinSeconds = +e.target.value; save(); render(); });
-$('#palette').addEventListener('change', e => { S.palette = e.target.value; wheel.setPalette(S.palette); update({ wheelEntries: true }); });
 $('#soundOn').addEventListener('change', e => { S.sound = sound.enabled = e.target.checked; save(); });
 $('#helpBtn').addEventListener('click', () => $('#helpDialog').showModal());
 
@@ -495,8 +511,122 @@ document.addEventListener('keydown', e => {
   else if (k === 'o') openOverlay();
 });
 
+
+// ---------- style ----------
+function setTheme(patch) {
+  S.theme = { ...S.theme, ...patch };
+  wheel.setTheme(S.theme);
+  if (!spinning) wheel.setEntries(wheelPool());
+  update();
+}
+
+async function applyImages() {
+  wheel.setImages(await loadAll(IMG));
+  renderStyle();
+}
+
+function saveImages() {
+  try {
+    localStorage.setItem(IMG_KEY, JSON.stringify(IMG));
+  } catch {
+    toast('Images are too big to remember after a reload, but they work for this session');
+  }
+  imgVersion++;
+  channel.send('images', IMG);
+  broadcast();
+  applyImages();
+}
+
+function renderStyle() {
+  const th = S.theme;
+  $('#preset').value = th.preset;
+  const sw = $('#swatches');
+  if (!sw.contains(document.activeElement)) {
+    sw.innerHTML = '';
+    th.colors.forEach((c, i) => {
+      const wrap = Object.assign(document.createElement('div'), { className: 'sw' });
+      const input = Object.assign(document.createElement('input'), { type: 'color', value: c });
+      input.setAttribute('aria-label', `Slice color ${i + 1}`);
+      input.addEventListener('input', e => {
+        const colors = [...S.theme.colors];
+        colors[i] = e.target.value;
+        setTheme({ colors, preset: 'custom' });
+      });
+      wrap.append(input);
+      if (th.colors.length > 1) {
+        const rm = Object.assign(document.createElement('button'), { type: 'button', textContent: '×', title: 'Remove color' });
+        rm.addEventListener('click', () => rm.blur() || setTheme({ colors: S.theme.colors.filter((_, j) => j !== i), preset: 'custom' }));
+        wrap.append(rm);
+      }
+      sw.append(wrap);
+    });
+    if (th.colors.length < 12) {
+      const add = Object.assign(document.createElement('button'), { type: 'button', className: 'add', textContent: '+', title: 'Add color' });
+      add.addEventListener('click', () => add.blur() || setTheme({ colors: [...S.theme.colors, th.colors[th.colors.length % 2] ?? '#ffffff'], preset: 'custom' }));
+      sw.append(add);
+    }
+  }
+  $('#textColor').value = th.text;
+  $('#rimColor').value = th.rim;
+  $('#pointerColor').value = th.pointer;
+  $('#hubColor').value = th.hub;
+  $('#wheelOpacity').value = Math.round(th.wheelOpacity * 100);
+  $('#wheelOpacityLabel').textContent = Math.round(th.wheelOpacity * 100);
+  $('#bgDim').value = Math.round(th.bgDim * 100);
+  $('#bgDimLabel').textContent = Math.round(th.bgDim * 100);
+  $('#wheelOpacityWrap').hidden = !IMG.wheel;
+  $('#bgDimWrap').hidden = !IMG.bg;
+  document.querySelectorAll('.img-slot').forEach(el => {
+    const src = IMG[el.dataset.slot];
+    const t = el.querySelector('.thumb');
+    t.style.backgroundImage = src ? `url(${src})` : '';
+    t.classList.toggle('has', !!src);
+    el.querySelector('.img-remove').hidden = !src;
+  });
+  // Preview the overlay background behind the control-panel wheel.
+  const box = $('.wheel-box');
+  box.classList.toggle('has-bg', !!IMG.bg);
+  box.style.backgroundImage = IMG.bg ? `linear-gradient(rgba(0,0,0,${th.bgDim}), rgba(0,0,0,${th.bgDim})), url(${IMG.bg})` : '';
+}
+
+$('#preset').addEventListener('change', e => {
+  const p = e.target.value;
+  setTheme(p === 'custom' ? { preset: p } : { preset: p, colors: [...PALETTES[p]] });
+});
+$('#textColor').addEventListener('change', e => setTheme({ text: e.target.value }));
+$('#rimColor').addEventListener('input', e => setTheme({ rim: e.target.value }));
+$('#pointerColor').addEventListener('input', e => setTheme({ pointer: e.target.value }));
+$('#hubColor').addEventListener('input', e => setTheme({ hub: e.target.value }));
+$('#wheelOpacity').addEventListener('input', e => setTheme({ wheelOpacity: +e.target.value / 100 }));
+$('#bgDim').addEventListener('input', e => setTheme({ bgDim: +e.target.value / 100 }));
+$('#resetStyle').addEventListener('click', () => {
+  IMG = {};
+  setTheme({ ...DEFAULT_THEME });
+  saveImages();
+});
+document.querySelectorAll('.img-slot').forEach(el => {
+  const slot = el.dataset.slot;
+  el.querySelector('input[type=file]').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    try {
+      IMG = { ...IMG, [slot]: await fileToDataURL(f, slot) };
+      saveImages();
+    } catch {
+      toast('Couldn’t read that image');
+    }
+  });
+  el.querySelector('.img-remove').addEventListener('click', () => {
+    IMG = { ...IMG };
+    delete IMG[slot];
+    saveImages();
+  });
+});
+
 // ---------- boot ----------
 if (!S.log.length) addLog('Ready. Paste entries, then lock and spin.');
 if (S.locked) wheel.setEntries(wheelPool()); else applyEntries();
 render();
+applyImages();
 document.fonts?.ready.then(() => { wheel.cache = null; wheel.draw(); });

@@ -26,6 +26,15 @@ It has to be served over http(s). Opening the files with `file://` breaks module
 3. **Draw tab:** **Lock** shows a commitment hash on stream. Then type a **salt word** that chat picks, and press **Space** to spin. **C** = claimed, **R** = no-show → redraw.
 4. **Finish & create verify link** reveals the seed. Post the link in the comments.
 
+## Style
+
+The **Style** tab sets slice colors (presets or 1–12 custom colors), text, rim, pointer and hub colors, plus three images:
+- a **center logo**, which stays upright in the hub;
+- a **wheel image**, which spins with the wheel and is blended over the slices at an adjustable strength;
+- an overlay **background**, with an adjustable darkening.
+
+Uploads are downscaled (512 / 1024 / 1920 px) to data URLs. They're stored under `spindraw:images` in localStorage and sent to the overlay as an `images` message, so OBS sources get them too.
+
 ## Overlay
 
 Copy the URL from the **Stream** tab into OBS / Streamlabs / TikTok LIVE Studio → Browser source, 1920×1080 (or 1080×1920 for `layout=vertical`).

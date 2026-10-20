@@ -16,6 +16,8 @@
     html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; color: var(--text); font-family: 'Bricolage Grotesque', system-ui, sans-serif; }
     body[data-bg="green"] { background: #00b140; }
     body[data-bg="dark"] { background: #0f1013; }
+    .ov-bg { position: fixed; inset: 0; background: center / cover no-repeat; }
+    .ov-bg::after { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, var(--bg-dim, .35)); }
 
     /* Everything is sized off the viewport so a 1920×1080 browser source and a small popup match. */
     .ov { position: absolute; inset: 0; display: grid; gap: 2vmin; padding: 4vmin; }
@@ -69,6 +71,7 @@
   <script type="module" src="js/overlay.js"></script>
 </head>
 <body data-layout="wide" data-bg="transparent">
+  <div class="ov-bg" id="ovBg" hidden></div>
   <div class="ov" id="ov">
     <header class="ov-head card">
       <div class="ov-title" id="ovTitle">Live Giveaway</div>

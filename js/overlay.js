@@ -1,6 +1,7 @@
 import { Wheel } from './wheel.js';
 import { Channel } from './sync.js';
 import { confetti, sound } from './fx.js';
+import { loadAll } from './images.js';
 
 const $ = s => document.querySelector(s);
 const q = new URLSearchParams(location.search);
@@ -12,7 +13,8 @@ sound.enabled = q.get('sound') !== '0';
 const wheel = new Wheel($('#wheel'));
 let state = null;
 let animating = false;
-let palette = 'stream';
+let themeKey = '';
+let bgSrc = '';
 
 const fmt = ms => {
   const s = Math.max(0, Math.ceil(ms / 1000));
@@ -32,11 +34,24 @@ function apply(s) {
   $('#ovCount').textContent = `${s.pool.length} in the wheel${s.total !== s.pool.length ? ` · ${s.total} entered` : ''}`;
   $('#ovPrize').textContent = s.prize;
   $('#ovCommit').textContent = s.commit ? `commitment ${s.commit.slice(0, 16)}…${s.salt ? ` · salt "${s.salt}"` : ''}${s.revealed ? ' · proof shared by host' : ''}` : '';
-  if (s.palette !== palette) { palette = s.palette; wheel.setPalette(palette); }
+  const key = JSON.stringify(s.theme);
+  if (s.theme && key !== themeKey) {
+    themeKey = key;
+    wheel.setTheme(s.theme);
+    document.body.style.setProperty('--bg-dim', s.theme.bgDim);
+  }
   if (animating) return;
   wheel.setEntries(toEntries(s.pool));
   if (s.winner) showWinner(s.winner, s.prize);
   else $('#ovWinner').hidden = true;
+}
+
+async function applyImages(srcs) {
+  const imgs = await loadAll(srcs);
+  wheel.setImages({ center: imgs.center, wheel: imgs.wheel });
+  bgSrc = srcs.bg || '';
+  $('#ovBg').style.backgroundImage = bgSrc ? `url(${bgSrc})` : '';
+  $('#ovBg').hidden = !bgSrc;
 }
 
 async function onSpin({ from, to, ms, pool, winner, prize }) {
@@ -73,6 +88,7 @@ if (!room) {
   const channel = new Channel(room, 'overlay', (type, data) => {
     if (type === 'state') apply(data);
     else if (type === 'spin') onSpin(data);
+    else if (type === 'images') applyImages(data);
   });
   channel.send('hello');
   setInterval(() => channel.send('ping'), 4000);

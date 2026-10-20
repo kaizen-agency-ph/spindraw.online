@@ -60,7 +60,7 @@
         <button role="tab" data-tab="prizes" type="button">Prizes</button>
         <button role="tab" data-tab="draw" type="button">Draw</button>
         <button role="tab" data-tab="stream" type="button">Stream</button>
-        <button role="tab" data-tab="settings" type="button">Settings</button>
+        <button role="tab" data-tab="style" type="button">Style</button>
       </nav>
 
       <div class="tab-panel" data-panel="entries">
@@ -154,17 +154,52 @@
         <label class="check"><input type="checkbox" id="showCommit"> Show commitment hash on the overlay</label>
       </div>
 
-      <div class="tab-panel" data-panel="settings" hidden>
-        <label>Spin length: <span id="spinLabel"></span>s
-          <input type="range" id="spinSeconds" min="3" max="15" step="1">
-        </label>
-        <label>Wheel colors
-          <select id="palette">
+      <div class="tab-panel" data-panel="style" hidden>
+        <h4 class="sub">Colors</h4>
+        <label>Slice colors
+          <select id="preset">
             <option value="stream">Stream</option>
             <option value="fiesta">Fiesta</option>
             <option value="candy">Candy</option>
             <option value="mono">Mono</option>
+            <option value="custom">Custom</option>
           </select>
+        </label>
+        <div class="swatches" id="swatches"></div>
+        <div class="color-row">
+          <label>Text<select id="textColor"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+          <label>Rim<input type="color" id="rimColor"></label>
+          <label>Pointer<input type="color" id="pointerColor"></label>
+          <label>Hub<input type="color" id="hubColor"></label>
+        </div>
+
+        <h4 class="sub">Images</h4>
+        <div class="img-slot" data-slot="center">
+          <div class="thumb"></div>
+          <div><b>Center logo</b><p class="muted small">Sits in the middle, stays upright. PNG with transparency works best.</p></div>
+          <div class="img-actions"><label class="btn ghost">Upload<input type="file" accept="image/*" hidden></label><button class="btn ghost img-remove" type="button">Remove</button></div>
+        </div>
+        <div class="img-slot" data-slot="wheel">
+          <div class="thumb"></div>
+          <div><b>Wheel image</b><p class="muted small">Spins with the wheel, blended over the slices.</p></div>
+          <div class="img-actions"><label class="btn ghost">Upload<input type="file" accept="image/*" hidden></label><button class="btn ghost img-remove" type="button">Remove</button></div>
+        </div>
+        <label id="wheelOpacityWrap"><span>Wheel image strength: <span id="wheelOpacityLabel"></span>%</span>
+          <input type="range" id="wheelOpacity" min="10" max="100" step="5">
+        </label>
+        <div class="img-slot" data-slot="bg">
+          <div class="thumb"></div>
+          <div><b>Background</b><p class="muted small">Fills the overlay behind everything (replaces the transparent/green background).</p></div>
+          <div class="img-actions"><label class="btn ghost">Upload<input type="file" accept="image/*" hidden></label><button class="btn ghost img-remove" type="button">Remove</button></div>
+        </div>
+        <label id="bgDimWrap"><span>Darken background: <span id="bgDimLabel"></span>%</span>
+          <input type="range" id="bgDim" min="0" max="80" step="5">
+        </label>
+        <button id="resetStyle" class="btn ghost" type="button">Reset style</button>
+
+        <h4 class="sub">Spin</h4>
+        <label><span>Spin length: <span id="spinLabel"></span>s</span>
+          <input type="range" id="spinSeconds" min="3" max="15" step="1">
         </label>
         <label class="check"><input type="checkbox" id="soundOn"> Sounds in this tab</label>
       </div>

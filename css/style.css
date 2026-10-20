@@ -121,3 +121,23 @@ dialog dt kbd { margin: 0; opacity: 1; }
   .title-input { font-size: 1.25rem; }
   .label { width: 80px; }
 }
+
+/* Style tab */
+.sub { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin: 6px 0 -2px; }
+.sub:first-child { margin-top: 0; }
+input[type="color"] { width: 100%; height: 38px; padding: 3px; cursor: pointer; }
+input[type="range"] { padding: 0; accent-color: var(--accent); }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.swatches .sw { position: relative; }
+.swatches input[type="color"] { width: 40px; height: 40px; }
+.swatches .sw button { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); font-size: 11px; line-height: 1; cursor: pointer; padding: 0; display: none; }
+.swatches .sw:hover button, .swatches .sw:focus-within button { display: block; }
+.swatches .add { width: 40px; height: 40px; border: 1px dashed var(--line); border-radius: 8px; background: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+.color-row { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 8px; }
+.img-slot { display: grid; grid-template-columns: 56px 1fr; gap: 6px 12px; align-items: center; }
+.img-slot p { margin: 2px 0 0; }
+.img-slot .thumb { width: 56px; height: 56px; border-radius: 8px; border: 1px dashed var(--line); background: var(--bg) center / cover no-repeat; grid-row: span 2; }
+.img-slot .thumb.has { border-style: solid; }
+.img-slot .img-actions { display: flex; gap: 6px; grid-column: 2; }
+.img-slot .img-actions .btn { padding: 6px 10px; font-size: .85rem; }
+.wheel-box.has-bg { background: center / cover no-repeat; border-radius: 16px; }
