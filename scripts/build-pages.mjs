@@ -32,6 +32,118 @@ const icon = name => `<span class="icon"><svg viewBox="0 0 24 24" fill="none" st
 // Guides: one page per search intent we can realistically rank for.
 const GUIDES = [
   {
+    slug: 'office-raffle',
+    nav: 'Office raffle',
+    title: 'Office Raffle Wheel for Parties & Team Draws | SpinDraw',
+    description: 'Run your holiday party raffle, door prizes or team giveaway on the big screen or in a video call. Free, no sign-up, with proof the draw was fair.',
+    h1: 'An office raffle wheel for parties and team draws',
+    lede: 'Run the year-end party raffle, door prizes or a team giveaway on the big screen or in a video call, and give everyone proof the winners were picked fairly.',
+    body: `
+<h2>How to run an office raffle</h2>
+<ol>
+  <li><strong>Collect the names.</strong> Paste them from a spreadsheet or an HR export, one per line, or import sign-up responses from a Google Sheet or any form export saved as CSV.</li>
+  <li><strong>Add the prizes</strong> in the order you’ll draw them, for example third prize first and the grand prize last.</li>
+  <li><strong>Lock the list.</strong> A code appears on screen. Anyone can screenshot it. From this point nobody can be added or removed without the check failing.</li>
+  <li><strong>Ask the room for a word.</strong> Let a colleague, not the organiser, pick any word and type it in. That makes the result hard for anyone to steer.</li>
+  <li><strong>Present and spin.</strong> Click <strong>Present</strong> to open a clean view for the projector, or share your screen in Zoom, Google Meet or Microsoft Teams. Press Space to spin.</li>
+  <li><strong>Share the proof.</strong> When you’re done, post the verify link in the team chat or the follow-up email so anyone can re-run the draw.</li>
+</ol>
+<h2>Ideas for workplace draws</h2>
+<ul>
+  <li>Holiday party, year-end party or end-of-year function prizes</li>
+  <li>Door prizes at company events, conferences and town halls</li>
+  <li>Rewards for a wellness challenge, a sales contest or survey responses</li>
+  <li>Picking who presents, hosts the next meeting or takes the next on-call shift</li>
+  <li>Choosing which charity gets the team’s donation</li>
+</ul>
+<h2>Remote and hybrid teams</h2>
+<p>Everyone sees the same wheel when you share your screen, wherever they are. Turn on the <strong>claim timer</strong> so a winner who has stepped away gets a minute to reply, and press R to redraw if they don’t. People in other time zones who missed it can open the verify link later and check the result themselves.</p>
+<h2>Make it look like your company</h2>
+<p>In the Style tab, use your brand colours, put your logo in the middle of the wheel and add a background image. Your employee list is never uploaded: it stays in your browser.</p>
+<h2>A note on the rules</h2>
+<p>Free raffles for employees are usually simple. If people buy tickets, for example for a charity raffle, many countries and states require a licence or permit. Check the rules where you are. This guide isn’t legal advice.</p>`,
+    faq: [
+      ['Do employees need to sign up?', 'No. Only the organiser opens SpinDraw. Everyone else just watches the shared screen or the projector.'],
+      ['Is our employee list uploaded anywhere?', 'No. Names are stored only in the organiser’s browser. They are shared only if you choose to send a verify link or proof file.'],
+      ['Can some people get extra entries?', 'Yes. Write “Name x3” to give someone three entries, for example for completing a challenge. The verify page lists every weight, so it stays transparent.'],
+      ['Can we draw several prizes in a row?', 'Yes. List the prizes in the Prizes tab. Winners are removed after each draw, so nobody wins twice unless you turn that off.'],
+    ],
+  },
+  {
+    slug: 'secret-santa-name-picker',
+    nav: 'Secret Santa & gift exchange',
+    title: 'Secret Santa & Gift Exchange Name Picker | SpinDraw',
+    description: 'Draw names for Secret Santa, Kris Kringle, Wichteln or Amigo Secreto. A random gift chain where nobody gets themselves. Free and fair, no sign-up.',
+    h1: 'A name picker for Secret Santa and gift exchanges',
+    lede: 'Draw names for Secret Santa, Kris Kringle, Wichteln, Amigo Secreto or a white elephant swap, for family, friends or the office, in a way nobody can call unfair.',
+    body: `
+<h2>The easiest fair method: a random gift chain</h2>
+<p>Instead of pulling names from a hat (and starting over when someone draws themselves), let the wheel put everyone in a random order. Then each person gives a gift to the next person in the order, and the last person gives to the first.</p>
+<ol>
+  <li>Open the <a href="/app.html">wheel</a> and add everyone’s name, one per line.</li>
+  <li>Leave the Prizes tab empty and keep <strong>Remove winners</strong> on.</li>
+  <li>Spin until the wheel is empty. Press C after each name to move on.</li>
+  <li>Download the <strong>Results CSV</strong>. The draw order is your chain: #1 gives to #2, #2 gives to #3, and the last person gives to #1.</li>
+</ol>
+<p>Because it’s one big loop, nobody can end up with their own name, and there are never leftover pairs.</p>
+<h3>Keeping it secret</h3>
+<p>If the pairs should stay secret, the organiser runs the draw alone and then messages each person privately with the name they’re buying for. Click <strong>Finish &amp; create verify link</strong> and keep the link: if anyone questions the draw later, it shows the order came from the locked list and wasn’t arranged.</p>
+<h2>White elephant and Yankee swap</h2>
+<p>For a white elephant, Yankee swap or “steal” game, the only thing you need is a fair turn order. Spin through everyone on a shared screen or video call, and the draw order is the order people pick gifts.</p>
+<h2>What it’s called around the world</h2>
+<ul>
+  <li><strong>Secret Santa:</strong> the US, the UK, Canada, Australia and beyond</li>
+  <li><strong>Kris Kringle:</strong> Ireland and Australia</li>
+  <li><strong>Wichteln:</strong> Germany and Austria</li>
+  <li><strong>Amigo Secreto / Amigo Invisible:</strong> Brazil, Portugal, Spain and Latin America</li>
+  <li><strong>Monito-Monita:</strong> the Philippines</li>
+</ul>
+<p>Whatever you call it, the method above works the same way.</p>
+<h2>What SpinDraw doesn’t do</h2>
+<p>There are no exclusion rules, such as keeping partners apart, and no automatic private emails to each person. If you need those, use a dedicated Secret Santa app. For a quick, fair draw that anyone can check, the gift chain is the simplest option.</p>`,
+    faq: [
+      ['Can someone end up with their own name?', 'Not with the gift chain method. Everyone gives to the next person in a random order, and the last gives to the first, so nobody can get themselves.'],
+      ['Can I keep the pairs secret?', 'Yes. Run the draw on your own, then message each person their match privately. The names stay in your browser and aren’t uploaded.'],
+      ['Can I keep couples apart?', 'There are no exclusion rules. If a pair you’d rather avoid ends up next to each other, start a new raffle and draw again before you share any results.'],
+      ['Does it work for a remote team or a family spread across countries?', 'Yes. Share your screen on a video call so everyone can watch, or run it privately and send the results.'],
+    ],
+  },
+  {
+    slug: 'classroom-name-picker',
+    nav: 'Classroom name picker',
+    title: 'Classroom Random Name Picker for Teachers | SpinDraw',
+    description: 'A free random name picker for teachers: spin on the projector or in an online class, give every student a turn, and keep class lists on your computer.',
+    h1: 'A random name picker for the classroom',
+    lede: 'Pick students fairly on the projector, smartboard or in an online class. No accounts, nothing to install, and your class list stays on your computer.',
+    body: `
+<h2>How to use it in class</h2>
+<ol>
+  <li>Open the <a href="/app.html">wheel</a> and paste your class list, one name per line.</li>
+  <li>Click <strong>Present</strong> for a clean view of the wheel on the projector or smartboard, or share your screen in your online class.</li>
+  <li>Press Space to spin, then C to move on. With <strong>Remove winners</strong> on, each student is picked once. When everyone has had a turn, click <strong>New raffle</strong> in the Draw tab to start again.</li>
+  <li>For quick picks, set the spin length to 3 seconds in the Style tab.</li>
+</ol>
+<p>The list is saved in your browser, so it’s still there next lesson.</p>
+<h2>Ideas for teachers</h2>
+<ul>
+  <li>Pick who answers next, so it isn’t always the same hands in the air</li>
+  <li>Set the order for presentations or reading aloud</li>
+  <li>Choose team captains or the next classroom helper</li>
+  <li>Draw a winner for a reward or a class prize</li>
+  <li>Pick a review question or topic: add questions instead of names</li>
+</ul>
+<h2>Fair, and seen to be fair</h2>
+<p>Students quickly suspect favourites. Lock the list before you spin and a code appears on screen; afterwards the verify link shows the result came from the list, not from you. It’s a small lesson in fairness, too.</p>
+<h2>Privacy for students</h2>
+<p>There are no student accounts and no sign-up. Class lists stay in your own browser and are never uploaded. On a shared classroom computer, use <strong>Clear</strong> in the Entries tab when you’re done.</p>`,
+    faq: [
+      ['Do students need accounts?', 'No. Only the teacher opens SpinDraw. Students just watch the projector or the shared screen.'],
+      ['Are student names uploaded?', 'No. Names stay in your browser. They’re only shared if you choose to send a verify link or proof file.'],
+      ['Can I save several classes?', 'SpinDraw keeps one list at a time. Keep each class list in a document and paste the one you need, which only takes a second.'],
+      ['Does it work on Chromebooks, iPads and smartboards?', 'It runs in any modern browser, with nothing to install.'],
+    ],
+  },
+  {
     slug: 'facebook-live-raffle',
     nav: 'Facebook Live raffle',
     title: 'Facebook Live Raffle & Comment Picker (Free) | SpinDraw',
@@ -361,9 +473,9 @@ const homeBody = `
         <p>Whenever a group needs a winner, a name or an order, and everyone wants it to be fair.</p>
       </div>
       <div class="grid">
-        <div class="card">${icon('briefcase')}<h3>Office &amp; company raffles</h3><p>Year-end party prizes, door prizes and team giveaways. Put the wheel on the big screen or share it in a video call.</p></div>
-        <div class="card">${icon('home')}<h3>Friends &amp; family</h3><p>Gift exchanges, Secret Santa order, who hosts next, who pays for dinner. Settle it in one spin.</p></div>
-        <div class="card">${icon('school')}<h3>Classrooms &amp; teams</h3><p>Pick who answers next, set a presentation order or choose the next task owner, with no arguments.</p></div>
+        <a class="card" href="/office-raffle/">${icon('briefcase')}<h3>Office &amp; company raffles</h3><p>Year-end party prizes, door prizes and team giveaways. Put the wheel on the big screen or share it in a video call.</p><span class="go">Office raffle guide →</span></a>
+        <a class="card" href="/secret-santa-name-picker/">${icon('home')}<h3>Friends &amp; family</h3><p>Secret Santa and gift exchanges, who hosts next, who pays for dinner. Settle it in one spin.</p><span class="go">Gift exchange guide →</span></a>
+        <a class="card" href="/classroom-name-picker/">${icon('school')}<h3>Classrooms &amp; teams</h3><p>Pick who answers next, set a presentation order or choose the next task owner, with no arguments.</p><span class="go">Classroom guide →</span></a>
         <div class="card">${icon('party')}<h3>Events &amp; parties</h3><p>Weddings, birthdays, fundraisers and lucky draws, with your logo in the middle of the wheel.</p></div>
         <div class="card">${icon('users')}<h3>Online communities</h3><p>Facebook groups, Discord servers and newsletters. Paste comments or Google Form entries and filter by keyword.</p></div>
         <a class="card" href="/obs-spin-wheel/">${icon('broadcast')}<h3>Live streams</h3><p>Facebook Live, TikTok LIVE, YouTube and Twitch, with a transparent overlay for OBS and Streamlabs.</p><span class="go">Streaming guide →</span></a>
