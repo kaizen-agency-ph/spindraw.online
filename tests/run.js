@@ -2,6 +2,10 @@
 import assert from 'node:assert/strict';
 import * as fair from '../js/fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl } from '../js/intake.js';
+import { makeRng, assignSlots } from '../js/games/rng.js';
+import { RaceSim, preRunRace } from '../js/games/race-sim.js';
+import { BattleSim, preRunBattle } from '../js/games/battle-sim.js';
+import { ALL_GRIDS } from '../js/games/sprites.js';
 
 let n = 0;
 const test = async (name, fn) => { await fn(); n++; console.log(`✓ ${name}`); };
@@ -136,6 +140,69 @@ await test('CSV / Google Forms', () => {
   const items = csvToItems(csv);
   assert.deepEqual(items.map(i => [i.name, i.weight, i.text]), [['Cruz, Juan', 2, '#join'], ['Ana', 1, 'said "hi"']]);
   assert.equal(sheetCsvUrl('https://docs.google.com/spreadsheets/d/abc_123/edit#gid=42'), 'https://docs.google.com/spreadsheets/d/abc_123/gviz/tq?tqx=out:csv&gid=42');
+});
+
+// ---------- game modes ----------
+const SIZES = [1, 2, 3, 10, 100];
+const LEN_LIMIT = { quick: 20, normal: 35, epic: 60 };
+
+await test('assignSlots puts the winner on the winning slot and everyone exactly once', () => {
+  for (let s = 0; s < 200; s++) {
+    const rng = makeRng(`a${s}`), size = 1 + Math.floor(rng() * 100), w = Math.floor(rng() * size), slot = Math.floor(rng() * size);
+    const slots = assignSlots(size, w, slot, rng);
+    assert.equal(slots[slot], w);
+    assert.deepEqual([...slots].sort((x, y) => x - y), Array.from({ length: size }, (_, i) => i));
+  }
+});
+
+await test('assignSlots gives non-winners no favoured slot', () => {
+  const hits = new Array(5).fill(0);
+  for (let s = 0; s < 20000; s++) hits[assignSlots(6, 5, 5, makeRng(`u${s}`)).indexOf(0)]++;
+  for (const h of hits) assert.ok(h > 3600 && h < 4400, `slot hits ${hits}`);
+});
+
+await test('sprite grids are all 16 pixels wide on valid rows', () => {
+  for (const grid of ALL_GRIDS) for (const [y, line] of grid) {
+    assert.equal(line.length, 16, `row ${y}: "${line}"`);
+    assert.ok(y >= 0 && y < 16);
+  }
+});
+
+for (const [label, pre, Sim, finished] of [
+  ['race', preRunRace, RaceSim, s => s.first],
+  ['battle', preRunBattle, BattleSim, s => s.winner],
+]) {
+  await test(`${label}: same seed replays identically, and pre-run matches playback`, () => {
+    for (const size of SIZES) {
+      const a = pre(size, 'det', 'quick'), b = pre(size, 'det', 'quick');
+      assert.deepEqual(a, b);
+      const sim = new Sim(size, 'det', 'quick');
+      while (finished(sim) < 0) sim.step();
+      assert.equal(finished(sim), a.winSlot);
+    }
+  });
+
+  await test(`${label}: always ends, on time, at every size and length`, () => {
+    for (const [len, secs] of Object.entries(LEN_LIMIT)) for (const size of SIZES) for (let s = 0; s < (size === 100 ? 6 : 15); s++) {
+      const r = pre(size, `${label}${s}`, len);
+      assert.ok(r.winSlot >= 0 && r.winSlot < size, `${size} ${len}: slot ${r.winSlot}`);
+      assert.ok(r.finishAt <= secs * 2.3, `${size} ${len} seed ${s}: ${r.finishAt.toFixed(1)}s`);
+    }
+  });
+
+  await test(`${label}: any slot can come out on top`, () => {
+    const seen = new Set();
+    for (let s = 0; s < 80; s++) seen.add(pre(4, `any${s}`, 'quick').winSlot);
+    assert.equal(seen.size, 4);
+  });
+}
+
+await test('gameSeed is stable, varies per draw, and does not contain the seed', async () => {
+  const seed = fair.newSeed(), h = await fair.entriesHash(entries);
+  const a = await fair.gameSeed(seed, h, 'salt', 0);
+  assert.equal(a, await fair.gameSeed(seed, h, 'salt', 0));
+  assert.notEqual(a, await fair.gameSeed(seed, h, 'salt', 1));
+  assert.ok(!a.includes(seed));
 });
 
 console.log(`\n${n} tests passed`);

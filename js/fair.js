@@ -82,3 +82,7 @@ export async function encodePayload(obj) {
 export async function decodePayload(str) {
   return JSON.parse(new TextDecoder().decode(await pipe(unb64url(str), new DecompressionStream('deflate-raw'))));
 }
+
+// Seed for a game mode's simulation. Hashed, so sharing it with the overlay reveals nothing
+// about the secret seed, and it plays no part in who wins: pickIndex alone decides that.
+export const gameSeed = (seed, eHash, salt, round) => sha256(`spindraw-game-v1|${seed}|${eHash}|${salt}|${round}`);

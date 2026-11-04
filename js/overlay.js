@@ -2,6 +2,7 @@ import { Wheel } from './wheel.js';
 import { Channel } from './sync.js';
 import { confetti, sound } from './fx.js';
 import { loadAll } from './images.js';
+import { createGame } from './games/index.js';
 
 const $ = s => document.querySelector(s);
 const q = new URLSearchParams(location.search);
@@ -13,6 +14,7 @@ sound.enabled = q.get('sound') !== '0';
 const wheel = new Wheel($('#wheel'));
 let state = null;
 let animating = false;
+let game = null, gameMode = 'wheel', poolKey = '';
 let themeKey = '';
 let bgSrc = '';
 
@@ -38,12 +40,28 @@ function apply(s) {
   if (s.theme && key !== themeKey) {
     themeKey = key;
     wheel.setTheme(s.theme);
+    game?.setTheme(s.theme);
     document.body.style.setProperty('--bg-dim', s.theme.bgDim);
   }
+  if (!animating) setMode(s.mode || 'wheel');
   if (animating) return;
   wheel.setEntries(toEntries(s.pool));
+  const pk = JSON.stringify(s.pool);
+  if (game && pk !== poolKey) { poolKey = pk; game.setEntries(toEntries(s.pool)); }
   if (s.winner) showWinner(s.winner, s.prize);
   else $('#ovWinner').hidden = true;
+}
+
+function setMode(mode) {
+  if (mode === gameMode) return;
+  gameMode = mode;
+  document.body.dataset.mode = mode;
+  if (game) { game.destroy(); game = null; }
+  poolKey = '';
+  if (mode !== 'wheel') {
+    game = createGame(mode, $('#game'), state?.theme);
+    if (state) { poolKey = JSON.stringify(state.pool); game.setEntries(toEntries(state.pool)); }
+  }
 }
 
 async function applyImages(srcs) {
@@ -54,11 +72,18 @@ async function applyImages(srcs) {
   $('#ovBg').hidden = !bgSrc;
 }
 
-async function onSpin({ from, to, ms, pool, winner, prize }) {
+async function onSpin({ mode = 'wheel', from, to, ms, seed, winnerIdx, length, pool, winner, prize }) {
+  setMode(mode);
   animating = true;
   $('#ovWinner').hidden = true;
-  wheel.setEntries(toEntries(pool));
-  await wheel.animate(from, to, ms, e => { $('#ovTicker').textContent = e.name; sound.tick(); });
+  if (mode === 'wheel') {
+    wheel.setEntries(toEntries(pool));
+    await wheel.animate(from, to, ms, e => { $('#ovTicker').textContent = e.name; sound.tick(); });
+  } else {
+    poolKey = JSON.stringify(pool);
+    game.setEntries(toEntries(pool));
+    await game.play({ seed, winnerIdx, length, sound, onLeader: text => { $('#ovTicker').textContent = text; } });
+  }
   animating = false;
   showWinner(winner, prize);
   sound.win();
@@ -94,5 +119,5 @@ if (!room) {
   channel.send('hello');
   setInterval(() => channel.send('ping'), 4000);
   setInterval(tick, 250);
-  document.fonts?.ready.then(() => { wheel.cache = null; wheel.draw(); });
+  document.fonts?.ready.then(() => { wheel.cache = null; wheel.draw(); game?.draw(); });
 }

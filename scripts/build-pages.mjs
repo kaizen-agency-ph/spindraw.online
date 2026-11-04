@@ -25,12 +25,83 @@ const ICONS = {
   home: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M12 14.5c-1.2-1.3-3-.4-3 1 0 1.6 3 3 3 3s3-1.4 3-3c0-1.4-1.8-2.3-3-1z"/>',
   school: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',
   party: '<path d="M4 20 9 8l7 7z"/><path d="M14 4v2M19 9h2M17 6l1.5-1.5M12 2.5l.5 1.5M20 13l1 .5"/>',
+  race: '<circle cx="8" cy="7" r="3"/><circle cx="16" cy="13" r="3"/><circle cx="9" cy="19" r="2"/><path d="M14 4l6 2M3 14l5 1"/>',
+  sword: '<path d="M14.5 3H21v6.5L9 21l-6-6zM6 12l6 6M3 21l3-3"/>',
+  wheel: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7"/>',
   users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-3.5 3.2-5.5 6.5-5.5s6 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.5 5.2"/>',
 };
 const icon = name => `<span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg></span>`;
 
 // Guides: one page per search intent we can realistically rank for.
 const GUIDES = [
+  {
+    slug: 'ball-race-name-picker',
+    nav: 'Ball race name picker',
+    title: 'Ball Race Name Picker: Marble Race Winner Picker | SpinDraw',
+    description: 'Pick a winner with a marble race: every name gets a ball, they drop through obstacles, and you watch who is winning live. Free, fair, up to 100 names.',
+    h1: 'A ball race name picker that everyone wants to watch',
+    lede: 'Every name gets a ball. They drop through pegs, spinning bars and bumpers while a live board shows who’s winning, and the first across the finish line is your winner.',
+    body: `
+<h2>How to run a ball race</h2>
+<ol>
+  <li>Open the <a href="/app.html">picker</a> and paste up to 100 names, one per line.</li>
+  <li>Choose <strong>Ball Race</strong> above the wheel, and pick a length in the Style tab: Quick (about 20 seconds), Normal (about 35) or Epic (about 60).</li>
+  <li>Click <strong>Lock entries</strong> in the Draw tab so everyone can see the code before anything moves.</li>
+  <li>Press <strong>Start race</strong> (or Space). Share your screen, or click <strong>Present</strong> for a clean view on a projector or stream.</li>
+  <li>When a ball crosses the line, the winner card appears. Press C if they claim the prize, or R to log a no-show and race again.</li>
+</ol>
+<h2>What people see</h2>
+<ul>
+  <li>A camera that follows the leaders down a different course every time</li>
+  <li>A live <strong>Who’s winning</strong> board with the top five</li>
+  <li>Names on the front-runners and initials on every other ball</li>
+  <li>Your own slice colours from the Style tab on the balls</li>
+</ul>
+<h2>Who decides the winner?</h2>
+<p>The same locked draw that powers the wheel decides, and the race reveals it. SpinDraw runs real physics from a seed, with nothing steering any ball, finds the ball that comes first, and puts the drawn name on it. Each person’s chance of winning is exactly their share of the entries, and the verify link still lets anyone re-run the draw afterwards.</p>
+<h2>Good for</h2>
+<p>Office parties and team draws, classroom picks, family game nights, community giveaways and live streams: anywhere a few extra seconds of suspense makes the moment more fun.</p>`,
+    faq: [
+      ['How many names can race?', 'Up to 100. For bigger lists, use the wheel, which handles thousands.'],
+      ['Is the race rigged?', 'No one can steer it. The winner comes from the locked draw, the same as the wheel, and the verify link shows the result came from the locked list. The race is how the result is revealed, and the screen says so.'],
+      ['Do extra entries still count?', 'Yes. Everyone gets one ball, but “Name x3” still gives that person three times the chance, because the draw uses the entries.'],
+      ['Can I show it in OBS or on a projector?', 'Yes. Add the overlay as a Browser source, or click Present for a clean view.'],
+    ],
+  },
+  {
+    slug: 'battle-royale-name-picker',
+    nav: 'Battle royale name picker',
+    title: 'Battle Royale Name Picker with Pixel Fighters | SpinDraw',
+    description: 'Pick a winner with a pixel battle: up to 100 names become fighters in an arena, and the last one standing wins. Free, fair and fun to watch together.',
+    h1: 'A battle royale name picker with pixel fighters',
+    lede: 'Up to 100 names become little pixel fighters in one arena. They battle it out while the zone closes in, and the last one standing is your winner.',
+    body: `
+<h2>How to run a battle</h2>
+<ol>
+  <li>Open the <a href="/app.html">picker</a> and paste up to 100 names, one per line.</li>
+  <li>Choose <strong>Pixel Battle</strong> above the wheel, and pick a length in the Style tab: Quick, Normal or Epic.</li>
+  <li>Click <strong>Lock entries</strong> in the Draw tab so everyone can see the code before the fight starts.</li>
+  <li>Press <strong>Start battle</strong> (or Space). Share your screen, or click <strong>Present</strong> for a clean view on a projector or stream.</li>
+  <li>When one fighter is left, the winner card appears. Press C if they claim the prize, or R to log a no-show and fight again.</li>
+</ol>
+<h2>What people see</h2>
+<ul>
+  <li>Every person gets their own look, with a body, hat and weapon based on their name</li>
+  <li>HP bars, damage numbers and a live kill feed</li>
+  <li>A counter of who’s still alive, plus a <strong>Most KOs</strong> board</li>
+  <li>A shrinking zone that keeps the action moving, and a zoom-in on the final two</li>
+</ul>
+<h2>Who decides the winner?</h2>
+<p>The same locked draw that powers the wheel decides, and the battle reveals it. SpinDraw runs a real simulated fight from a seed, with nobody steered, finds the last fighter standing, and gives that fighter the drawn name. Each person’s chance of winning is exactly their share of the entries, and the verify link still lets anyone re-run the draw afterwards.</p>
+<h2>Good for</h2>
+<p>Team events, classrooms, game nights, communities and live streams. It’s a lighthearted cartoon fight between tiny pixel characters, with no blood or gore.</p>`,
+    faq: [
+      ['How many fighters can there be?', 'Up to 100. For bigger lists, use the wheel, which handles thousands.'],
+      ['Do stronger fighters have better odds?', 'No. How a fighter looks comes from their name, and the winner comes from the locked draw. Looks and stats make no difference to anyone’s chances.'],
+      ['Do extra entries still count?', 'Yes. Everyone gets one fighter, but “Name x3” still gives that person three times the chance, because the draw uses the entries.'],
+      ['Can I show it in OBS or on a projector?', 'Yes. Add the overlay as a Browser source, or click Present for a clean view.'],
+    ],
+  },
   {
     slug: 'office-raffle',
     nav: 'Office raffle',
@@ -428,6 +499,7 @@ const faqHtml = faq => `<div class="faq">${faq.map(([q, a]) => `<details><summar
 const HOME_FAQ = [
   ['Is SpinDraw free?', 'Yes. SpinDraw is free with no sign-up. Ads on the website pay for it, and they never appear on the wheel people watch.'],
   ['Can I use it for an office raffle or a family draw?', 'Yes. Paste the names, put the wheel on a big screen or share your screen in a video call, and spin. Afterwards, send the verify link so anyone can check the result, even people who weren’t there.'],
+  ['Who decides the winner in the Ball Race and Pixel Battle?', 'The same locked draw as the wheel. The race or battle is a real simulation with nothing steered, and the drawn name goes on the ball or fighter that comes out on top. Each person’s chance is exactly their share of the entries, and the verify link works the same way.'],
   ['Can I use the wheel in OBS or Streamlabs?', 'Yes. Copy the overlay URL from the Stream tab and add it as a Browser source. It has a transparent background and comes in 16:9 and vertical 9:16.'],
   ['Is the wheel really random?', 'Every pick is computed with HMAC-SHA256 from a secret 256-bit random seed. The seed is committed on screen before the draw and revealed afterwards, so anyone can replay the result.'],
   ['How can people know the draw wasn’t rigged?', 'Before spinning, SpinDraw shows a code that locks the entry list and a secret seed. After the draw, the verify page recomputes every winner, and anyone can compare the code with the one they saw.'],
@@ -442,7 +514,7 @@ const homeBody = `
       <div>
         <span class="eyebrow"><b>Free</b> Raffle wheel &amp; name picker</span>
         <h1>The raffle wheel that <span class="mark">proves</span> it was fair.</h1>
-        <p class="lede">Pick a winner for your office raffle, family gift exchange, classroom, event or live stream. Paste the names, spin the wheel, and share a link that proves nobody rigged it.</p>
+        <p class="lede">Pick a winner for your office raffle, family gift exchange, classroom, event or live stream. Spin the wheel, race balls through obstacles or run a pixel battle, then share a link that proves nobody rigged it.</p>
         <div class="cta">
           <a class="btn primary big" href="/app.html">Start a raffle, free</a>
           <a class="btn big" href="#how">See how it works</a>
@@ -463,6 +535,19 @@ const homeBody = `
       </div>
       <div class="video-frame">
         <video id="explainer" src="/media/spindraw-explainer.mp4" poster="/media/spindraw-explainer-poster.jpg" muted loop playsinline preload="none" controls width="1920" height="1080" aria-label="SpinDraw explainer: paste the names, lock the list, spin the wheel on any screen, and prove the draw was fair"></video>
+      </div>
+    </section>
+
+    <section class="section" id="modes">
+      <div class="section-head">
+        <div class="kicker">Ways to pick</div>
+        <h2>Spin it, race it or fight it out</h2>
+        <p>Same fair draw, three ways to reveal it. Everyone can watch who’s winning as it happens.</p>
+      </div>
+      <div class="grid">
+        <a class="card" href="/app.html">${icon('wheel')}<h3>Wheel</h3><p>The classic. Handles thousands of names, with custom colours and your logo in the middle.</p><span class="go">Open the wheel →</span></a>
+        <a class="card" href="/ball-race-name-picker/">${icon('race')}<h3>Ball Race</h3><p>Every name gets a ball. They drop through obstacles, and the first across the finish line wins.</p><span class="go">How it works →</span></a>
+        <a class="card" href="/battle-royale-name-picker/">${icon('sword')}<h3>Pixel Battle</h3><p>Up to 100 names become pixel fighters in an arena, and the last one standing wins.</p><span class="go">How it works →</span></a>
       </div>
     </section>
 
@@ -571,7 +656,7 @@ const homeLd = [
     applicationCategory: 'UtilitiesApplication',
     operatingSystem: 'Web browser',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    featureList: ['Spin the wheel', 'Random name picker', 'Verifiable draws', 'Several prizes with claim timers', 'Comment picker with keyword filter', 'Weighted entries', 'Big-screen and OBS overlay'],
+    featureList: ['Spin the wheel', 'Ball race name picker', 'Battle royale name picker', 'Random name picker', 'Verifiable draws', 'Several prizes with claim timers', 'Comment picker with keyword filter', 'Weighted entries', 'Big-screen and OBS overlay'],
   },
   { '@context': 'https://schema.org', '@type': 'WebSite', name: 'SpinDraw', url: SITE + '/' },
   { '@context': 'https://schema.org', '@type': 'Organization', name: 'SpinDraw', url: SITE + '/', logo: SITE + '/icon-512.png' },

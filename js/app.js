@@ -4,6 +4,7 @@ import * as fair from './fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl, toCSV } from './intake.js';
 import { Channel } from './sync.js';
 import { confetti, sound } from './fx.js';
+import { createGame, MAX_PLAYERS } from './games/index.js';
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -18,6 +19,7 @@ const defaults = () => ({
   format: 'lines', rawText: SAMPLE, keyword: '', dedupe: true,
   entries: [], stats: null,
   prizesText: '', removeWinners: true, claimSeconds: 60,
+  mode: 'wheel', gameLength: 'normal',
   spinSeconds: 7, sound: true, theme: { ...DEFAULT_THEME }, showCommit: true,
   ovLayout: 'wide', ovBg: 'transparent', ovSound: true,
   locked: null, salt: '', draws: [], revealed: false, verifyUrl: '',
@@ -48,6 +50,21 @@ const wheel = new Wheel($('#wheel'), S.theme);
 let IMG = {};
 try { IMG = JSON.parse(localStorage.getItem(IMG_KEY)) || {}; } catch {}
 let imgVersion = 0;
+// Ball Race / Pixel Battle view, created when one of those modes is selected.
+let game = null;
+const MODES = { wheel: { label: 'Wheel', start: 'Spin' }, race: { label: 'Ball Race', start: 'Start race' }, battle: { label: 'Pixel Battle', start: 'Start battle' } };
+const tooMany = () => S.mode !== 'wheel' && wheelPool().length > MAX_PLAYERS;
+function syncMode() {
+  $('.wheel-box').hidden = S.mode !== 'wheel';
+  $('#gameBox').hidden = S.mode === 'wheel';
+  $('#gameBox').dataset.mode = S.mode;
+  if (game) { game.destroy(); game = null; }
+  if (S.mode !== 'wheel') {
+    game = createGame(S.mode, $('#game'), S.theme);
+    game.setEntries(wheelPool());
+  }
+}
+
 let channel;
 channel = new Channel(S.room, 'host', onMessage, renderSync);
 sound.enabled = S.sound;
@@ -74,6 +91,7 @@ function overlayState() {
     pool: wheelPool().map(e => [e.name, e.weight]),
     total: S.entries.length,
     theme: S.theme,
+    mode: S.mode,
     imgVersion,
     commit: S.showCommit && S.locked ? S.locked.commit : '',
     salt: S.draws.length ? S.salt : '',
@@ -92,7 +110,7 @@ function broadcast() {
 }
 
 function update({ wheelEntries = false } = {}) {
-  if (wheelEntries && !spinning) wheel.setEntries(wheelPool());
+  if (wheelEntries && !spinning) { wheel.setEntries(wheelPool()); game?.setEntries(wheelPool()); }
   save();
   render();
   broadcast();
@@ -161,6 +179,7 @@ async function spin() {
   if (!(await lock())) return;
   const p = pool();
   if (!p.length) return toast('Nobody left in the wheel');
+  if (tooMany()) return toast(`${MODES[S.mode].label} fits up to ${MAX_PLAYERS} people. Use the wheel for bigger lists.`);
   sound.unlock();
   spinning = true;
   render();
@@ -178,15 +197,25 @@ async function spin() {
   const idx = await fair.pickIndex(S.locked.seed, S.locked.eHash, S.salt, k, p);
   const winner = p[idx];
   const prize = nextPrize();
-  wheel.setEntries(p);
-  const ms = S.spinSeconds * 1000;
-  const { from, to } = wheel.planSpin(idx, S.spinSeconds);
-  channel.send('spin', { from, to, ms, pool: p.map(e => [e.name, e.weight]), winner: winner.name, prize });
+  const pairs = p.map(e => [e.name, e.weight]);
   $('#winnerCard').hidden = true;
-  await wheel.animate(from, to, ms, e => { $('#ticker').textContent = e.name; sound.tick(); });
+  if (S.mode === 'wheel') {
+    wheel.setEntries(p);
+    const ms = S.spinSeconds * 1000;
+    const { from, to } = wheel.planSpin(idx, S.spinSeconds);
+    channel.send('spin', { mode: 'wheel', from, to, ms, pool: pairs, winner: winner.name, prize });
+    await wheel.animate(from, to, ms, e => { $('#ticker').textContent = e.name; sound.tick(); });
+  } else {
+    // The fair pick above already decided. The game replays a real simulation with that
+    // winner's name on whichever slot comes out on top.
+    const seed = await fair.gameSeed(S.locked.seed, S.locked.eHash, S.salt, k);
+    game.setEntries(p);
+    channel.send('spin', { mode: S.mode, seed, winnerIdx: idx, length: S.gameLength, pool: pairs, winner: winner.name, prize });
+    await game.play({ seed, winnerIdx: idx, length: S.gameLength, sound, onLeader: text => { $('#ticker').textContent = text; } });
+  }
   S.draws.push({ prize, winner: winner.i, status: 'pending', at: Date.now() });
   S.claimEndsAt = S.claimSeconds > 0 ? Date.now() + S.claimSeconds * 1000 : 0;
-  addLog(`Draw #${k + 1} (${prize}): ${winner.name}`);
+  addLog(`Draw #${k + 1} (${prize}${S.mode === 'wheel' ? '' : `, ${MODES[S.mode].label}`}): ${winner.name}`);
   spinning = false;
   sound.win();
   confetti();
@@ -400,7 +429,12 @@ function render() {
   const pl = pool();
   $('#poolCount').textContent = `${pl.length} in wheel`;
 
-  $('#spinBtn').disabled = spinning || !!p || S.revealed || !pl.length;
+  $('#spinBtn').disabled = spinning || !!p || S.revealed || !pl.length || tooMany();
+  $('#spinBtn').firstChild.textContent = MODES[S.mode].start;
+  $('#modeNote').hidden = !tooMany();
+  $('#modeNote').textContent = `${MODES[S.mode].label} fits up to ${MAX_PLAYERS} people and this list has ${wheelPool().length}. Switch to the Wheel, or trim the list.`;
+  $$('#modeSwitch button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)); b.disabled = spinning; });
+  $('#gameLength').value = S.gameLength;
   $('#claimBtn').disabled = spinning || !p;
   $('#redrawBtn').disabled = spinning || !p;
   $('#lockBtn').disabled = locked || !S.entries.length;
@@ -516,6 +550,13 @@ $('#cdStart').addEventListener('click', () => {
 $('#cdStop').addEventListener('click', () => { S.countdownEndsAt = 0; update(); });
 $('#showCommit').addEventListener('change', e => { S.showCommit = e.target.checked; update(); });
 
+$$('#modeSwitch button').forEach(b => b.addEventListener('click', () => {
+  if (spinning || S.mode === b.dataset.mode) return;
+  S.mode = b.dataset.mode;
+  syncMode();
+  update();
+}));
+$('#gameLength').addEventListener('change', e => { S.gameLength = e.target.value; save(); });
 $('#spinSeconds').addEventListener('input', e => { S.spinSeconds = +e.target.value; save(); render(); });
 $('#soundOn').addEventListener('change', e => { S.sound = sound.enabled = e.target.checked; save(); });
 $('#helpBtn').addEventListener('click', () => $('#helpDialog').showModal());
@@ -535,6 +576,7 @@ document.addEventListener('keydown', e => {
 function setTheme(patch) {
   S.theme = { ...S.theme, ...patch };
   wheel.setTheme(S.theme);
+  game?.setTheme(S.theme);
   if (!spinning) wheel.setEntries(wheelPool());
   update();
 }
@@ -646,6 +688,7 @@ document.querySelectorAll('.img-slot').forEach(el => {
 // ---------- boot ----------
 if (!S.log.length) addLog('Ready. Paste names, then lock and spin.');
 if (S.locked) wheel.setEntries(wheelPool()); else applyEntries();
+syncMode();
 render();
 applyImages();
-document.fonts?.ready.then(() => { wheel.cache = null; wheel.draw(); });
+document.fonts?.ready.then(() => { wheel.cache = null; wheel.draw(); game?.draw(); });

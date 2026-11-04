@@ -1,11 +1,11 @@
 # SpinDraw
 
-A raffle wheel built for live streams (Facebook Live, YouTube, TikTok LIVE, Twitch, Zoom). It's a static site with no backend, so it can be hosted free on GitHub Pages and earn from AdSense.
+A raffle wheel and name picker with fair, checkable draws, for office raffles, families, classrooms, events and live streams. It's a static site with no backend, so it can be hosted free on GitHub Pages and earn from AdSense.
 
 | Page | What it is |
 |---|---|
 | `index.html` | Home page, **generated** by `scripts/build-pages.mjs` |
-| `<guide>/index.html` | Six SEO guide pages (Facebook Live, TikTok LIVE, OBS, YouTube, random name picker, Wheel of Names alternative), also generated |
+| `<guide>/index.html` | SEO guide pages, also generated (see `GUIDES` in the script) |
 | `app.html` | Host control panel (ads go here) |
 | `overlay.html` | What viewers see. Add it as an OBS Browser source. **Never put ads here.** |
 | `verify.html` | Public proof page. Re-runs every draw in the viewer's browser |
@@ -16,6 +16,18 @@ A raffle wheel built for live streams (Facebook Live, YouTube, TikTok LIVE, Twit
 Edit the copy in `scripts/build-pages.mjs`, then run `node scripts/build-pages.mjs`. It rewrites `index.html`, the guide pages, `sitemap.xml` and `robots.txt`. Commit the output, because GitHub Pages has no build step. Each page gets a title, description, canonical URL, OG/Twitter tags with `og-image.png`, and JSON-LD (WebApplication + FAQPage on the home page, BreadcrumbList + FAQPage on guides).
 
 After the domain is live, add the site in Google Search Console (a DNS TXT record at Namecheap) and submit `https://spindraw.online/sitemap.xml`.
+
+## Game modes
+
+Besides the wheel, the app has **Ball Race** and **Pixel Battle** (up to 100 people, `js/games/`).
+
+The locked draw still decides. `fair.pickIndex()` picks the winner, exactly as for the wheel. The game then pre-runs a real simulation from a seed (`fair.gameSeed()`) with nothing steered, finds the slot that came first or survived, puts the winner's name on that slot, shuffles the others over the rest (`assignSlots()` in `rng.js`), and replays it on screen. Lock, salt, weights, verify links and proof files work unchanged. The overlay runs the same simulation from the `spin` message, and always puts the winner's name on its own first-place slot.
+
+- `race-sim.js` / `battle-sim.js`: pure simulations with no DOM, tested in Node.
+- `index.js`: the canvas views, with a timer fallback so a background tab still finishes.
+- `sprites.js`: hand-authored 16×16 pixel layers, coloured from a hash of each name.
+
+To tune length, change `AVG_DESCENT` and course sections in `race-sim.js`, or the HP formula in `battle-sim.js`, then re-measure.
 
 ## Brand assets
 
