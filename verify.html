@@ -55,6 +55,17 @@
     .entries mark { background: var(--accent); color: var(--accent-ink); border-radius: 3px; padding: 0 3px; }
     details { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
     summary { cursor: pointer; font-weight: 600; }
+    .matches { display: grid; gap: 14px; }
+    .match { display: grid; gap: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; min-width: 0; }
+    .match h3 { margin: 0; font-size: 1.05rem; }
+    .match-sub { margin: 2px 0 0; color: var(--muted); font-size: .85rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 8px; margin: 0; }
+    .stats > div { background: var(--panel-2); border-radius: 8px; padding: 8px 10px; }
+    .stats dt { font-size: .75rem; color: var(--muted); }
+    .stats dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+    .match h4 { margin: 0 0 4px; font-size: .9rem; }
+    .match details { padding: 10px 12px; background: var(--panel-2); border: 0; }
+    .match td.won { color: var(--accent-text); font-weight: 600; }
     pre { overflow-x: auto; background: var(--bg); padding: 12px; border-radius: 8px; font-size: .8rem; }
   </style>
   <script type="module" src="js/verify.js"></script>
@@ -88,6 +99,13 @@
     <section id="drawsSec" hidden>
       <h2>Draws</h2>
       <div class="table-wrap"><table><thead><tr><th>#</th><th>Prize</th><th>Winner</th><th>Result</th><th>Check</th></tr></thead><tbody id="draws"></tbody></table></div>
+    </section>
+    <section id="matchesSec" class="stack" hidden>
+      <div>
+        <h2 style="margin:0 0 4px">Match details</h2>
+        <p class="muted small" style="margin:0" id="matchesNote">Your browser rebuilt each match from the revealed seed, so you can see how it played out. The locked draw decided the winners; the match revealed them.</p>
+      </div>
+      <div id="matches" class="matches"></div>
     </section>
     <section id="entriesSec" hidden class="stack">
       <h2 style="margin:0">Entries <span class="muted" id="entryCount"></span></h2>

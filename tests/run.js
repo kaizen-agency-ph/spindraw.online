@@ -6,6 +6,7 @@ import { makeRng, assignSlots } from '../js/games/rng.js';
 import { RaceSim, preRunRace } from '../js/games/race-sim.js';
 import { BattleSim, preRunBattle } from '../js/games/battle-sim.js';
 import { HorseSim, preRunHorse } from '../js/games/horse-sim.js';
+import { matchReport } from '../js/games/match-report.js';
 import { ALL_GRIDS, HORSE_GRIDS } from '../js/games/sprites.js';
 
 let n = 0;
@@ -215,6 +216,33 @@ await test('battle: fighters really fight, with dodges, blocks and mostly KOs', 
   assert.ok(seen.dodge > 20 && seen.block > 20, JSON.stringify(seen));
   assert.ok(seen.ko > seen.zone * 2, JSON.stringify(seen));
   assert.ok(backedOff && circled);
+});
+
+await test('match reports rebuild the same winners as the game', () => {
+  const pool = Array.from({ length: 24 }, (_, i) => ({ name: `P${i}`, weight: 1, i }));
+  for (const [mode, pre] of [['race', preRunRace], ['horse', preRunHorse], ['battle', preRunBattle]]) for (const count of [1, 3]) for (let s = 0; s < 3; s++) {
+    const seed = `rep${s}`, winnerIdxs = [5, 11, 2].slice(0, count);
+    const r = matchReport({ mode, length: 'quick', count, seed, pool, winnerIdxs });
+    assert.deepEqual(r.winSlots, pre(24, seed, 'quick', count).winSlots);
+    const winners = winnerIdxs.map(i => `P${i}`);
+    if (r.kind === 'battle') {
+      assert.deepEqual(r.survivors.map(x => x.name), winners);
+      assert.equal(r.falls.length, 24 - count);
+      assert.equal(r.kos + r.zoneOuts, r.falls.length);
+    } else {
+      assert.deepEqual(r.standings.slice(0, count).map(x => x.name), winners);
+      assert.equal(new Set(r.standings.map(x => x.name)).size, 24);
+    }
+  }
+});
+
+await test('verify links expire at exactly 7 days, including older links', () => {
+  const day = 86400000, t = 1800000000000;
+  assert.equal(fair.linkExpired({ made: t }, t + 7 * day - 1), false);
+  assert.equal(fair.linkExpired({ made: t }, t + 7 * day), true);
+  assert.equal(fair.linkExpired({ lockedAt: t - 9 * day, draws: [{ at: t }, { at: t - day }] }, t + 6 * day), false);
+  assert.equal(fair.linkExpired({ lockedAt: t, draws: [] }, t + 7 * day), true);
+  assert.equal(fair.linkExpired({}, t), false);
 });
 
 await test('gameSeed is stable, varies per draw, and does not contain the seed', async () => {

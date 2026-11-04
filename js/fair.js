@@ -49,6 +49,21 @@ export async function pickIndex(seed, eHash, salt, round, pool) {
   return pool.length - 1;
 }
 
+// Verify links stop opening this long after the raffle finished. Older links have no `made`
+// time, so they count from their last draw or, failing that, from when they were locked.
+export const LINK_DAYS = 7;
+const DAY_MS = 86400000;
+export function linkMadeAt(p) {
+  const times = (p?.draws ?? []).map(d => d.at).filter(Number.isFinite);
+  const t = Number.isFinite(p?.made) ? p.made : times.length ? Math.max(...times) : p?.lockedAt;
+  return Number.isFinite(t) ? t : null;
+}
+export function linkExpiresAt(p) {
+  const t = linkMadeAt(p);
+  return t == null ? null : t + LINK_DAYS * DAY_MS;
+}
+export const linkExpired = (p, now = Date.now()) => { const e = linkExpiresAt(p); return e != null && now >= e; };
+
 // Re-run every draw from a revealed payload; each result says whether the recorded winner matches.
 export async function replay({ entries, seed, salt, removeWinners, draws }) {
   const eHash = await entriesHash(entries);

@@ -22,7 +22,7 @@ const defaults = () => ({
   mode: 'wheel', gameLength: 'normal', winnersPerRun: 1, owedPrizes: [],
   spinSeconds: 7, sound: true, theme: { ...DEFAULT_THEME }, showCommit: true,
   ovLayout: 'wide', ovBg: 'transparent', ovSound: true,
-  locked: null, salt: '', draws: [], revealed: false, verifyUrl: '',
+  locked: null, salt: '', draws: [], revealed: false, verifyUrl: '', linkMade: 0,
   countdownEndsAt: 0, claimEndsAt: 0, log: [],
 });
 
@@ -207,7 +207,7 @@ async function spin() {
   for (let j = 0; j < count; j++) {
     const left = fair.currentPool(S.entries, [...S.draws, ...picks], S.removeWinners);
     const e = left[await fair.pickIndex(S.locked.seed, S.locked.eHash, S.salt, k + j, left)];
-    picks.push({ prize: owed[j] ?? prizeAt(wonCount() + j), winner: e.i, status: 'pending', at: 0 });
+    picks.push({ prize: owed[j] ?? prizeAt(wonCount() + j), winner: e.i, status: 'pending', at: 0, ...(j === 0 ? { m: [S.mode, S.gameLength, count] } : {}) });
   }
   const winners = picks.map(d => ({ name: nameOf(d.winner), prize: d.prize }));
   const pairs = p.map(e => [e.name, e.weight]);
@@ -279,6 +279,7 @@ async function reveal() {
     S.revealed = true;
     addLog(`Raffle finished. Seed revealed: ${S.locked.seed}`);
   }
+  S.linkMade = Date.now();
   S.verifyUrl = new URL(`verify.html#d=${await fair.encodePayload(proofPayload())}`, location.href).href;
   update();
 }
@@ -288,16 +289,17 @@ const proofPayload = () => ({
   v: 1,
   title: S.title,
   lockedAt: S.locked.at,
+  made: S.linkMade,
   entries: S.entries.map(e => [e.name, e.weight]),
   seed: S.locked.seed,
   salt: S.salt,
   removeWinners: S.removeWinners,
-  draws: S.draws.map(({ prize, winner, status, at }) => ({ prize, winner, status, at })),
+  draws: S.draws.map(({ prize, winner, status, at, m }) => ({ prize, winner, status, at, ...(m ? { m } : {}) })),
 });
 
 function newRaffle() {
   if (S.draws.length && !S.revealed && !confirm('This raffle has winners but no verify link yet. Start over anyway?')) return;
-  Object.assign(S, { locked: null, salt: '', owedPrizes: [], draws: [], revealed: false, verifyUrl: '', claimEndsAt: 0, countdownEndsAt: 0, log: [] });
+  Object.assign(S, { locked: null, salt: '', owedPrizes: [], draws: [], revealed: false, verifyUrl: '', linkMade: 0, claimEndsAt: 0, countdownEndsAt: 0, log: [] });
   addLog('New raffle started');
   applyEntries();
 }
@@ -499,6 +501,7 @@ function render() {
   $('#revealBox').hidden = !S.verifyUrl;
   $('#verifyUrl').value = S.verifyUrl;
   $('#openVerify').href = S.verifyUrl || '#';
+  if (S.linkMade) $('#verifyExpiry').textContent = `This link works until ${new Date(S.linkMade + fair.LINK_DAYS * 86400000).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}. After ${fair.LINK_DAYS} days it stops showing the names and results. Save the proof file below to keep a record you can check at any time.`;
   const len = S.verifyUrl.length;
   // YouTube live chat allows 200 characters, TikTok comments 150.
   $('#verifyLen').textContent = !len ? '' : len <= 150

@@ -646,6 +646,8 @@ const PATCHES = [
         ['new', 'Slash arcs, dodge rolls, knockback, and floating DODGE, BLOCK and MISS text.'],
         ['balance', 'Health retuned so most fighters are knocked out in combat instead of being finished by the zone.'],
         ['improved', 'Smoother movement between frames.'],
+        ['new', 'The verify page now has a match report: length, knockouts, dodges, blocks, most KOs and every elimination in order.'],
+        ['improved', 'Verify links now stay open for 7 days. After that, they lead to a page explaining the details were removed, while proof files keep working.'],
       ] },
       { v: '1.1', date: '2026-11-04', title: 'Names and more winners', notes: [
         ['improved', 'Every fighter shows their name, with smaller labels in crowded fights.'],
@@ -659,6 +661,10 @@ const PATCHES = [
   {
     id: 'ball-race', name: 'Ball Race', icon: 'race', guide: '/ball-race-name-picker/',
     log: [
+      { v: '1.3', date: '2026-11-05', title: 'Match reports', notes: [
+        ['new', 'The verify page now has a match report: finishing order and times, lead changes, and who spent the most time in front.'],
+        ['improved', 'Verify links now stay open for 7 days. After that, they lead to a page explaining the details were removed, while proof files keep working.'],
+      ] },
       { v: '1.2', date: '2026-11-04', title: 'A name on every ball', notes: [
         ['improved', 'Every ball shows its name, not just the leaders. Labels shrink in big fields, and the leaders’ names stay on top.'],
       ] },
@@ -673,6 +679,10 @@ const PATCHES = [
   {
     id: 'horse-race', name: 'Horse Race', icon: 'horse', guide: '/horse-race-name-picker/',
     log: [
+      { v: '1.2', date: '2026-11-05', title: 'Match reports', notes: [
+        ['new', 'The verify page now has a match report: finishing order and times, lead changes, and who spent the most time in front.'],
+        ['improved', 'Verify links now stay open for 7 days. After that, they lead to a page explaining the details were removed, while proof files keep working.'],
+      ] },
       { v: '1.1', date: '2026-11-04', title: 'A name on every horse', notes: [
         ['improved', 'Every horse shows its name, even in a field of 100. Labels shrink as the field grows, and the leaders’ names stay on top.'],
       ] },
@@ -685,6 +695,10 @@ const PATCHES = [
   {
     id: 'wheel', name: 'Wheel', icon: 'wheel', guide: '/random-name-picker/',
     log: [
+      { v: '1.2', date: '2026-11-05', title: 'Spin details', notes: [
+        ['new', 'The verify page now shows each spin’s details: names on the wheel, total entries and the winner’s chance.'],
+        ['improved', 'Verify links now stay open for 7 days. After that, they lead to a page explaining the details were removed, while proof files keep working.'],
+      ] },
       { v: '1.1', date: '2026-10-20', title: 'Make it yours', notes: [
         ['new', 'Style tab with your own slice, rim, pointer and hub colours, a centre logo, a wheel image and an overlay background.'],
         ['new', 'Light and dark mode.'],
@@ -711,6 +725,7 @@ const HOME_FAQ = [
   ['Can I use the wheel in OBS or Streamlabs?', 'Yes. Copy the overlay URL from the Stream tab and add it as a Browser source. It has a transparent background and comes in 16:9 and vertical 9:16.'],
   ['Is the wheel really random?', 'Every pick is computed with HMAC-SHA256 from a secret 256-bit random seed. The seed is committed on screen before the draw and revealed afterwards, so anyone can replay the result.'],
   ['How can people know the draw wasn’t rigged?', 'Before spinning, SpinDraw shows a code that locks the entry list and a secret seed. After the draw, the verify page recomputes every winner, and anyone can compare the code with the one they saw.'],
+  ['How long do verify links last?', 'Seven days after the raffle finishes. After that, the link leads to a page explaining that the details were removed. Hosts can download a proof file, which doesn’t expire, to keep a record they can check at any time.'],
   ['Is SpinDraw a Wheel of Names alternative?', 'Yes. It spins like Wheel of Names and adds a fairness proof, pasting names straight from comments or spreadsheets, several prizes with claim timers, and an overlay for live streams.'],
   ['Where are my entries stored?', 'Only in your browser. Nothing is uploaded unless you share a verify link or proof file.'],
   ['Do I need a permit to run a raffle?', 'It depends on where you are and how people enter. Free giveaways are usually simple, but raffles tied to purchases are often regulated as sales promotions (in the Philippines, by the DTI), and selling raffle slots can count as gambling. Check your local rules. SpinDraw picks the winner fairly; it doesn’t make a promotion legal.'],
@@ -1057,6 +1072,42 @@ write('patch-notes/index.html', `${head({
     </section>`).join('\n    ')}
     <div class="cta-band">
       <div><h2>Try the latest version</h2><p>Free, no sign-up, nothing to install.</p></div>
+      <a class="btn primary big" href="/app.html">Start a draw</a>
+    </div>
+  </main>${footer}
+</body>
+</html>
+`);
+
+write('draw-expired/index.html', `${head({
+  title: 'These Draw Details Were Automatically Removed | SpinDraw',
+  description: 'SpinDraw verify links stay open for 7 days. After that, the names and results are automatically removed from view. Here’s what that means.',
+  path: '/draw-expired/',
+  noindex: true,
+})}
+<body>${header}
+  <main class="page">
+    <section class="page-hero">
+      <div class="kicker">Link expired</div>
+      <h1>This draw’s details have been automatically removed</h1>
+      <p>Verify links stay open for 7 days after a raffle finishes. This one is older than that, so SpinDraw no longer shows its names, winners or match details.</p>
+      <div class="cta"><a class="btn primary big" href="/app.html">Start a new draw</a><a class="btn big" href="/verify.html">Check a proof file</a></div>
+    </section>
+    <article class="prose">
+      <h2>Why did this happen?</h2>
+      <p>A raffle’s entry list is full of people’s names. A link can get passed around for a long time, so we don’t want those names on display forever. Seven days gives everyone time to check the result, and then the page closes on its own.</p>
+      <h2>Does this change the result?</h2>
+      <p>No. The draw and its winners stay exactly as they were. Only this page has stopped showing them.</p>
+      <h2>I still need to see this draw. What can I do?</h2>
+      <p>Ask the person who ran the raffle. If they saved the proof file when the raffle finished, you can open it on the <a href="/verify.html">verify page</a>, which still re-runs every draw. Neither of us can bring this link back, and SpinDraw has no copy to restore.</p>
+      <h2>What exactly was removed?</h2>
+      <p>SpinDraw never stored this raffle on a server. Its details were carried inside the link itself, in the part of the address that browsers don’t send to websites. So after 7 days, our verify page simply refuses to open the link.</p>
+      <p>That also means we can’t erase copies of a link that people have saved or posted. If you need a link taken down, ask whoever posted it to remove it.</p>
+      <h2>Running a raffle?</h2>
+      <p>Download the proof file when you finish a raffle, and keep it for as long as you may need to show the result. It stays with you, and it doesn’t expire.</p>
+    </article>
+    <div class="cta-band" style="margin-top:48px">
+      <div><h2>Ready for your next draw?</h2><p>Free, no sign-up, nothing to install.</p></div>
       <a class="btn primary big" href="/app.html">Start a draw</a>
     </div>
   </main>${footer}
