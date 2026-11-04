@@ -70,6 +70,9 @@ ol.steps-row { padding: 0; margin: 0; }
 .compare thead th { border-top: 0; background: var(--panel-2); font-size: .85rem; }
 .compare td:first-child { color: var(--muted); }
 .table-scroll { overflow-x: auto; }
+.compare-wide { min-width: 860px; }
+.prose:has(.compare-wide) { max-width: 980px; }
+.prose:has(.compare-wide) > :not(.table-scroll) { max-width: 720px; }
 
 .faq { display: grid; gap: 0; max-width: 760px; }
 .faq details { border-top: 1px solid var(--line); padding: 4px 0; }

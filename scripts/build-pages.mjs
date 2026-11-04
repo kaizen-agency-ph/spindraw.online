@@ -398,18 +398,118 @@ const GUIDES = [
     ],
   },
   {
+    slug: 'random-name-picker-alternatives',
+    nav: 'Name picker alternatives compared',
+    updated: '2026-11-05',
+    related: ['wheel-of-names-alternative', 'picker-wheel-alternative', 'ball-race-name-picker'],
+    title: 'Best Random Name Picker Alternatives, Compared (2026) | SpinDraw',
+    description: 'Wheel of Names, Picker Wheel, Comment Picker, Roulette Rush, WaveSpeed and SpinDraw compared: price, limits, games, streaming, and which one suits your draw.',
+    h1: 'Random name picker alternatives, compared',
+    lede: 'The right picker depends on the job. Use Wheel of Names for everyday spinning, Picker Wheel for many kinds of wheel, Comment Picker to draw straight from social posts, Roulette Rush for big marble races, WaveSpeed for a race video, and SpinDraw when people need to check the draw was fair.',
+    body: `
+<p class="small"><strong>Who wrote this:</strong> we make SpinDraw, so we aren’t neutral. We read each tool’s own pages and linked them below so you can check, but we didn’t run a hands-on test of every tool. “Not mentioned” means we didn’t find it on the pages we read, not that the feature doesn’t exist.</p>
+<h2>The best pick for each job</h2>
+<ul>
+  <li><strong>Everyday spinning, saved and shared wheels:</strong> <a href="https://wheelofnames.com/faq">Wheel of Names</a>. It’s mature, with accounts, cloud saving and an API.</li>
+  <li><strong>Lots of different wheels:</strong> <a href="https://pickerwheel.com/">Picker Wheel</a>, with yes/no, team, number, letter and country wheels.</li>
+  <li><strong>Drawing directly from a social post:</strong> <a href="https://commentpicker.com/">Comment Picker</a>, with dedicated tools for Instagram, Facebook, YouTube, TikTok, X and more.</li>
+  <li><strong>A marble race with a very long list:</strong> <a href="https://rouletterush.app/faq">Roulette Rush</a>, with up to 500 marbles and six maps.</li>
+  <li><strong>A race you can post as a video:</strong> <a href="https://wavespeed.ai/free-tools/random-name-race">WaveSpeed Random Name Race</a>, which exports an MP4.</li>
+  <li><strong>A raffle where people must be able to check the result:</strong> <a href="/app.html">SpinDraw</a>, with a code locked before the draw and a link that replays every pick. You can reveal the winner with a wheel, ball race, horse race or pixel battle.</li>
+</ul>
+<h2>Side-by-side comparison</h2>
+<div class="table-scroll"><table class="compare compare-wide">
+  <thead><tr><th>Tool</th><th>Price</th><th>Names</th><th>Ways to pick</th><th>Checking the result</th><th>Streaming and video</th></tr></thead>
+  <tbody>
+    <tr><td><strong>SpinDraw</strong></td><td>Free, no sign-up</td><td>Thousands on the wheel; 100 in the games</td><td>Wheel, ball race, horse race, pixel battle; up to 50 winners per game</td><td>Code shown before the draw; verify link replays every pick</td><td>Transparent overlay for OBS, 16:9 or 9:16; no video export</td></tr>
+    <tr><td><strong>Wheel of Names</strong></td><td>Free with ads; takes no payments</td><td>Shows up to 1,000 on the wheel at once</td><td>Wheel, several wheels at once, weighted mode</td><td>Tool that runs up to 10,000 test spins</td><td>Dedicated streaming page for OBS</td></tr>
+    <tr><td><strong>Picker Wheel</strong></td><td>Free; paid Premium removes ads</td><td>Limit not mentioned</td><td>Wheel with normal, elimination and tally modes; up to five wheels</td><td>Not mentioned</td><td>Not mentioned; can embed a wheel</td></tr>
+    <tr><td><strong>Comment Picker</strong></td><td>Free; Premium $9.99/month</td><td>No limit; suggests under 200 for the wheel</td><td>Name display, wheel, spinning names, countdown or instant; up to 3 winners free, 10 on Premium</td><td>Public results page, certificate, video announcement</td><td>Screen recording of the draw</td></tr>
+    <tr><td><strong>Roulette Rush</strong></td><td>Free, no premium tier</td><td>Up to 500 marbles</td><td>Marble race on six maps</td><td>Watch the race; no proof method described</td><td>Describes use on Twitch and YouTube</td></tr>
+    <tr><td><strong>WaveSpeed Random Name Race</strong></td><td>Free, no sign-up</td><td>2 to 100</td><td>Marble race with full finishing order</td><td>Seeded starts; no way to check described</td><td>Share your screen or export an MP4</td></tr>
+  </tbody>
+</table></div>
+<p class="small">From each tool’s own pages, checked on 5 November 2026. Features and prices change, so check before you rely on them.</p>
+<h2>“Random” and “provable” aren’t the same thing</h2>
+<p>Almost every picker on this page is random enough. The harder question comes when you’re giving away a prize: how does anyone who wasn’t holding the mouse know the host didn’t re-spin until a friend won, or quietly edit the list?</p>
+<p>A strong random generator can’t answer that, and neither can a certificate or a screen recording, because both only show the attempt that got published. What helps is a commitment. The tool locks the list and a secret seed behind a code before the draw, the code is shown to everyone, and afterwards the seed is revealed so anyone can recompute the winner. That’s how SpinDraw works, and it’s why we built it.</p>
+<p>It has one limit: the host still creates the seed. To make the result hard to steer, ask someone else to pick a word after the list is locked, and mix it in as the public salt.</p>
+<h2>Where SpinDraw isn’t the best choice</h2>
+<ul>
+  <li><strong>No accounts or cloud saving.</strong> Lists stay in your browser, so they don’t follow you to another device.</li>
+  <li><strong>The games stop at 100 names.</strong> Roulette Rush goes to 500 marbles. Our wheel handles longer lists, but it isn’t a race.</li>
+  <li><strong>No direct import from a post.</strong> You copy and paste comments, and SpinDraw cleans them up. Comment Picker’s tools are built around drawing from the post itself.</li>
+  <li><strong>No video export.</strong> WaveSpeed exports an MP4; with SpinDraw you’d record your screen.</li>
+  <li><strong>It’s new.</strong> SpinDraw launched in October 2026, so it has a much shorter track record than Wheel of Names or Picker Wheel.</li>
+</ul>`,
+    faq: [
+      ['What is the best alternative to Wheel of Names?', 'It depends on the job. Picker Wheel suits people who want many kinds of wheel, Comment Picker suits giveaways drawn from social posts, Roulette Rush and WaveSpeed suit marble races, and SpinDraw suits raffles where people need to check the result.'],
+      ['Which random name picker can prove the draw was fair?', 'Of the six tools here, SpinDraw is the only one whose pages describe a commitment that anyone can check: a code shown before the draw and a verify link that replays every pick afterwards. Comment Picker offers a public results page and a certificate, and Wheel of Names offers a statistical test of its spins.'],
+      ['Is there a free marble race name picker?', 'Yes. Roulette Rush takes up to 500 marbles, WaveSpeed Random Name Race takes up to 100 names and exports video, and SpinDraw’s Ball Race takes up to 100 names with a verify link.'],
+      ['Which name picker works best for live streams?', 'Wheel of Names has a dedicated streaming page, and SpinDraw has a transparent overlay for OBS in 16:9 and vertical 9:16. Roulette Rush also describes use on Twitch and YouTube.'],
+      ['Is SpinDraw affiliated with these tools?', 'No. SpinDraw is independent. All product names are trademarks of their owners and are used here only to compare the tools.'],
+    ],
+  },
+  {
+    slug: 'picker-wheel-alternative',
+    nav: 'Picker Wheel alternative',
+    updated: '2026-11-05',
+    related: ['random-name-picker-alternatives', 'wheel-of-names-alternative', 'random-name-picker'],
+    title: 'Picker Wheel Alternative for Raffles and Name Games | SpinDraw',
+    description: 'Comparing Picker Wheel and SpinDraw: wheel modes, ads, saved files, name race games and verifiable draws, plus when you should stay with Picker Wheel.',
+    h1: 'A Picker Wheel alternative for raffles and name games',
+    lede: 'SpinDraw is a free alternative to Picker Wheel when you’re choosing a winner and people will want to check the result, or when you’d like to reveal it with a race or battle. If you need yes/no, team or number wheels, Picker Wheel is the better tool.',
+    body: `
+<h2>How they compare</h2>
+<div class="table-scroll"><table class="compare">
+  <thead><tr><th></th><th>Picker Wheel</th><th>SpinDraw</th></tr></thead>
+  <tbody>
+    <tr><td>Price</td><td>Free; paid Premium removes ads and adds more</td><td>Free, with no paid tier</td></tr>
+    <tr><td>Sign-up</td><td>None to spin; a free account adds cloud saving</td><td>None, and no accounts at all</td></tr>
+    <tr><td>Ways to pick</td><td>Wheel in normal, elimination and tally modes</td><td>Wheel, ball race, horse race and pixel battle</td></tr>
+    <tr><td>Several wheels</td><td>Up to five</td><td>One</td></tr>
+    <tr><td>Other kinds of wheel</td><td>Yes/no, team, number, letter, country and colour</td><td>Names and prizes only (you can type Yes and No as entries)</td></tr>
+    <tr><td>Weighted entries</td><td>Yes</td><td>Yes (“Name x3”)</td></tr>
+    <tr><td>Removing winners</td><td>Yes (elimination mode)</td><td>Yes</td></tr>
+    <tr><td>How the result can be checked</td><td>No method mentioned</td><td>Code shown before the draw; verify link replays every pick</td></tr>
+    <tr><td>Prizes and no-shows</td><td>Not mentioned</td><td>Prize list, claim timer and one-key no-show redraw</td></tr>
+    <tr><td>Paste raw comments</td><td>Not mentioned</td><td>Parses copied Facebook, TikTok and YouTube comments, with a keyword filter</td></tr>
+    <tr><td>Stream overlay</td><td>Not mentioned; can embed a wheel</td><td>Transparent OBS overlay, 16:9 and 9:16</td></tr>
+    <tr><td>Saving your work</td><td>Browser, plus cloud files with an account (15 free, up to 120 on Premium)</td><td>Browser only</td></tr>
+  </tbody>
+</table></div>
+<p class="small">From <a href="https://pickerwheel.com/">Picker Wheel’s own site</a> and FAQ, checked on 5 November 2026. “Not mentioned” means we didn’t find it there, not that it’s impossible. Features change, so check both sites.</p>
+<h2>When to stay with Picker Wheel</h2>
+<p>Picker Wheel covers far more than names. Stay with it if you need team or number wheels, several wheels on one page, or files saved to an account so they follow you between devices.</p>
+<h2>When SpinDraw fits better</h2>
+<p>SpinDraw does one job: picking winners people can trust. It suits a company raffle, a community giveaway or a live stream, where someone may ask whether the draw was rigged. It shows a code before the draw and gives you a link that lets anyone replay the result.</p>
+<p>It’s also more fun to watch. Up to 100 names can race as balls or horses or fight as pixel fighters, with a live board showing who’s winning, while the same locked draw decides the result.</p>
+<p>See how these two compare with other tools in our <a href="/random-name-picker-alternatives/">full comparison of name picker alternatives</a>.</p>`,
+    faq: [
+      ['Is SpinDraw free like Picker Wheel?', 'Yes. SpinDraw is free with no sign-up and has no paid tier. Picker Wheel is also free, and offers a paid Premium plan with an ad-free experience and more saved files.'],
+      ['Can I move my list from Picker Wheel to SpinDraw?', 'Yes. Copy your entries and paste them into SpinDraw, one per line. Weights use the format “Name x3”.'],
+      ['Does SpinDraw have a yes or no wheel?', 'Not a dedicated one. You can type Yes and No as two entries and spin, but Picker Wheel has a purpose-built yes/no wheel.'],
+      ['Is SpinDraw affiliated with Picker Wheel?', 'No. SpinDraw is an independent tool. Picker Wheel is a trademark of its owner.'],
+    ],
+  },
+  {
     slug: 'wheel-of-names-alternative',
+    updated: '2026-11-05',
+    published: '2026-10-20',
+    related: ['random-name-picker-alternatives', 'picker-wheel-alternative', 'ball-race-name-picker'],
     nav: 'Wheel of Names alternative',
     title: 'Wheel of Names Alternative for Fair Raffles | SpinDraw',
     description: 'A Wheel of Names alternative for raffles people trust: verifiable draws, paste names or comments, several prizes, claim timers and a stream overlay. Free.',
     h1: 'A Wheel of Names alternative made for fair raffles',
-    lede: 'Wheel of Names is a great general-purpose spinner. SpinDraw focuses on one job: running raffles and giveaways people can trust, from office parties and family draws to live streams.',
+    lede: 'SpinDraw is a free Wheel of Names alternative for raffles and giveaways where people need to trust the result. It adds a verify link anyone can check, plus ball race, horse race and pixel battle games. For everyday spinning and wheels saved to an account, Wheel of Names remains the more mature tool.',
     body: `
 <h2>How they compare</h2>
 <div class="table-scroll"><table class="compare">
   <thead><tr><th></th><th>Wheel of Names</th><th>SpinDraw</th></tr></thead>
   <tbody>
-    <tr><td>Price</td><td>Free, ad-supported</td><td>Free, ad-supported</td></tr>
+    <tr><td>Price</td><td>Free with ads; takes no payments</td><td>Free, no sign-up</td></tr>
+    <tr><td>Ways to pick</td><td>Wheel, several wheels at once, weighted mode</td><td>Wheel, ball race, horse race and pixel battle</td></tr>
+    <tr><td>Names on the wheel</td><td>Shows up to 1,000 at once</td><td>Thousands on the wheel; 100 in the games</td></tr>
     <tr><td>Random source</td><td>Browser cryptographic RNG</td><td>HMAC-SHA256 of a committed 256-bit seed</td></tr>
     <tr><td>Proof viewers can check</td><td>Statistical test (“Run 10,000 spins”)</td><td>Commitment shown before the draw + verify link that replays every pick</td></tr>
     <tr><td>Streaming</td><td>Dedicated streaming page</td><td>Transparent OBS overlay, 16:9 and 9:16, synced to a control panel</td></tr>
@@ -420,11 +520,12 @@ const GUIDES = [
     <tr><td>Accounts &amp; cloud saving</td><td>Yes</td><td>No accounts; saved in your browser</td></tr>
   </tbody>
 </table></div>
-<p class="small">Based on Wheel of Names’ public FAQ in October 2026. Features change, so check both sites.</p>
+<p class="small">Based on <a href="https://wheelofnames.com/faq">Wheel of Names’ public FAQ</a>, checked on 5 November 2026. Features change, so check both sites.</p>
 <h2>When to stay with Wheel of Names</h2>
 <p>For classroom spinning, saving many wheels to an account, or sharing wheels with others, Wheel of Names is excellent and more mature.</p>
 <h2>When SpinDraw fits better</h2>
-<p>When you’re giving something away and people need to trust the result: a company raffle, a family draw, a community giveaway or a live stream. People often suspect draws are rigged. SpinDraw shows a commitment code before the spin, mixes in a word someone else picks, and lets anyone replay the draw afterwards. It also handles the messy parts of real raffles: pasting raw comments, filtering by keyword, several prizes in a row and winners who never reply.</p>`,
+<p>When you’re giving something away and people need to trust the result: a company raffle, a family draw, a community giveaway or a live stream. People often suspect draws are rigged. SpinDraw shows a commitment code before the spin, mixes in a word someone else picks, and lets anyone replay the draw afterwards. It also handles the messy parts of real raffles: pasting raw comments, filtering by keyword, several prizes in a row and winners who never reply.</p>
+<p>See how these two compare with other tools in our <a href="/random-name-picker-alternatives/">full comparison of name picker alternatives</a>.</p>`,
     faq: [
       ['Is SpinDraw affiliated with Wheel of Names?', 'No. SpinDraw is an independent tool. Wheel of Names is a trademark of its owner.'],
       ['Can I import my list from Wheel of Names?', 'Yes. Copy the names from your wheel and paste them into SpinDraw, one per line.'],
@@ -725,13 +826,26 @@ for (const g of GUIDES) {
       { '@type': 'ListItem', position: 2, name: g.nav, item: SITE + path },
     ],
   };
-  write(`${g.slug}/index.html`, `${head({ title: g.title, description: g.description, path, extra: [ld(crumbs), ld(faqLd(g.faq))].join('\n  ') })}
+  const article = g.updated && {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: g.h1,
+    description: g.description,
+    url: SITE + path,
+    datePublished: g.published ?? g.updated,
+    dateModified: g.updated,
+    author: { '@type': 'Organization', name: 'SpinDraw', url: SITE + '/' },
+    publisher: { '@type': 'Organization', name: 'SpinDraw', logo: { '@type': 'ImageObject', url: SITE + '/icon-512.png' } },
+  };
+  const more = g.related ? g.related.map(slug => GUIDES.find(o => o.slug === slug)) : others.slice(0, 3);
+  write(`${g.slug}/index.html`, `${head({ title: g.title, description: g.description, path, extra: [ld(crumbs), ...(article ? [ld(article)] : []), ld(faqLd(g.faq))].join('\n  ') })}
 <body>${header}
   <main class="page">
     <section class="page-hero">
       <div class="crumbs"><a href="/">SpinDraw</a> / ${esc(g.nav)}</div>
       <h1>${esc(g.h1)}</h1>
       <p>${esc(g.lede)}</p>
+      ${g.updated ? `<p class="small">Last checked <time datetime="${g.updated}">${new Date(`${g.updated}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })}</time></p>` : ''}
       <div class="cta"><a class="btn primary big" href="/app.html">Open the raffle wheel</a><a class="btn big" href="/#how">How SpinDraw works</a></div>
     </section>
     <article class="prose">${g.body}
@@ -740,7 +854,7 @@ for (const g of GUIDES) {
     </article>
     <section class="section" style="margin-top:48px">
       <div class="section-head"><h2>More guides</h2></div>
-      <div class="grid">${others.slice(0, 3).map(o => `<a class="card" href="/${o.slug}/"><h3>${esc(o.nav)}</h3><p>${esc(o.description)}</p><span class="go">Read →</span></a>`).join('')}</div>
+      <div class="grid">${more.map(o => `<a class="card" href="/${o.slug}/"><h3>${esc(o.nav)}</h3><p>${esc(o.description)}</p><span class="go">Read →</span></a>`).join('')}</div>
     </section>
     <div class="cta-band">
       <div><h2>Run your raffle now</h2><p>Free, no sign-up, nothing to install.</p></div>
