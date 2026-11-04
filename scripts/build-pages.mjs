@@ -640,6 +640,10 @@ const PATCHES = [
   {
     id: 'pixel-battle', name: 'Pixel Battle', icon: 'sword', guide: '/battle-royale-name-picker/',
     log: [
+      { v: '1.4', date: '2026-11-05', title: 'Countdown and champion’s finish', notes: [
+        ['new', 'A 3, 2, 1 countdown before the start: “Let’s battle!”'],
+        ['new', 'A new winner’s scene with a crown, sunburst, pixel sparks and a heroic jingle.'],
+      ] },
       { v: '1.3', date: '2026-11-05', title: 'Battle music', notes: [
         ['new', 'Original chiptune music made for the arena, which speeds up for the finish. Turn it off in the Style tab.'],
       ] },
@@ -664,6 +668,10 @@ const PATCHES = [
   {
     id: 'ball-race', name: 'Ball Race', icon: 'race', guide: '/ball-race-name-picker/',
     log: [
+      { v: '1.5', date: '2026-11-05', title: 'Countdown and checkered finish', notes: [
+        ['new', 'A 3, 2, 1 countdown before the start: “Let’s roll!”'],
+        ['new', 'A new winner’s scene with checkered flags, bouncing balls and a jingle.'],
+      ] },
       { v: '1.4', date: '2026-11-05', title: 'Bouncy new music', notes: [
         ['new', 'Original chiptune music made for the race, which speeds up for the finish. Turn it off in the Style tab.'],
       ] },
@@ -685,6 +693,10 @@ const PATCHES = [
   {
     id: 'horse-race', name: 'Horse Race', icon: 'horse', guide: '/horse-race-name-picker/',
     log: [
+      { v: '1.4', date: '2026-11-05', title: 'Countdown and winner’s circle', notes: [
+        ['new', 'A 3, 2, 1 countdown before the start: “And they’re off!”'],
+        ['new', 'A new winner’s scene with a rosette, rose petals, camera flashes and a bugle call.'],
+      ] },
       { v: '1.3', date: '2026-11-05', title: 'Galloping new music', notes: [
         ['new', 'Original chiptune music made for the track, which speeds up for the finish. Turn it off in the Style tab.'],
       ] },

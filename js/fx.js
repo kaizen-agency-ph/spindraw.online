@@ -1,5 +1,5 @@
 // Confetti + Web Audio sounds and music (no assets to load).
-import { createMusicPlayer } from './games/music.js';
+import { createMusicPlayer, scheduleJingle } from './games/music.js';
 
 const COLORS = ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c', '#f4f1e8'];
 
@@ -75,6 +75,21 @@ export const sound = {
   tension() { player.tension(); },
   stopMusic() { player.stop(); },
   get musicPlaying() { return player.playing; },
+  // Countdown blips: three low, then a high one for the start.
+  beep(go = false) {
+    if (!this.enabled) return;
+    try { tone(go ? 1319 : 659, 0, go ? 0.34 : 0.12, { type: 'square', vol: go ? 0.09 : 0.07 }); } catch {}
+  },
+  fanfare(mode) {
+    if (!this.enabled) return;
+    try {
+      const a = audio(), g = a.createGain();
+      g.gain.value = 0.6;
+      g.connect(a.destination);
+      const end = scheduleJingle(a, g, mode, a.currentTime + 0.03);
+      setTimeout(() => g.disconnect(), (end - a.currentTime + 0.5) * 1000);
+    } catch {}
+  },
   tick() {
     if (!this.enabled) return;
     const now = performance.now();

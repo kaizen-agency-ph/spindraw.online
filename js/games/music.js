@@ -211,6 +211,28 @@ export function scheduleBar(ctx, dest, song, [chord, line], at, intense = false)
 
 export const songBars = song => song.order.flatMap(name => song.sections[name]);
 
+// A short winner's jingle for each game: a bouncy climb, a bugle call, a heroic sting.
+const JINGLES = {
+  race: { lead: 0.5, step: 0.075, notes: [['C5', 0, 1], ['E5', 1, 1], ['G5', 2, 1], ['C6', 3, 1], ['E6', 4, 1], ['G6', 5, 1], ['C7', 6, 2], ['G6', 8, 1], ['C7', 9, 7]], bass: [['C3', 0, 3], ['G3', 3, 3], ['C4', 6, 3], ['C3', 9, 7]] },
+  horse: { lead: 0.25, step: 0.1, notes: [['G5', 0, 1], ['C6', 1, 1], ['E6', 2, 1], ['G6', 3, 2], ['E6', 5, 1], ['G6', 6, 8]], bass: [['C3', 0, 3], ['G3', 3, 3], ['C3', 6, 3], ['C4', 9, 5]] },
+  battle: { lead: 0.25, step: 0.12, notes: [['A5', 0, 1], ['C6', 1, 1], ['E6', 2, 1], ['F6', 3, 2], ['G6', 5, 2], ['C7', 7, 7]], bass: [['A2', 0, 3], ['F2', 3, 2], ['G2', 5, 2], ['C3', 7, 7]] },
+};
+
+export function scheduleJingle(ctx, dest, mode, at) {
+  const j = JINGLES[mode];
+  if (!j) return at;
+  let end = at;
+  for (const [n, s, len] of j.notes) {
+    voice(ctx, dest, j.lead, hz(midi(n)), at + s * j.step, len * j.step * 0.95, 0.2);
+    voice(ctx, dest, 0.125, hz(midi(n) - 12), at + s * j.step, len * j.step * 0.95, 0.09);
+    end = Math.max(end, at + (s + len) * j.step);
+  }
+  for (const [n, s, len] of j.bass) voice(ctx, dest, 'triangle', hz(midi(n)), at + s * j.step, len * j.step * 0.95, 0.36);
+  drum(ctx, dest, 'k', at);
+  drum(ctx, dest, 's', at + (j.notes.at(-1)[1]) * j.step);
+  return end;
+}
+
 // Plays a mode's track on a loop until stopped. tension() moves it to its faster finish.
 export function createMusicPlayer(getContext, volume = 0.55) {
   let run = null;

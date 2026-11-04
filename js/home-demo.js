@@ -63,7 +63,7 @@ async function playGame(id) {
   game.setEntries(pool);
   still.hidden = true;
   const i = pickWinner(), current = game;
-  say('Starting…');
+  say('Get ready…');
   await current.play({
     seed: `home-${Date.now()}-${Math.random()}`,
     winnerIdxs: [i],

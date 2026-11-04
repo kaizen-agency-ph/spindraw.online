@@ -8,7 +8,14 @@ import { framesFor, paintArena, horseFrames } from './sprites.js';
 
 export { MAX_PLAYERS, MAX_WINNERS, LENGTHS };
 
+const BALL_COLORS = ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c'];
 const FOOT = { race: 'The locked draw decides. The race reveals it.', battle: 'The locked draw decides. The battle reveals it.' };
+const COUNT_STEP = 0.8, GO_SECS = 0.95, SCENE_SECS = 3.4;
+const STAGE = {
+  race: { go: 'LET’S ROLL!', color: '#ffd23f' },
+  horse: { go: 'AND THEY’RE OFF!', color: '#ffe9a0' },
+  battle: { go: 'LET’S BATTLE!', color: '#ff5d73' },
+};
 const ordinal = n => { const t = n % 100; return n + (t > 10 && t < 14 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'); };
 
 function plate(g, x, y, w, h, r, fill = 'rgba(15,16,19,.86)') {
@@ -50,10 +57,12 @@ class View {
     const w = Math.max(2, Math.round(r.width * dpr)), h = Math.max(2, Math.round(r.height * dpr));
     if (w !== this.canvas.width || h !== this.canvas.height) { this.canvas.width = w; this.canvas.height = h; }
     this.px = this.canvas.width / Math.max(r.width, 1);
-    if (!this.playing) this.draw();
+    if (!this.playing) this.paint();
   }
+  // Whatever should be on screen when nothing is playing.
+  paint() { if (this.scene) this.drawScene((performance.now() - this.scene.t0) / 1000); else this.draw(); }
   destroy() { this.ro.disconnect(); this.dead = true; }
-  setTheme(theme) { this.theme = theme; if (!this.playing) this.draw(); }
+  setTheme(theme) { this.theme = theme; if (!this.playing) this.paint(); }
   name(slot) { return this.pool[this.slots[slot]]?.name ?? ''; }
 
   // Advance the sim from the clock. A timer also ends the run, because rAF pauses in
@@ -77,11 +86,135 @@ class View {
         const t = (now - t0) / 1000;
         if (t >= duration) return finish();
         onFrame(t, dt);
+        if (this.goText && t < GO_SECS) this.bigText(this.goText, t / GO_SECS, STAGE[this.mode].color, true);
         requestAnimationFrame(frame);
       };
       requestAnimationFrame(frame);
       setTimeout(finish, (duration + 0.2) * 1000);
     });
+  }
+
+  // 3, 2, 1 over the waiting field, so everyone can find their name. Then the start word
+  // rides over the first moments of the game itself.
+  async countdown(sound) {
+    this.goText = null;
+    let shown = 0;
+    await this.run(COUNT_STEP * 3, (time, dt) => {
+      // A frame's timestamp can fall just before the start, which would briefly show a 4.
+      const t = Math.max(0, time), left = Math.max(1, 3 - Math.floor(t / COUNT_STEP));
+      if (left !== shown) { shown = left; sound?.beep?.(false); }
+      this.drawField(Math.min(dt, 0.1));
+      this.bigText(String(left), (t % COUNT_STEP) / COUNT_STEP, STAGE[this.mode].color, false);
+    });
+    if (this.dead) return;
+    sound?.beep?.(true);
+    sound?.startMusic?.(this.mode);
+    this.goText = STAGE[this.mode].go;
+  }
+
+  bigText(text, u, color, fades) {
+    const { g, canvas: c } = this, m = Math.min(c.width, c.height);
+    g.save();
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.fillStyle = `rgba(13,14,18,${fades ? 0.34 * (1 - u) : 0.38})`;
+    g.fillRect(0, 0, c.width, c.height);
+    const pop = 1 + 0.55 * Math.max(0, 1 - u / 0.22) ** 2;
+    let size = text.length > 1 ? m * 0.15 : m * 0.42;
+    g.font = `800 ${size}px 'Geist', system-ui, sans-serif`;
+    const w = g.measureText(text).width;
+    if (w > c.width * 0.86) { size *= c.width * 0.86 / w; g.font = `800 ${size}px 'Geist', system-ui, sans-serif`; }
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.translate(c.width / 2, c.height / 2);
+    g.scale(pop, pop);
+    g.globalAlpha = Math.min(1, (fades ? 2.4 : 7) * (1 - u));
+    g.lineJoin = 'round';
+    g.lineWidth = size * 0.09;
+    g.strokeStyle = '#0d0e12';
+    g.strokeText(text, 0, 0);
+    g.fillStyle = color;
+    g.fillText(text, 0, 0);
+    g.restore();
+  }
+
+  // The themed winner's scene. It plays out before the winner card, then keeps moving behind it
+  // until the board changes.
+  async celebrate(sound, winSlots) {
+    const c = this.canvas;
+    sound?.stopMusic?.();
+    sound?.fanfare?.(this.mode);
+    this.goText = null;
+    const snap = document.createElement('canvas');
+    snap.width = c.width; snap.height = c.height;
+    snap.getContext('2d').drawImage(c, 0, 0);
+    this.scene = { t0: performance.now(), snap, slots: winSlots };
+    const scene = this.scene;
+    await this.run(SCENE_SECS, t => this.drawScene(t));
+    const loop = () => {
+      if (this.dead || this.scene !== scene || this.playing) return;
+      this.drawScene((performance.now() - scene.t0) / 1000);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+
+  drawScene(t) {
+    const { g, canvas: c, scene } = this;
+    if (!scene) return;
+    const m = Math.min(c.width, c.height);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalAlpha = 1;
+    g.imageSmoothingEnabled = false;
+    g.drawImage(scene.snap, 0, 0, c.width, c.height);
+    g.fillStyle = `rgba(13,14,18,${Math.min(0.88, t * 3)})`;
+    g.fillRect(0, 0, c.width, c.height);
+    const appear = Math.min(1, t / 0.3);
+    g.globalAlpha = appear;
+    this.sceneBack(t);
+    g.globalAlpha = 1;
+
+    const slots = scene.slots, shown = slots.slice(0, 5), extra = slots.length - shown.length;
+    const colW = c.width / shown.length, size = Math.min(colW * 0.62, c.height * (shown.length > 1 ? 0.27 : 0.3));
+    const baseY = c.height * 0.67, nameF = Math.max(11 * this.px, Math.min(colW * 0.105, m * (shown.length > 1 ? 0.05 : 0.075)));
+    shown.forEach((slot, i) => {
+      const drop = Math.max(0, 1 - (t - i * 0.08) / 0.32);
+      const x = colW * (i + 0.5), y = baseY - drop * drop * c.height * 0.7;
+      this.sceneActor(slot, x, y, size, t + i * 0.27, i);
+      const label = (slots.length > 1 ? `${ordinal(i + 1)} · ` : '') + this.name(slot);
+      g.font = `700 ${nameF}px 'Geist', system-ui, sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      const text = fit(g, label, colW * 0.92), w = g.measureText(text).width + nameF;
+      const ny = baseY + nameF * 1.1;
+      plate(g, x - w / 2, ny - nameF * 0.8, w, nameF * 1.6, nameF * 0.3, '#ffd23f');
+      g.fillStyle = '#14151a';
+      g.fillText(text, x, ny + nameF * 0.04);
+      const note = this.sceneNote?.(slot);
+      if (note) {
+        g.font = `600 ${nameF * 0.62}px 'Geist Mono', monospace`;
+        g.fillStyle = '#f4f4f5';
+        g.fillText(note, x, ny + nameF * 1.5);
+      }
+    });
+    if (extra > 0) {
+      g.font = `600 ${nameF * 0.8}px 'Geist', system-ui, sans-serif`;
+      g.fillStyle = '#f4f4f5';
+      g.textAlign = 'center';
+      g.fillText(`and ${extra} more`, c.width / 2, baseY + nameF * 3.1);
+    }
+    const title = this.sceneTitle(slots.length), pop = 1 + 0.4 * Math.max(0, 1 - t / 0.25) ** 2;
+    let tf = m * 0.085;
+    g.font = `800 ${tf}px 'Geist', system-ui, sans-serif`;
+    const tw = g.measureText(title).width;
+    if (tw > c.width * 0.9) { tf *= c.width * 0.9 / tw; g.font = `800 ${tf}px 'Geist', system-ui, sans-serif`; }
+    g.save();
+    g.translate(c.width / 2, c.height * 0.17);
+    g.scale(pop, pop);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineJoin = 'round'; g.lineWidth = tf * 0.14; g.strokeStyle = '#0d0e12';
+    g.strokeText(title, 0, 0);
+    g.fillStyle = STAGE[this.mode].color;
+    g.fillText(title, 0, 0);
+    g.restore();
+    this.footer(this.mode === 'battle' ? FOOT.battle : FOOT.race);
   }
 
   // Who's-winning board shared by the two races. `left` > 0 gives it its own column.
@@ -136,6 +269,7 @@ class RaceView extends View {
     this.slots = pool.map((_, i) => i);
     this.cam = 0;
     this.live = false;
+    this.scene = null;
     if (!this.playing) this.draw();
   }
 
@@ -146,6 +280,9 @@ class RaceView extends View {
     this.count = winnerIdxs.length;
     this.cam = 0;
     this.live = true;
+    this.scene = null;
+    await this.countdown(sound);
+    if (this.dead) return;
     let lead = -1, leadTick = 0;
     await this.run(pre.finishAt + 1.4, (t, dt) => {
       while (this.sim.t < t) this.sim.step();
@@ -154,6 +291,47 @@ class RaceView extends View {
       if (this.sim.b[rank[0]].y / this.sim.course.finishY > 0.75) sound?.tension?.();
       this.draw(dt, rank);
     });
+    if (!this.dead) await this.celebrate(sound, pre.winSlots);
+  }
+
+  drawField(dt) { this.draw(dt, this.sim.ranking()); }
+
+  sceneTitle(n) { return n > 1 ? `FIRST ${n} ACROSS THE LINE!` : 'FIRST ACROSS THE LINE!'; }
+
+  sceneBack(t) {
+    const { g, canvas: c } = this, sq = Math.max(8, Math.min(c.width, c.height) * 0.035), shift = (t * 90 * this.px) % (sq * 2);
+    const colors = this.theme?.colors?.length ? this.theme.colors : BALL_COLORS;
+    for (let i = 0; i < 26; i++) {                  // balls raining and bouncing off the floor
+      const r = sq * (0.3 + (i % 3) * 0.14), x = (i + 0.5) / 26 * c.width;
+      const period = 0.8 + (i % 5) * 0.14, u = ((t + i * 0.19) % period) / period;
+      const y = c.height - sq * 2 - r - Math.abs(Math.sin(u * Math.PI)) * c.height * (0.28 + (i % 4) * 0.08);
+      g.fillStyle = colors[i % colors.length];
+      g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill();
+    }
+    for (const y of [0, c.height - sq * 2]) for (let row = 0; row < 2; row++) for (let x = -sq * 2; x < c.width + sq * 2; x += sq) {
+      const k = Math.round((x + sq * 2) / sq) + row;
+      g.fillStyle = k % 2 ? '#f4f4f5' : '#14151a';
+      g.fillRect(x + shift, y + row * sq, sq + 1, sq + 1);
+    }
+  }
+
+  sceneActor(slot, x, y, size, t) {
+    const { g } = this, r = size / 2, colors = this.theme?.colors?.length ? this.theme.colors : BALL_COLORS;
+    const hop = Math.abs(Math.sin(t * 5)), lift = hop * size * 0.34, squash = 1 + (1 - Math.min(1, hop * 4)) * 0.16;
+    const col = colors[this.slots[slot] % colors.length];
+    g.fillStyle = 'rgba(0,0,0,.4)';
+    g.beginPath(); g.ellipse(x, y, r * (1 - hop * 0.3), r * 0.16, 0, 0, 6.2832); g.fill();
+    g.save();
+    g.translate(x, y - r * (2 - squash) * 1 - lift);
+    g.scale(squash, 2 - squash);
+    g.beginPath(); g.arc(0, 0, r, 0, 6.2832);
+    g.fillStyle = col; g.fill();
+    g.lineWidth = r * 0.12; g.strokeStyle = '#ffd23f'; g.stroke();
+    g.font = `800 ${r * 0.72}px 'Geist', system-ui, sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = ink(col);
+    g.fillText(initials(this.name(slot)), 0, r * 0.03);
+    g.restore();
   }
 
   draw(dt = 1, rank) {
@@ -206,7 +384,7 @@ class RaceView extends View {
       g.fillRect(x, fy - 20 + i * 20, 20, 20);
     }
 
-    const colors = this.theme?.colors?.length ? this.theme.colors : ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c'];
+    const colors = this.theme?.colors?.length ? this.theme.colors : BALL_COLORS;
     const R = sim.R;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
@@ -260,6 +438,7 @@ class BattleView extends View {
     this.arena = this.sim ? paintArena(this.sim.W, this.sim.H, makeRng(`arena|${this.sim.W}`)) : null;
     this.zoom = 1; this.fx = 0; this.fy = 0;
     this.live = false;
+    this.scene = null;
     if (!this.playing) this.draw();
   }
 
@@ -272,6 +451,9 @@ class BattleView extends View {
     this.live = true;
     let seen = 0, alive = n;
     onLeader?.(`${n} fighters`);
+    this.scene = null;
+    await this.countdown(sound);
+    if (this.dead) return;
     await this.run(pre.finishAt + 1.8, (t, dt) => {
       while (this.sim.t < t && !this.sim.winners) this.sim.step();
       if (this.sim.alive !== alive) { alive = this.sim.alive; onLeader?.(this.sim.winners ? this.sim.winners.map(w => this.name(w)).join(', ') : `${alive} left standing`); }
@@ -281,6 +463,50 @@ class BattleView extends View {
       if (seen > ev.length) seen = ev.length;
       this.draw(dt, t);
     });
+    if (!this.dead) await this.celebrate(sound, pre.winSlots);
+  }
+
+  drawField(dt) { this.draw(dt); }
+
+  sceneTitle(n) { return n > 1 ? `LAST ${n} STANDING!` : 'LAST ONE STANDING!'; }
+
+  sceneNote(slot) { const k = this.sim.f[slot].kills; return `${k} KO${k === 1 ? '' : 's'}`; }
+
+  sceneBack(t) {
+    const { g, canvas: c } = this, cx = c.width / 2, cy = c.height * 0.5, R = Math.hypot(c.width, c.height);
+    for (let i = 0; i < 14; i++) {                 // a slow sunburst behind the champion
+      const a = t * 0.35 + i * Math.PI / 7;
+      g.fillStyle = i % 2 ? 'rgba(255,93,115,.14)' : 'rgba(255,210,63,.13)';
+      g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); g.lineTo(cx + Math.cos(a + 0.22) * R, cy + Math.sin(a + 0.22) * R); g.fill();
+    }
+    const px = Math.max(3, Math.min(c.width, c.height) * 0.012);
+    for (let b = 0; b < 5; b++) {                  // pixel sparks bursting around the arena
+      const period = 1.5 + b * 0.17, u = ((t + b * 0.43) % period) / period;
+      const bx = c.width * (0.12 + ((b * 0.37) % 1) * 0.76), by = c.height * (0.2 + ((b * 0.61) % 1) * 0.5);
+      g.globalAlpha = Math.max(0, 1 - u);
+      g.fillStyle = ['#ffd23f', '#ff5d73', '#7dd3fc', '#4ade80', '#f4f4f5'][b];
+      for (let i = 0; i < 12; i++) {
+        const a = i * Math.PI / 6 + b, d = u * Math.min(c.width, c.height) * 0.2;
+        g.fillRect(Math.round((bx + Math.cos(a) * d) / px) * px, Math.round((by + Math.sin(a) * d + u * u * px * 6) / px) * px, px, px);
+      }
+    }
+    g.globalAlpha = 1;
+  }
+
+  sceneActor(slot, x, y, size, t, place) {
+    const { g } = this, fr = framesFor(this.name(slot)), s = size / 16, swing = Math.floor(t * 2.5) % 2 === 0;
+    const hop = Math.abs(Math.sin(t * 5)) * size * 0.08, px = s;
+    g.fillStyle = 'rgba(0,0,0,.4)';
+    g.fillRect(x - size * 0.34, y - px, size * 0.68, px * 1.6);
+    g.imageSmoothingEnabled = false;
+    g.drawImage(swing ? fr.attack : fr.idle, x - size / 2, y - size - hop, size, size);
+    if (place > 0 && this.sim.count > 1) return;   // the crown is for first place
+    const by = y - size - hop - px * 2 + Math.sin(t * 6) * px * 0.6, cx = x - px * 0.5;
+    g.fillStyle = '#ffd23f';
+    g.fillRect(cx - px * 3, by, px * 7, px * 2);
+    for (const d of [-3, 0, 3]) g.fillRect(cx + d * px, by - px * (d ? 1 : 2), px, px * (d ? 1 : 2));
+    g.fillStyle = '#ff5d73';
+    g.fillRect(cx, by + px * 0.5, px, px);
   }
 
   draw(dt = 1, clock) {
@@ -511,6 +737,7 @@ class HorseView extends View {
     this.slots = pool.map((_, i) => i);
     this.cam = null;
     this.live = false;
+    this.scene = null;
     if (!this.playing) this.draw();
   }
 
@@ -521,6 +748,9 @@ class HorseView extends View {
     this.count = winnerIdxs.length;
     this.cam = null;
     this.live = true;
+    this.scene = null;
+    await this.countdown(sound);
+    if (this.dead) return;
     let lead = -1, tick = 0;
     await this.run(pre.finishAt + 1.6, (t, dt) => {
       while (this.sim.t < t) this.sim.step();
@@ -529,6 +759,57 @@ class HorseView extends View {
       if (this.sim.h[rank[0]].x / this.sim.finishX > 0.75) sound?.tension?.();
       this.draw(dt, rank);
     });
+    if (!this.dead) await this.celebrate(sound, pre.winSlots);
+  }
+
+  drawField(dt) { this.draw(dt, this.sim.ranking()); }
+
+  sceneTitle() { return 'WINNER’S CIRCLE!'; }
+
+  sceneBack(t) {
+    const { g, canvas: c } = this, turf = c.height * 0.56, post = Math.max(12, c.width * 0.05);
+    g.fillStyle = '#3f7d3a';
+    g.fillRect(0, turf, c.width, c.height - turf);
+    g.fillStyle = 'rgba(255,255,255,.06)';
+    for (let x = 0; x < c.width; x += post * 3) g.fillRect(x, turf, post * 1.5, c.height - turf);
+    const railH = Math.max(3, c.height * 0.012);
+    g.fillStyle = '#f4f4f5';
+    g.fillRect(0, turf, c.width, railH);
+    for (let x = post / 2; x < c.width; x += post) g.fillRect(x, turf, railH, c.height * 0.045);
+    for (let i = 0; i < 9; i++) {                  // camera flashes from the stands
+      const on = ((t * 3 + i * 0.37) * 7) % 5 < 0.5;
+      if (!on) continue;
+      const x = (i + 0.5) / 9 * c.width, y = turf * (0.32 + ((i * 0.53) % 1) * 0.6), r = Math.min(c.width, c.height) * 0.018;
+      g.fillStyle = 'rgba(255,255,255,.9)';
+      g.fillRect(x - r, y - r * 0.2, r * 2, r * 0.4);
+      g.fillRect(x - r * 0.2, y - r, r * 0.4, r * 2);
+    }
+    const petal = Math.max(3, Math.min(c.width, c.height) * 0.012);
+    for (let i = 0; i < 34; i++) {                 // falling rose petals
+      const period = 2.2 + (i % 5) * 0.3, u = ((t + i * 0.27) % period) / period;
+      g.fillStyle = i % 3 ? '#e11d48' : '#fb7185';
+      g.fillRect((i + 0.5) / 34 * c.width + Math.sin(t * 2 + i) * petal * 3, u * c.height, petal, petal * (i % 2 ? 1 : 0.6));
+    }
+  }
+
+  sceneActor(slot, x, y, size, t, place) {
+    const { g } = this, frames = horseFrames(this.name(slot)), w = size * 1.4, h = w * 20 / 28, px = w / 28;
+    const hop = Math.abs(Math.sin(t * 9)) * px * 1.2;
+    g.fillStyle = 'rgba(0,0,0,.28)';
+    g.fillRect(x - w * 0.4, y - px, w * 0.8, px * 1.6);
+    g.imageSmoothingEnabled = false;
+    g.drawImage(frames[Math.floor(t * 9) % frames.length], x - w / 2, y - h - hop, w, h);
+    // winner's rosette on the horse's shoulder
+    const rx = x + px * 5, ry = y - h * 0.5 - hop, r = px * 2.6;
+    g.fillStyle = place === 0 ? '#e11d48' : '#3a86ff';
+    g.fillRect(rx - r * 0.7, ry, r * 0.5, r * 1.8);
+    g.fillRect(rx + r * 0.2, ry, r * 0.5, r * 1.8);
+    g.fillStyle = '#ffd23f';
+    g.beginPath(); g.arc(rx, ry, r, 0, 6.2832); g.fill();
+    g.fillStyle = '#14151a';
+    g.font = `800 ${r * 1.1}px 'Geist Mono', monospace`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(String(place + 1), rx, ry + r * 0.05);
   }
 
   crowdTile() {
@@ -645,6 +926,8 @@ class HorseView extends View {
 }
 
 export function createGame(mode, canvas, theme) {
-  if (mode === 'battle') return new BattleView(canvas, theme);
-  return mode === 'horse' ? new HorseView(canvas, theme) : new RaceView(canvas, theme);
+  const View = mode === 'battle' ? BattleView : mode === 'horse' ? HorseView : RaceView;
+  const view = new View(canvas, theme);
+  view.mode = mode === 'battle' || mode === 'horse' ? mode : 'race';
+  return view;
 }

@@ -227,7 +227,6 @@ async function spin() {
     const seed = await fair.gameSeed(S.locked.seed, S.locked.eHash, S.salt, k);
     game.setEntries(p);
     channel.send('spin', { mode: S.mode, seed, winnerIdxs, length: S.gameLength, pool: pairs, winners });
-    sound.startMusic(S.mode);
     try {
       await game.play({ seed, winnerIdxs, length: S.gameLength, sound, onLeader: text => { $('#ticker').textContent = text; } });
     } finally { sound.stopMusic(); }
@@ -239,8 +238,8 @@ async function spin() {
   });
   S.claimEndsAt = S.claimSeconds > 0 ? Date.now() + S.claimSeconds * 1000 : 0;
   spinning = false;
-  sound.win();
-  confetti();
+  // The games stage their own themed finish on the canvas.
+  if (S.mode === 'wheel') { sound.win(); confetti(); }
   update();
 }
 
