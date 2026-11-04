@@ -56,7 +56,7 @@ const GUIDES = [
   <li>A horse and jockey for each person, with coat and silks based on their name</li>
   <li>A camera that runs with the leaders past the grandstand crowd, up to a checkered finish</li>
   <li>A live <strong>Who’s winning</strong> board, and “1st”, “2nd” and “3rd” tags as horses cross the line</li>
-  <li>Names on every horse in fields of up to 30; in bigger fields, names on the front-runners</li>
+  <li>A name on every horse, so everyone can find themselves in the field</li>
 </ul>
 <h2>Several winners and prizes</h2>
 <p>Set how many winners you want, and the race runs until that many have crossed the line. The first across takes the first prize on your list, the second takes the next, and so on. If a winner doesn’t respond, press R. Once everyone in that run is dealt with, a new race fills their place and they pass on their prize.</p>
@@ -89,7 +89,7 @@ const GUIDES = [
 <ul>
   <li>A camera that follows the leaders down a different course every time</li>
   <li>A live <strong>Who’s winning</strong> board with the top five</li>
-  <li>Names on the front-runners and initials on every other ball</li>
+  <li>A name above every ball, so everyone can follow their own</li>
   <li>Your own slice colours from the Style tab on the balls</li>
 </ul>
 <h2>Who decides the winner?</h2>

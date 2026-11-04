@@ -206,9 +206,7 @@ class RaceView extends View {
     }
 
     const colors = this.theme?.colors?.length ? this.theme.colors : ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c'];
-    // Names on the front-runners; everyone when the field is small and there's room.
-    const roomy = sim.n <= 12 && c.width / this.px >= 600;
-    const R = sim.R, topSet = new Set(this.live || roomy ? rank.slice(0, roomy ? sim.n : 3) : []);
+    const R = sim.R;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
     for (let i = sim.n - 1; i >= 0; i--) {
@@ -225,15 +223,17 @@ class RaceView extends View {
       g.fillStyle = ink(col);
       g.fillText(initials(this.name(i)), p.x, p.y + 1);
     }
-    g.font = `600 ${Math.max(20, 15 / s)}px 'Geist', system-ui, sans-serif`;
-    for (const i of topSet) {
+    // Every ball keeps a name; labels shrink when it's crowded, and the leaders' go on top.
+    const crowd = sim.n > 50 ? 0.66 : sim.n > 24 ? 0.8 : 1, nameF = Math.max(8.5 * this.px / s, Math.max(20, 15 / s) * crowd), nameH = nameF * 1.4;
+    g.font = `600 ${nameF}px 'Geist', system-ui, sans-serif`;
+    for (const i of rank.slice().reverse()) {
       const p = sim.b[i];
       if (p.y < top || p.y > bot) continue;
-      const label = fit(g, this.name(i), 260), w = g.measureText(label).width + 18, h = Math.max(30, 22 / s);
+      const label = fit(g, this.name(i), nameF * 12), w = g.measureText(label).width + nameF * 0.8;
       const lx = Math.max(w / 2 + 4, Math.min(WORLD_W - w / 2 - 4, p.x));   // keep labels on the course
-      plate(g, lx - w / 2, p.y - R - h - 6, w, h, 8);
-      g.fillStyle = i === rank[0] ? '#ffd23f' : '#f4f4f5';
-      g.fillText(label, lx, p.y - R - h / 2 - 5);
+      plate(g, lx - w / 2, p.y - R - nameH - 4, w, nameH, nameF * 0.3);
+      g.fillStyle = this.live && i === rank[0] ? '#ffd23f' : '#f4f4f5';
+      g.fillText(label, lx, p.y - R - nameH / 2 - 3);
     }
     g.restore();
 
@@ -581,16 +581,16 @@ class HorseView extends View {
     }
     g.restore();
 
-    // Names trail behind each horse so no horse is ever covered.
+    // Every horse keeps a name, trailing behind it.
     const crowded = n > 40 ? 0.66 : n > 20 ? 0.8 : 1;
     const f = Math.round(Math.max(8.5 * this.px, Math.max(10.5 * this.px, Math.min(c.width, c.height * 1.6) * 0.0135) * crowded) * 2) / 2;
     g.font = `600 ${f}px 'Geist', system-ui, sans-serif`;
     g.textAlign = 'center'; g.textBaseline = 'middle';
     const places = new Map(sim.order.slice(0, this.count ?? 1).map((slot, k) => [slot, k + 1]));
-    // Lanes are under 2px apart in huge fields, where every name would just be a black clump.
-    const named = n > 30 ? new Set(rank.slice(0, Math.max(12, this.count ?? 1))) : null;
-    for (const i of visible) {
-      if (named && !named.has(i)) continue;
+    // Back of the field first, so the leaders' names stay on top in a crowd.
+    const seen = new Set(visible);
+    for (const i of rank.slice().reverse()) {
+      if (!seen.has(i)) continue;
       const p = sim.h[i], place = places.get(i), text = (place ? `${ordinal(place)} · ` : '') + fit(g, this.name(i), f * 9);
       const w = g.measureText(text).width + f * 0.8, sx = (p.x - cam - 25) * s - w / 2, sy = oy + (laneY(p.lane) - 8) * s;
       plate(g, sx - w / 2, sy - f * 0.68, w, f * 1.36, f * 0.3, 'rgba(15,16,19,.8)');
