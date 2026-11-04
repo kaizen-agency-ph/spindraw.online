@@ -64,6 +64,9 @@ html { scroll-padding-top: 80px; }
 .patch-when { display: grid; align-content: start; gap: 2px; font-size: .85rem; color: var(--muted); }
 .patch-when strong { font-family: var(--mono); color: var(--text); }
 
+.video-credit { margin: 10px 0 0; font-size: .8rem; color: var(--muted); }
+.video-credit a { color: inherit; }
+
 .section { padding: 64px 0; border-top: 1px solid var(--line); }
 .section-head { max-width: 640px; margin-bottom: 32px; }
 .section-head h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); letter-spacing: -.035em; margin-bottom: 10px; }

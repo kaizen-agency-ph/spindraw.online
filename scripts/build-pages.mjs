@@ -788,12 +788,13 @@ const homeBody = `
     <section class="section" id="video">
       <div class="section-head">
         <div class="kicker">Watch</div>
-        <h2>SpinDraw in 46 seconds</h2>
-        <p>Paste, lock, spin, prove: the whole draw, start to finish.</p>
+        <h2>SpinDraw in 25 seconds</h2>
+        <p>Spin it, race it or fight it out: the same fair draw, four ways to reveal it.</p>
       </div>
       <div class="video-frame">
-        <video id="explainer" src="/media/spindraw-explainer.mp4" poster="/media/spindraw-explainer-poster.jpg" muted loop playsinline preload="none" controls width="1920" height="1080" aria-label="SpinDraw explainer: paste the names, lock the list, spin the wheel on any screen, and prove the draw was fair"></video>
+        <video id="explainer" src="/media/spindraw-launch.mp4" poster="/media/spindraw-launch-poster.jpg" muted loop playsinline preload="none" controls width="1920" height="1080" aria-label="SpinDraw launch video: the wheel, Ball Race, Horse Race and Pixel Battle each reveal a winner from the same locked draw"></video>
       </div>
+      <p class="video-credit">Music: Sascha Ende, <a href="https://ende.app" rel="noopener">ende.app</a> (<a href="https://creativecommons.org/licenses/by/4.0/" rel="noopener">CC BY 4.0</a>)</p>
     </section>
 
     <section class="section" id="use-cases">
@@ -885,12 +886,12 @@ const homeLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
-    name: 'SpinDraw in 46 seconds',
-    description: 'How to run a fair raffle with SpinDraw: paste the names, lock the list, spin the wheel on any screen, and prove the draw was fair.',
-    thumbnailUrl: [SITE + '/media/spindraw-explainer-poster.jpg'],
-    uploadDate: '2026-10-20',
-    duration: 'PT46S',
-    contentUrl: SITE + '/media/spindraw-explainer.mp4',
+    name: 'SpinDraw in 25 seconds',
+    description: 'Don’t just pick a name, put on a show. SpinDraw reveals the same fair, locked draw with a spinning wheel, a ball race, a horse race or a pixel battle.',
+    thumbnailUrl: [SITE + '/media/spindraw-launch-poster.jpg'],
+    uploadDate: '2026-11-05',
+    duration: 'PT25S',
+    contentUrl: SITE + '/media/spindraw-launch.mp4',
   },
 ];
 
