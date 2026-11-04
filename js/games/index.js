@@ -336,7 +336,6 @@ class BattleView extends View {
       g.drawImage(framesFor(this.name(i)).dead, Math.round(p.x - 8), Math.round(p.y - 13));
       g.globalAlpha = 1;
     }
-    const showAll = sim.n <= 24 || living.length <= 12;
     const topKills = living.slice().sort((a, b) => sim.f[b].kills - sim.f[a].kills || a - b).slice(0, 5);
     for (const i of order) {
       const p = sim.f[i];
@@ -378,22 +377,27 @@ class BattleView extends View {
     g.restore();
 
     // Name labels, drawn in screen space so they stay readable at any scale.
-    const f = Math.max(10.5, Math.min(c.width, c.height * 1.6) * 0.0135);
+    // Every fighter keeps a name; labels shrink as the arena gets crowded.
+    const n = living.length, crowd = n > 50 ? 0.66 : n > 24 ? 0.8 : 1;
+    const f = Math.round(Math.max(8.5 * this.px, Math.max(10.5 * this.px, Math.min(c.width, c.height * 1.6) * 0.0135) * crowd) * 2) / 2;
     g.font = `600 ${f}px 'Geist', system-ui, sans-serif`;
     g.textAlign = 'center'; g.textBaseline = 'middle';
-    const labels = (showAll ? living : topKills).map(i => {
-      const p = sim.f[i];
-      const text = fit(g, this.name(i), f * 9);
-      return { i, text, w: g.measureText(text).width + f * 0.9, sx: c.width / 2 + (p.x - cx) * s, sy: c.height / 2 + (p.y - 21 - (sim.winner === i ? Math.abs(Math.sin(now * 7)) * 5 : 0) - cy) * s };
+    this.labelCache ??= new Map();
+    const labels = living.map(i => {
+      const p = sim.f[i], name = this.name(i), key = `${f}|${name}`;
+      let m = this.labelCache.get(key);
+      if (!m) { const text = fit(g, name, f * 9); m = { text, tw: g.measureText(text).width }; this.labelCache.set(key, m); }
+      return { i, text: m.text, w: m.tw + f * 0.8, sx: c.width / 2 + (p.x - cx) * s, sy: c.height / 2 + (p.y - 21 - (sim.winner === i ? Math.abs(Math.sin(now * 7)) * 5 : 0) - cy) * s };
     }).sort((a, b) => b.sy - a.sy);
     // Stack labels that would collide, lowest first, so close fighters stay readable.
-    labels.forEach((l, n) => {
-      for (let m = 0; m < n; m++) {
+    // In a big crowd they stay on their fighters instead, lowest drawn on top.
+    if (n <= 30) labels.forEach((l, k) => {
+      for (let m = 0; m < k; m++) {
         const o = labels[m];
         if (Math.abs(l.sx - o.sx) < (l.w + o.w) / 2 && l.sy > o.sy - f * 1.45) l.sy = o.sy - f * 1.45;
       }
     });
-    for (const { i, text, w, sx, sy } of labels) {
+    for (const { i, text, w, sx, sy } of labels.slice().reverse()) {
       plate(g, sx - w / 2, sy - f * 1.45, w, f * 1.35, f * 0.3, 'rgba(15,16,19,.78)');
       g.fillStyle = sim.winner === i ? '#ffd23f' : topKills[0] === i && sim.f[i].kills ? '#ffb4bf' : '#f4f4f5';
       g.fillText(text, sx, sy - f * 0.75);
