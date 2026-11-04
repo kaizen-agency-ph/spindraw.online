@@ -407,7 +407,7 @@ const GUIDES = [
     h1: 'Random name picker alternatives, compared',
     lede: 'The right picker depends on the job. Use Wheel of Names for everyday spinning, Picker Wheel for many kinds of wheel, Comment Picker to draw straight from social posts, Roulette Rush for big marble races, WaveSpeed for a race video, and SpinDraw when people need to check the draw was fair.',
     body: `
-<p class="small"><strong>Who wrote this:</strong> we make SpinDraw, so we aren’t neutral. We read each tool’s own pages and linked them below so you can check, but we didn’t run a hands-on test of every tool. “Not mentioned” means we didn’t find it on the pages we read, not that the feature doesn’t exist.</p>
+<p class="small"><strong>Who wrote this:</strong> <a href="/about/">we make SpinDraw</a>, so we aren’t neutral. We read each tool’s own pages and linked them below so you can check, but we didn’t run a hands-on test of every tool. “Not mentioned” means we didn’t find it on the pages we read, not that the feature doesn’t exist.</p>
 <h2>The best pick for each job</h2>
 <ul>
   <li><strong>Everyday spinning, saved and shared wheels:</strong> <a href="https://wheelofnames.com/faq">Wheel of Names</a>. It’s mature, with accounts, cloud saving and an API.</li>
@@ -618,6 +618,7 @@ const footer = `
       <ul>
         <li><a href="/app.html">Name picker app</a></li>
         <li><a href="/verify.html">Verify a draw</a></li>
+        <li><a href="/about/">About</a></li>
         <li><a href="/privacy.html">Privacy</a></li>
       </ul>
     </div>
@@ -784,7 +785,7 @@ const homeLd = [
     featureList: ['Spin the wheel', 'Ball race name picker', 'Marble race name picker', 'Horse race name picker', 'Battle royale name picker', 'Several winners per game', 'Random name picker', 'Verifiable draws', 'Several prizes with claim timers', 'Comment picker with keyword filter', 'Weighted entries', 'Big-screen and OBS overlay'],
   },
   { '@context': 'https://schema.org', '@type': 'WebSite', name: 'SpinDraw', url: SITE + '/' },
-  { '@context': 'https://schema.org', '@type': 'Organization', name: 'SpinDraw', url: SITE + '/', logo: SITE + '/icon-512.png' },
+  { '@context': 'https://schema.org', '@type': 'Organization', name: 'SpinDraw', url: SITE + '/', logo: SITE + '/icon-512.png', founder: { '@type': 'Person', name: 'Vincent Carl Benlot', url: 'https://vincentbenlot.site' } },
   faqLd(HOME_FAQ),
   {
     '@context': 'https://schema.org',
@@ -866,6 +867,95 @@ for (const g of GUIDES) {
 `);
 }
 
+const aboutLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'About SpinDraw',
+  url: `${SITE}/about/`,
+  about: { '@type': 'WebApplication', name: 'SpinDraw', url: `${SITE}/` },
+  mainEntity: {
+    '@type': 'Person',
+    name: 'Vincent Carl Benlot',
+    alternateName: 'Vince Benlot',
+    url: 'https://vincentbenlot.site',
+    jobTitle: 'Marketer and web builder',
+    image: `${SITE}/media/vince-pixel.webp`,
+    address: { '@type': 'PostalAddress', addressLocality: 'Malaybalay City', addressRegion: 'Bukidnon', addressCountry: 'PH' },
+    sameAs: ['https://www.linkedin.com/in/vincent-carl-benlot'],
+    owns: { '@type': 'Organization', name: 'Kaizen', url: 'https://kaizenagency.online' },
+  },
+};
+write('about/index.html', `${head({
+  title: 'About SpinDraw: Meet Vincent Carl Benlot, the Person Behind It',
+  description: 'Hi, I’m Vincent Carl Benlot, a marketer and web builder from the Philippines. I made SpinDraw, the name picker where horses settle your raffle, and I own Kaizen.',
+  path: '/about/',
+  extra: ld(aboutLd),
+})}
+<body>${header}
+  <main class="page">
+    <section class="about-hero">
+      <div>
+        <div class="crumbs"><a href="/">SpinDraw</a> / About</div>
+        <h1>Hi, I’m Vince. Sorry about the <span class="mark">horses</span>.</h1>
+        <p class="lede">I’m Vincent Carl Benlot, and I made SpinDraw. It started as a simple idea: build a nicer wheel of names for online raffles. Then things escalated, and now there are up to 100 pixel horses on the track.</p>
+      </div>
+      <figure class="about-pic">
+        <img src="/media/vince-pixel.webp" alt="Pixel-art Vince at a laptop with a coffee, beside a window looking out over Bukidnon" width="1200" height="960">
+      </figure>
+    </section>
+
+    <section class="section about-grid">
+      <div class="prose">
+        <h2>So why does this exist?</h2>
+        <p>Picking a winner sounds easy until there’s a prize on the line. Someone always asks, “Wait, was that rigged?” Usually as a joke. Usually.</p>
+        <p>So SpinDraw locks the list before the draw and gives you a link that lets anyone replay the result. Fewer raised eyebrows, more cheering.</p>
+        <p>Then I figured that if everyone’s already watching, the draw might as well be fun. That’s how a tidy little wheel gained a ball race, a horse race and a pixel battle. No pixel fighters were permanently harmed. They’re all back for your next raffle.</p>
+        <h2>A bit about me</h2>
+        <p>I’m a marketer and web builder from Malaybalay City, in Bukidnon, Philippines. I call myself the technician who became a marketer: I studied IT, then spent the last seven years or so working on marketing and the web with clients around the world.</p>
+        <p>You can see the full story on <a href="https://vincentbenlot.site">my personal site</a>, which has a little game where you walk my pixel self through my career. Yes, I have a pixel problem.</p>
+        <h2>I also own Kaizen</h2>
+        <p><a href="https://kaizenagency.online">Kaizen</a> is my web and automation studio. We build websites and automations for founders and service businesses, then keep making them better. The name comes from the Japanese practice of continuous improvement, and our motto is “Built sharp. Improved forever.”</p>
+        <p>If you like how SpinDraw works and want something built for your own business, that’s the place to say hello.</p>
+      </div>
+      <aside class="about-facts" aria-label="Quick facts">
+        <h2>Quick facts</h2>
+        <dl>
+          <div><dt>Full name</dt><dd>Vincent Carl Benlot</dd></div>
+          <div><dt>Goes by</dt><dd>Vince</dd></div>
+          <div><dt>Home base</dt><dd>Bukidnon, Philippines</dd></div>
+          <div><dt>Speaks</dt><dd>English and Tagalog</dd></div>
+          <div><dt>Also owns</dt><dd>Kaizen</dd></div>
+          <div><dt>Horses per race</dt><dd>Up to 100</dd></div>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="kicker">The SpinDraw promise</div>
+        <h2>A few house rules</h2>
+      </div>
+      <div class="grid">
+        <div class="card">${icon('lock')}<h3>Your names stay with you</h3><p>No account and no upload. Your list lives in your browser unless you choose to share a verify link or proof file.</p></div>
+        <div class="card">${icon('shield')}<h3>Cheating is the hard part</h3><p>That goes for you, me and your cousin who always wins. The draw is locked first, so anyone can check it afterwards.</p></div>
+        <div class="card">${icon('party')}<h3>Free, and meant to be fun</h3><p>No sign-up and no paid tier. If it made your raffle better, you can buy me a coffee, but you never have to.</p></div>
+      </div>
+    </section>
+
+    <div class="cta-band">
+      <div><h2>Come say hi</h2><p>Found a bug or have an idea for the next game? I’d love to hear it.</p></div>
+      <div class="about-links">
+        <a class="btn big" href="https://www.linkedin.com/in/vincent-carl-benlot">LinkedIn</a>
+        <a class="btn big" href="https://vincentbenlot.site">My site</a>
+        <a class="btn big" href="https://kaizenagency.online">Kaizen</a>
+        <a class="btn primary big" href="/app.html">Start a draw</a>
+      </div>
+    </div>
+  </main>${footer}
+</body>
+</html>
+`);
+
 write('404.html', `${head({ title: 'Page not found | SpinDraw', description: 'This page doesn’t exist. Open the raffle wheel or read a guide.', path: '/404.html', noindex: true })}
 <body>${header}
   <main class="page">
@@ -887,6 +977,7 @@ const urls = [
   ['/', '1.0'],
   ['/app.html', '0.9'],
   ...GUIDES.map(g => [`/${g.slug}/`, '0.8']),
+  ['/about/', '0.5'],
   ['/privacy.html', '0.2'],
 ];
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>

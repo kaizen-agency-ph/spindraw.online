@@ -29,6 +29,21 @@ html { scroll-padding-top: 80px; }
 .demo-foot a { flex: none; font-weight: 500; color: var(--accent-text); text-decoration: none; }
 .demo-foot a:hover { text-decoration: underline; }
 
+.about-hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; padding: 56px 0; }
+.about-hero h1 { font-size: clamp(2.3rem, 5vw, 3.6rem); font-weight: 700; letter-spacing: -.045em; line-height: 1.04; margin: 14px 0 18px; }
+.about-hero .lede { font-size: 1.15rem; color: var(--muted); margin: 0; }
+.about-pic { margin: 0; }
+.about-pic img { display: block; width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+.about-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 48px; align-items: start; }
+.about-grid .prose h2:first-child { margin-top: 0; }
+.about-facts { position: sticky; top: 88px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+.about-facts h2 { font-size: 1.05rem; margin: 0 0 12px; }
+.about-facts dl { margin: 0; display: grid; gap: 10px; }
+.about-facts dt { font-size: .78rem; color: var(--muted); }
+.about-facts dd { margin: 0; font-weight: 500; }
+.about-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.cta-band .about-links .btn:not(.primary) { color: var(--text); background: var(--panel); }
+
 .section { padding: 64px 0; border-top: 1px solid var(--line); }
 .section-head { max-width: 640px; margin-bottom: 32px; }
 .section-head h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); letter-spacing: -.035em; margin-bottom: 10px; }
@@ -106,6 +121,8 @@ footer.site p { color: var(--muted); margin: 10px 0 0; max-width: 28em; }
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; gap: 32px; padding-top: 40px; }
   .product { max-width: 560px; }
+  .about-hero, .about-grid { grid-template-columns: 1fr; gap: 32px; }
+  .about-facts { position: static; }
   .grid, .grid.two, .steps-row { grid-template-columns: 1fr 1fr; }
   footer.site { grid-template-columns: 1fr 1fr; }
   footer.site > div:first-child { grid-column: 1 / -1; }
