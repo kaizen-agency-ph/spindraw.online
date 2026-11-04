@@ -67,7 +67,7 @@ class View {
         if (done) return;
         done = true;
         this.playing = false;
-        onFrame(duration, 1);
+        if (!this.dead) onFrame(duration, 1);
         resolve();
       };
       const frame = now => {
