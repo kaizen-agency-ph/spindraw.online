@@ -200,6 +200,23 @@ for (const [label, pre, Sim, slotsOf] of [
   });
 }
 
+await test('battle: fighters really fight, with dodges, blocks and mostly KOs', () => {
+  const seen = { hit: 0, block: 0, dodge: 0, ko: 0, zone: 0 };
+  let backedOff = false, circled = false;
+  for (let s = 0; s < 4; s++) {
+    const sim = new BattleSim(30, `fight${s}`, 'quick'), counted = new Set();
+    while (!sim.winners) {
+      sim.step();
+      for (const e of sim.events) if (!counted.has(e)) { counted.add(e); if (e.type in seen) seen[e.type]++; }
+      backedOff ||= sim.f.some(f => !f.dead && f.plan === 'backoff');
+      circled ||= sim.f.some(f => !f.dead && f.plan === 'circle');
+    }
+  }
+  assert.ok(seen.dodge > 20 && seen.block > 20, JSON.stringify(seen));
+  assert.ok(seen.ko > seen.zone * 2, JSON.stringify(seen));
+  assert.ok(backedOff && circled);
+});
+
 await test('gameSeed is stable, varies per draw, and does not contain the seed', async () => {
   const seed = fair.newSeed(), h = await fair.entriesHash(entries);
   const a = await fair.gameSeed(seed, h, 'salt', 0);

@@ -109,7 +109,7 @@ const GUIDES = [
     title: 'Battle Royale Name Picker with Pixel Fighters | SpinDraw',
     description: 'Pick a winner with a pixel battle: up to 100 names become fighters in an arena, and the last one standing wins. Free, fair and fun to watch together.',
     h1: 'A battle royale name picker with pixel fighters',
-    lede: 'Up to 100 names become little pixel fighters in one arena. They battle it out while the zone closes in, and the last ones standing are your winners: one, or as many as you choose.',
+    lede: 'Up to 100 names become little pixel fighters in one arena. They dodge, block and counter each other while the zone closes in, and the last ones standing are your winners: one, or as many as you choose.',
     body: `
 <h2>How to run a battle</h2>
 <ol>
@@ -122,6 +122,7 @@ const GUIDES = [
 <h2>What people see</h2>
 <ul>
   <li>Every person gets their own look, with a body, hat and weapon based on their name</li>
+  <li>Fighters that think for themselves: they circle, dodge, block, counter and back off when they’re hurt</li>
   <li>HP bars, damage numbers and a live kill feed</li>
   <li>A counter of who’s still alive, plus a <strong>Most KOs</strong> board</li>
   <li>A shrinking zone that keeps the action moving, and a zoom-in on the final two</li>

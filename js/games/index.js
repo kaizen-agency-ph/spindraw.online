@@ -2,7 +2,7 @@
 // fair winner's name on the slot that came out on top. Nothing is steered during playback.
 import { makeRng, assignSlots, MAX_PLAYERS, MAX_WINNERS, LENGTHS } from './rng.js';
 import { RaceSim, preRunRace, WORLD_W } from './race-sim.js';
-import { BattleSim, preRunBattle } from './battle-sim.js';
+import { BattleSim, preRunBattle, BATTLE_DT, DODGE_TIME } from './battle-sim.js';
 import { HorseSim, preRunHorse } from './horse-sim.js';
 import { framesFor, paintArena, horseFrames } from './sprites.js';
 
@@ -275,7 +275,7 @@ class BattleView extends View {
       while (this.sim.t < t && !this.sim.winners) this.sim.step();
       if (this.sim.alive !== alive) { alive = this.sim.alive; onLeader?.(this.sim.winners ? this.sim.winners.map(w => this.name(w)).join(', ') : `${alive} left standing`); }
       const ev = this.sim.events;
-      for (; seen < ev.length; seen++) if (ev[seen].type !== 'hit') sound?.tick();
+      for (; seen < ev.length; seen++) if (ev[seen].type === 'ko' || ev[seen].type === 'zone') sound?.tick();
       if (seen > ev.length) seen = ev.length;
       this.draw(dt, t);
     });
@@ -297,6 +297,9 @@ class BattleView extends View {
     const now = clock ?? sim.t;
     const base = Math.min(c.width / sim.W, c.height / sim.H);
     const living = sim.aliveList();
+    // The sim ticks at 30Hz; draw between ticks so fast moves stay smooth at 60fps.
+    const blend = clock == null ? 1 : Math.max(0, Math.min(1, 1 - (sim.t - clock) / BATTLE_DT));
+    const drawX = p => p.px + (p.x - p.px) * blend, drawY = p => p.py + (p.y - p.py) * blend;
 
     // Zoom in on the last two (or the survivor), framed so the arena edge stays on screen.
     let tz = 1, tx = sim.W / 2, ty = sim.H / 2;
@@ -347,38 +350,56 @@ class BattleView extends View {
       const p = sim.f[i];
       if (p.dead) continue;
       const fr = framesFor(this.name(i));
-      const swinging = sim.t - p.swing < 0.18;
-      const img = swinging ? fr.attack : p.moving ? (Math.floor(sim.t * 7 + i) % 2 ? fr.walk1 : fr.walk2) : fr.idle;
+      const swinging = sim.t - p.swing < 0.18, dodging = p.dodge > 0, windup = p.wind > 0;
+      const img = swinging ? fr.attack : p.moving && !dodging ? (Math.floor(sim.t * (6 + Math.hypot(p.vx, p.vy) * 0.08) + i) % 2 ? fr.walk1 : fr.walk2) : fr.idle;
       const won = sim.winners?.includes(i);
       const bob = won ? Math.abs(Math.sin(now * 7)) * 5 : 0;
+      const roll = dodging ? 1 - p.dodge / DODGE_TIME : 0, hop = dodging ? Math.sin(roll * Math.PI) * 5 : 0;
+      const x = drawX(p), y = drawY(p);
+      // shadow keeps fighters grounded when they hop or roll
+      g.fillStyle = 'rgba(15,16,19,.28)';
+      g.fillRect(x - 5 + hop * 0.4, y + 1, 10 - hop * 0.8, 2);
+      if (dodging) {            // afterimages trail the roll
+        for (let k = 2; k >= 1; k--) {
+          g.globalAlpha = 0.3 / k;
+          g.drawImage(img, x - p.vx * 0.035 * k - 8, y - p.vy * 0.035 * k - 14);
+        }
+        g.globalAlpha = 1;
+      }
       g.save();
-      g.translate(Math.round(p.x), Math.round(p.y - bob));
+      g.translate(x, y - bob - hop);
       g.scale(p.face, 1);
+      if (dodging) { g.translate(0, -6); g.rotate(roll * Math.PI * 2); g.translate(0, 6); }
+      else if (windup) { g.translate(-1.5, 0); g.rotate(-0.24); }      // the tell: leaning back to swing
+      else if (swinging) { g.translate(1.5, 0); g.rotate(0.16); }
+      else if (p.stun > 0) g.translate(Math.sin(sim.t * 70) * 0.9, 0);
+      else if (p.moving) g.rotate(Math.sin(sim.t * 13 + i) * 0.07);
       if (sim.t - p.hurt < 0.1) g.filter = 'brightness(2.2)';
       g.drawImage(img, -8, -14);
       g.restore();
-      if (swinging) { g.fillStyle = '#ffffff'; g.fillRect(Math.round(p.x + p.face * 11), Math.round(p.y - 8), 2, 6); }
+      if (windup) {             // a glint on the weapon just before it comes down
+        g.fillStyle = '#ffe9a0';
+        g.fillRect(x - p.face * 3, y - 16 - bob, 2, 2);
+      }
+      if (swinging) {           // slash arc; grey when it cuts air
+        g.globalAlpha = 1 - (sim.t - p.swing) / 0.18;
+        g.lineWidth = 2;
+        g.strokeStyle = p.whiff ? '#b8bcc6' : '#ffffff';
+        g.beginPath(); g.arc(x, y - 6, 13, p.aim - 0.9, p.aim + 0.9); g.stroke();
+        g.globalAlpha = 1;
+      }
+      if (p.guard > 0) {        // raised guard
+        const a = p.face > 0 ? 0 : Math.PI;
+        g.lineWidth = 1.5;
+        g.strokeStyle = '#9ad8ff';
+        g.beginPath(); g.arc(x, y - 6, 10, a - 0.85, a + 0.85); g.stroke();
+      }
       // HP bar
       const w = 14, hp = Math.max(0, p.hp / p.max);
-      const barH = Math.max(1.2, 2 / this.zoom), barY = p.y - 18 - bob;   // stays slim when zoomed in
-      g.fillStyle = 'rgba(22,23,29,.55)'; g.fillRect(p.x - w / 2 - 0.5, barY - 0.5, w + 1, barH + 1);
+      const barH = Math.max(1.2, 2 / this.zoom), barY = y - 18 - bob;   // stays slim when zoomed in
+      g.fillStyle = 'rgba(22,23,29,.55)'; g.fillRect(x - w / 2 - 0.5, barY - 0.5, w + 1, barH + 1);
       g.fillStyle = hp > 0.5 ? '#4ade80' : hp > 0.25 ? '#ffd23f' : '#ff5d73';
-      g.fillRect(p.x - w / 2, barY, Math.max(hp > 0 ? 1 : 0, w * hp), barH);
-    }
-    // damage numbers rising from recent hits
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    const dmgFont = Math.max(5, 7 / this.zoom);
-    g.font = `700 ${dmgFont}px 'Geist Mono', monospace`;
-    let shown = 0;
-    for (let e = sim.events.length - 1; e >= 0 && shown < 10; e--) {
-      const ev = sim.events[e], age = sim.t - ev.t;
-      if (age > 0.55) break;
-      if (ev.type !== 'hit') continue;
-      shown++;
-      g.globalAlpha = 1 - age / 0.55;
-      g.fillStyle = '#16171d'; g.fillText(ev.dmg, ev.x + 1, ev.y - 22 - age * 22 + 1);
-      g.fillStyle = '#ffd23f'; g.fillText(ev.dmg, ev.x, ev.y - 22 - age * 22);
-      g.globalAlpha = 1;
+      g.fillRect(x - w / 2, barY, Math.max(hp > 0 ? 1 : 0, w * hp), barH);
     }
     g.restore();
 
@@ -393,7 +414,7 @@ class BattleView extends View {
       const p = sim.f[i], name = this.name(i), key = `${f}|${name}`;
       let m = this.labelCache.get(key);
       if (!m) { const text = fit(g, name, f * 9); m = { text, tw: g.measureText(text).width }; this.labelCache.set(key, m); }
-      return { i, text: m.text, w: m.tw + f * 0.8, sx: c.width / 2 + (p.x - cx) * s, sy: c.height / 2 + (p.y - 21 - (sim.winners?.includes(i) ? Math.abs(Math.sin(now * 7)) * 5 : 0) - cy) * s };
+      return { i, text: m.text, w: m.tw + f * 0.8, sx: c.width / 2 + (drawX(p) - cx) * s, sy: c.height / 2 + (drawY(p) - 21 - (sim.winners?.includes(i) ? Math.abs(Math.sin(now * 7)) * 5 : 0) - cy) * s };
     }).sort((a, b) => b.sy - a.sy);
     // Stack labels that would collide, lowest first, so close fighters stay readable.
     // In a big crowd they stay on their fighters instead, lowest drawn on top.
@@ -407,6 +428,24 @@ class BattleView extends View {
       plate(g, sx - w / 2, sy - f * 1.45, w, f * 1.35, f * 0.3, 'rgba(15,16,19,.78)');
       g.fillStyle = sim.winners?.includes(i) ? '#ffd23f' : topKills[0] === i && sim.f[i].kills ? '#ffb4bf' : '#f4f4f5';
       g.fillText(text, sx, sy - f * 0.75);
+    }
+    // Damage numbers and DODGE/BLOCK/MISS rise above the labels so they're never hidden.
+    const WORDS = { dodge: ['DODGE', '#7dd3fc'], block: ['BLOCK', '#c7d2fe'], miss: ['MISS', '#b8bcc6'] };
+    const pop = Math.max(5, 7 / this.zoom) * s;
+    g.font = `700 ${pop}px 'Geist Mono', monospace`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    let shown = 0;
+    for (let e = sim.events.length - 1; e >= 0 && shown < 12; e--) {
+      const ev = sim.events[e], age = sim.t - ev.t;
+      if (age > 0.55) break;
+      if (ev.type === 'ko' || ev.type === 'zone') continue;
+      shown++;
+      const word = WORDS[ev.type], text = word ? word[0] : ev.dmg;
+      const tx = c.width / 2 + (ev.x - cx) * s, ty = c.height / 2 + (ev.y - 26 - age * 22 - cy) * s;
+      g.globalAlpha = 1 - age / 0.55;
+      g.fillStyle = '#16171d'; g.fillText(text, tx + s * 0.7, ty + s * 0.7);
+      g.fillStyle = word ? word[1] : '#ffd23f'; g.fillText(text, tx, ty);
+      g.globalAlpha = 1;
     }
     this.hud(living, topKills);
     this.footer(FOOT.battle);
@@ -426,7 +465,7 @@ class BattleView extends View {
     // kill feed + top fighters on the right
     const w = Math.max(c.width * 0.26, f * 13), x = c.width - w - m;
     const feed = [];
-    for (let e = sim.events.length - 1; e >= 0 && feed.length < 3; e--) if (sim.events[e].type !== 'hit') feed.push(sim.events[e]);
+    for (let e = sim.events.length - 1; e >= 0 && feed.length < 3; e--) if (sim.events[e].type === 'ko' || sim.events[e].type === 'zone') feed.push(sim.events[e]);
     const rows = Math.min(3, topKills.filter(i => sim.f[i].kills).length);
     const h = f * 1.6 * (feed.length + rows) + (rows ? f * 2 : 0) + (feed.length ? f * 0.9 : 0);
     if (h > 0) {
