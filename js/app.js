@@ -20,7 +20,7 @@ const defaults = () => ({
   entries: [], stats: null,
   prizesText: '', removeWinners: true, claimSeconds: 60,
   mode: 'wheel', gameLength: 'normal', winnersPerRun: 1, owedPrizes: [],
-  spinSeconds: 7, sound: true, theme: { ...DEFAULT_THEME }, showCommit: true,
+  spinSeconds: 7, sound: true, music: true, theme: { ...DEFAULT_THEME }, showCommit: true,
   ovLayout: 'wide', ovBg: 'transparent', ovSound: true,
   locked: null, salt: '', draws: [], revealed: false, verifyUrl: '', linkMade: 0,
   countdownEndsAt: 0, claimEndsAt: 0, log: [],
@@ -68,6 +68,7 @@ function syncMode() {
 let channel;
 channel = new Channel(S.room, 'host', onMessage, renderSync);
 sound.enabled = S.sound;
+sound.musicOn = S.music;
 
 // ---------- derived state ----------
 const pool = () => fair.currentPool(S.entries, S.draws, S.removeWinners);
@@ -226,7 +227,10 @@ async function spin() {
     const seed = await fair.gameSeed(S.locked.seed, S.locked.eHash, S.salt, k);
     game.setEntries(p);
     channel.send('spin', { mode: S.mode, seed, winnerIdxs, length: S.gameLength, pool: pairs, winners });
-    await game.play({ seed, winnerIdxs, length: S.gameLength, sound, onLeader: text => { $('#ticker').textContent = text; } });
+    sound.startMusic(S.mode);
+    try {
+      await game.play({ seed, winnerIdxs, length: S.gameLength, sound, onLeader: text => { $('#ticker').textContent = text; } });
+    } finally { sound.stopMusic(); }
   }
   picks.forEach((d, j) => {
     d.at = Date.now();
@@ -438,6 +442,7 @@ function render() {
   $('#removeWinners').checked = S.removeWinners;
   $('#showCommit').checked = S.showCommit;
   $('#soundOn').checked = S.sound;
+  $('#musicOn').checked = S.music;
   $('#ovSound').checked = S.ovSound;
   $('#spinSeconds').value = S.spinSeconds;
   $('#spinLabel').textContent = S.spinSeconds;
@@ -605,7 +610,8 @@ $('#winnersPerRun').addEventListener('input', e => { S.winnersPerRun = Math.max(
 $('#winnersPerRun').addEventListener('change', e => { e.target.value = S.winnersPerRun; });
 $('#gameLength').addEventListener('change', e => { S.gameLength = e.target.value; save(); });
 $('#spinSeconds').addEventListener('input', e => { S.spinSeconds = +e.target.value; save(); render(); });
-$('#soundOn').addEventListener('change', e => { S.sound = sound.enabled = e.target.checked; save(); });
+$('#soundOn').addEventListener('change', e => { S.sound = sound.enabled = e.target.checked; if (!S.sound) sound.stopMusic(); save(); });
+$('#musicOn').addEventListener('change', e => { S.music = sound.musicOn = e.target.checked; if (!S.music) sound.stopMusic(); save(); });
 $('#helpBtn').addEventListener('click', () => $('#helpDialog').showModal());
 
 document.addEventListener('keydown', e => {

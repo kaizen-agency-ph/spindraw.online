@@ -7,6 +7,7 @@ import { RaceSim, preRunRace } from '../js/games/race-sim.js';
 import { BattleSim, preRunBattle } from '../js/games/battle-sim.js';
 import { HorseSim, preRunHorse } from '../js/games/horse-sim.js';
 import { matchReport } from '../js/games/match-report.js';
+import { SONGS, CHORDS, songBars } from '../js/games/music.js';
 import { ALL_GRIDS, HORSE_GRIDS } from '../js/games/sprites.js';
 
 let n = 0;
@@ -243,6 +244,27 @@ await test('verify links expire at exactly 7 days, including older links', () =>
   assert.equal(fair.linkExpired({ lockedAt: t - 9 * day, draws: [{ at: t }, { at: t - day }] }, t + 6 * day), false);
   assert.equal(fair.linkExpired({ lockedAt: t, draws: [] }, t + 7 * day), true);
   assert.equal(fair.linkExpired({}, t), false);
+});
+
+await test('music: every bar is the right length and the melody fits its chords', () => {
+  for (const [mode, song] of Object.entries(SONGS)) {
+    const steps = song.stepsPerBeat * 4;
+    for (const [chord, line] of songBars(song)) {
+      assert.ok(CHORDS[chord], `${mode}: unknown chord ${chord}`);
+      const t = line.trim().split(/\s+/);
+      assert.equal(t.length, steps, `${mode}: ${line}`);
+      assert.ok(!/^[.]/.test(t[0]), `${mode}: bar starts on a hold: ${line}`);
+      t.forEach((tok, i) => {
+        if (tok === '.' && t[i - 1] === '-') assert.fail(`${mode}: hold after a rest: ${line}`);
+        if (tok !== '.' && tok !== '-') assert.match(tok, /^[A-G]#?[3-7]$/);
+      });
+      for (const beat of [0, steps / 2]) {           // the strongest beats land on chord tones
+        const tok = t[beat];
+        if (tok === '.' || tok === '-') continue;
+        assert.ok(CHORDS[chord].includes(tok.replace(/\d/, '')), `${mode}: ${tok} on a strong beat over ${chord}: ${line}`);
+      }
+    }
+  }
 });
 
 await test('gameSeed is stable, varies per draw, and does not contain the seed', async () => {

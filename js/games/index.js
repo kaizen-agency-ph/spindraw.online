@@ -151,6 +151,7 @@ class RaceView extends View {
       while (this.sim.t < t) this.sim.step();
       const rank = this.sim.ranking();
       if (this.sim.t - leadTick > 0.25 && rank[0] !== lead) { lead = rank[0]; leadTick = this.sim.t; onLeader?.(this.name(lead)); sound?.tick(); }
+      if (this.sim.b[rank[0]].y / this.sim.course.finishY > 0.75) sound?.tension?.();
       this.draw(dt, rank);
     });
   }
@@ -274,6 +275,7 @@ class BattleView extends View {
     await this.run(pre.finishAt + 1.8, (t, dt) => {
       while (this.sim.t < t && !this.sim.winners) this.sim.step();
       if (this.sim.alive !== alive) { alive = this.sim.alive; onLeader?.(this.sim.winners ? this.sim.winners.map(w => this.name(w)).join(', ') : `${alive} left standing`); }
+      if ((alive <= count + 2 && alive < n) || this.sim.t > this.sim.target * 0.75) sound?.tension?.();
       const ev = this.sim.events;
       for (; seen < ev.length; seen++) if (ev[seen].type === 'ko' || ev[seen].type === 'zone') sound?.tick();
       if (seen > ev.length) seen = ev.length;
@@ -524,6 +526,7 @@ class HorseView extends View {
       while (this.sim.t < t) this.sim.step();
       const rank = this.sim.ranking();
       if (this.sim.t - tick > 0.4 && rank[0] !== lead) { lead = rank[0]; tick = this.sim.t; onLeader?.(this.name(lead)); sound?.tick(); }
+      if (this.sim.h[rank[0]].x / this.sim.finishX > 0.75) sound?.tension?.();
       this.draw(dt, rank);
     });
   }

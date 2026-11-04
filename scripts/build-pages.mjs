@@ -640,6 +640,9 @@ const PATCHES = [
   {
     id: 'pixel-battle', name: 'Pixel Battle', icon: 'sword', guide: '/battle-royale-name-picker/',
     log: [
+      { v: '1.3', date: '2026-11-05', title: 'Battle music', notes: [
+        ['new', 'Original chiptune music made for the arena, which speeds up for the finish. Turn it off in the Style tab.'],
+      ] },
       { v: '1.2', date: '2026-11-05', title: 'Fighters learned to fight', notes: [
         ['new', 'Fighters now think for themselves: they pick targets, circle, press forward and back off when hurt or outnumbered.'],
         ['new', 'Attacks have a visible wind-up, so opponents can roll out of the way or raise a guard, then counter.'],
@@ -661,6 +664,9 @@ const PATCHES = [
   {
     id: 'ball-race', name: 'Ball Race', icon: 'race', guide: '/ball-race-name-picker/',
     log: [
+      { v: '1.4', date: '2026-11-05', title: 'Bouncy new music', notes: [
+        ['new', 'Original chiptune music made for the race, which speeds up for the finish. Turn it off in the Style tab.'],
+      ] },
       { v: '1.3', date: '2026-11-05', title: 'Match reports', notes: [
         ['new', 'The verify page now has a match report: finishing order and times, lead changes, and who spent the most time in front.'],
         ['improved', 'Verify links now stay open for 7 days. After that, they lead to a page explaining the details were removed, while proof files keep working.'],
@@ -679,6 +685,9 @@ const PATCHES = [
   {
     id: 'horse-race', name: 'Horse Race', icon: 'horse', guide: '/horse-race-name-picker/',
     log: [
+      { v: '1.3', date: '2026-11-05', title: 'Galloping new music', notes: [
+        ['new', 'Original chiptune music made for the track, which speeds up for the finish. Turn it off in the Style tab.'],
+      ] },
       { v: '1.2', date: '2026-11-05', title: 'Match reports', notes: [
         ['new', 'The verify page now has a match report: finishing order and times, lead changes, and who spent the most time in front.'],
         ['improved', 'Verify links now stay open for 7 days. After that, they lead to a page explaining the details were removed, while proof files keep working.'],

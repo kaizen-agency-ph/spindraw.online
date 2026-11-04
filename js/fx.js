@@ -1,4 +1,5 @@
-// Confetti + Web Audio sounds (no assets to load).
+// Confetti + Web Audio sounds and music (no assets to load).
+import { createMusicPlayer } from './games/music.js';
 
 const COLORS = ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c', '#f4f1e8'];
 
@@ -63,10 +64,17 @@ function tone(freq, at, len, { type = 'triangle', vol = 0.12 } = {}) {
   o.stop(a.currentTime + at + len + 0.02);
 }
 
+const player = createMusicPlayer(audio);
+
 export const sound = {
   enabled: true,
+  musicOn: true,
   last: 0,
   unlock() { try { audio().resume(); } catch {} },
+  startMusic(mode) { if (this.enabled && this.musicOn) { try { player.start(mode); } catch {} } },
+  tension() { player.tension(); },
+  stopMusic() { player.stop(); },
+  get musicPlaying() { return player.playing; },
   tick() {
     if (!this.enabled) return;
     const now = performance.now();

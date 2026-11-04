@@ -95,7 +95,10 @@ async function onSpin({ mode = 'wheel', from, to, ms, seed, winnerIdxs, length, 
   } else {
     poolKey = JSON.stringify(pool);
     game.setEntries(toEntries(pool));
-    await game.play({ seed, winnerIdxs, length, sound, onLeader: text => { $('#ovTicker').textContent = text; } });
+    sound.startMusic(mode);
+    try {
+      await game.play({ seed, winnerIdxs, length, sound, onLeader: text => { $('#ovTicker').textContent = text; } });
+    } finally { sound.stopMusic(); }
   }
   animating = false;
   showWinners(winners);
