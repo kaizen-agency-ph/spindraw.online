@@ -1,5 +1,7 @@
 // node tests/run.js — checks the fairness engine and the comment parser.
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { jsVersions, importMapTag } from '../scripts/js-versions.mjs';
 import * as fair from '../js/fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl } from '../js/intake.js';
 import { makeRng, assignSlots } from '../js/games/rng.js';
@@ -264,6 +266,17 @@ await test('music: every bar is the right length and the melody fits its chords'
         assert.ok(CHORDS[chord].includes(tok.replace(/\d/, '')), `${mode}: ${tok} on a strong beat over ${chord}: ${line}`);
       }
     }
+  }
+});
+
+await test('every page loads the current fingerprint of the code', () => {
+  const root = new URL('..', import.meta.url).pathname, v = jsVersions(root);
+  for (const page of ['app.html', 'overlay.html', 'verify.html', 'privacy.html', 'index.html', 'patch-notes/index.html']) {
+    const html = readFileSync(root + page, 'utf8');
+    assert.ok(html.includes(importMapTag(v)), `${page} has an out-of-date import map. Run: node scripts/build-pages.mjs`);
+    const first = html.indexOf('type="importmap"'), mod = html.indexOf('type="module"');
+    assert.ok(first > -1 && first < mod, `${page}: the import map must come before module scripts`);
+    for (const [, file, ver] of html.matchAll(/type="module" src="\/?(js\/[\w-]+\.js)(?:\?v=(\w+))?"/g)) assert.equal(ver, v[file], `${page}: ${file}`);
   }
 });
 

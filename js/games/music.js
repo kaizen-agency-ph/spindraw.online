@@ -233,6 +233,28 @@ export function scheduleJingle(ctx, dest, mode, at) {
   return end;
 }
 
+// The "ta-DAH!" for the moment a winner is shown: a quick pickup, then a big held major chord.
+export function scheduleTada(ctx, dest, at) {
+  const hit = at + 0.13, hold = 1.05;
+  for (const n of ['G4', 'C5']) voice(ctx, dest, 0.5, hz(midi(n)), at, 0.1, 0.13);
+  for (const [n, wave, vol] of [['C4', 0.5, 0.13], ['E4', 0.5, 0.11], ['G4', 0.25, 0.11], ['C5', 0.25, 0.13], ['E5', 0.125, 0.09], ['C6', 0.125, 0.06]]) voice(ctx, dest, wave, hz(midi(n)), hit, hold, vol);
+  voice(ctx, dest, 'triangle', hz(midi('C3')), hit, hold, 0.34);
+  drum(ctx, dest, 's', at);
+  drum(ctx, dest, 'k', hit);
+  // A crash on the big chord.
+  const s = ctx.createBufferSource(), g = ctx.createGain(), f = ctx.createBiquadFilter();
+  s.buffer = noise(ctx);
+  s.loop = true;
+  f.type = 'highpass';
+  f.frequency.value = 3500;
+  g.gain.setValueAtTime(0.14, hit);
+  g.gain.exponentialRampToValueAtTime(0.001, hit + 0.8);
+  s.connect(f).connect(g).connect(dest);
+  s.start(hit);
+  s.stop(hit + 0.85);
+  return hit + hold;
+}
+
 // Plays a mode's track on a loop until stopped. tension() moves it to its faster finish.
 export function createMusicPlayer(getContext, volume = 0.55) {
   let run = null;

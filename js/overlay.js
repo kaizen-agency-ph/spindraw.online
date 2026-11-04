@@ -1,6 +1,6 @@
 import { Wheel } from './wheel.js';
 import { Channel } from './sync.js';
-import { confetti, sound } from './fx.js';
+import { confetti, sound, audioBlocked, onAudioChange } from './fx.js';
 import { loadAll } from './images.js';
 import { createGame } from './games/index.js';
 
@@ -10,6 +10,13 @@ const room = q.get('room');
 document.body.dataset.layout = q.get('layout') === 'vertical' ? 'vertical' : 'wide';
 document.body.dataset.bg = ['green', 'dark'].includes(q.get('bg')) ? q.get('bg') : 'transparent';
 sound.enabled = q.get('sound') !== '0';
+
+// Browsers block audio until a window is clicked. OBS doesn't, and has no opener, so this
+// prompt only ever shows in the Present window, never on a stream.
+const soundHint = document.getElementById('ovSoundHint');
+const refreshSoundHint = () => { soundHint.hidden = !(sound.enabled && window.opener && audioBlocked()); };
+onAudioChange(refreshSoundHint);
+refreshSoundHint();
 
 const wheel = new Wheel($('#wheel'));
 let state = null;
@@ -87,6 +94,7 @@ async function applyImages(srcs) {
 
 async function onSpin({ mode = 'wheel', from, to, ms, seed, winnerIdxs, length, pool, winners }) {
   setMode(mode);
+  sound.unlock();
   animating = true;
   $('#ovWinner').hidden = true;
   if (mode === 'wheel') {
@@ -101,7 +109,8 @@ async function onSpin({ mode = 'wheel', from, to, ms, seed, winnerIdxs, length, 
   }
   animating = false;
   showWinners(winners);
-  if (mode === 'wheel') { sound.win(); confetti(); }
+  sound.tada();
+  if (mode === 'wheel') confetti();
 }
 
 function tick() {

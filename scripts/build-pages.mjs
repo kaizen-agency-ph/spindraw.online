@@ -1,13 +1,18 @@
 // Builds the marketing pages: home (index.html), one guide per search intent,
 // sitemap.xml and robots.txt. Run: node scripts/build-pages.mjs
 // GitHub Pages has no build step, so the generated files are committed.
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { jsVersions, importMapTag, stampScripts } from './js-versions.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://spindraw.online';
 const TODAY = new Date().toISOString().slice(0, 10);
+// Fingerprinted script URLs, so a browser can never mix a new page with old cached code.
+const VERSIONS = jsVersions(ROOT);
+const IMPORT_MAP = importMapTag(VERSIONS);
+const jsUrl = name => `/js/${name}?v=${VERSIONS[`js/${name}`]}`;
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const ld = obj => `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
@@ -551,6 +556,7 @@ function head({ title, description, path, extra = '', noindex = false }) {
     gtag('js', new Date());
     gtag('config', 'G-Z58QLX9W8M');
   </script>
+  ${IMPORT_MAP}
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
   <link rel="canonical" href="${url}">
@@ -625,7 +631,7 @@ const footer = `
       </ul>
     </div>
   </footer>
-  <script type="module" src="/js/theme.js"></script>`;
+  <script type="module" src="${jsUrl('theme.js')}"></script>`;
 
 const faqLd = faq => ({
   '@context': 'https://schema.org',
@@ -642,6 +648,8 @@ const PATCHES = [
     log: [
       { v: '1.4', date: '2026-11-05', title: 'Countdown and champion’s finish', notes: [
         ['new', 'A 3, 2, 1 countdown before the start: “Let’s battle!”'],
+        ['new', 'A big “ta-dah!” as the winner card appears.'],
+        ['improved', 'The Most KOs board is now one slim line that fades when fighters walk under it, so it no longer hides the fight.'],
         ['new', 'A new winner’s scene with a crown, sunburst, pixel sparks and a heroic jingle.'],
       ] },
       { v: '1.3', date: '2026-11-05', title: 'Battle music', notes: [
@@ -670,6 +678,7 @@ const PATCHES = [
     log: [
       { v: '1.5', date: '2026-11-05', title: 'Countdown and checkered finish', notes: [
         ['new', 'A 3, 2, 1 countdown before the start: “Let’s roll!”'],
+        ['new', 'A big “ta-dah!” as the winner card appears.'],
         ['new', 'A new winner’s scene with checkered flags, bouncing balls and a jingle.'],
       ] },
       { v: '1.4', date: '2026-11-05', title: 'Bouncy new music', notes: [
@@ -695,6 +704,7 @@ const PATCHES = [
     log: [
       { v: '1.4', date: '2026-11-05', title: 'Countdown and winner’s circle', notes: [
         ['new', 'A 3, 2, 1 countdown before the start: “And they’re off!”'],
+        ['new', 'A big “ta-dah!” as the winner card appears.'],
         ['new', 'A new winner’s scene with a rosette, rose petals, camera flashes and a bugle call.'],
       ] },
       { v: '1.3', date: '2026-11-05', title: 'Galloping new music', notes: [
@@ -716,6 +726,9 @@ const PATCHES = [
   {
     id: 'wheel', name: 'Wheel', icon: 'wheel', guide: '/random-name-picker/',
     log: [
+      { v: '1.3', date: '2026-11-05', title: 'Ta-dah!', notes: [
+        ['improved', 'A big new “ta-dah!” plays as the winner is shown.'],
+      ] },
       { v: '1.2', date: '2026-11-05', title: 'Spin details', notes: [
         ['new', 'The verify page now shows each spin’s details: names on the wheel, total entries and the winner’s chance.'],
         ['improved', 'Verify links now stay open for 7 days. After that, they lead to a page explaining the details were removed, while proof files keep working.'],
@@ -887,7 +900,7 @@ const homeBody = `
   </main>`;
 
 const homeDemo = `
-  <script type="module" src="/js/home-demo.js"></script>`;
+  <script type="module" src="${jsUrl('home-demo.js')}"></script>`;
 
 const homeLd = [
   {
@@ -1172,4 +1185,9 @@ Allow: /
 
 Sitemap: ${SITE}/sitemap.xml
 `);
+// The hand-written pages get the same fingerprints.
+for (const page of ['app.html', 'overlay.html', 'verify.html', 'privacy.html']) {
+  const file = join(ROOT, page);
+  writeFileSync(file, stampScripts(readFileSync(file, 'utf8'), VERSIONS));
+}
 console.log(`built index + ${GUIDES.length} guides + sitemap (${urls.length} urls)`);

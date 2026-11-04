@@ -238,8 +238,9 @@ async function spin() {
   });
   S.claimEndsAt = S.claimSeconds > 0 ? Date.now() + S.claimSeconds * 1000 : 0;
   spinning = false;
+  sound.tada();
   // The games stage their own themed finish on the canvas.
-  if (S.mode === 'wheel') { sound.win(); confetti(); }
+  if (S.mode === 'wheel') confetti();
   update();
 }
 
@@ -441,6 +442,8 @@ function render() {
   $('#removeWinners').checked = S.removeWinners;
   $('#showCommit').checked = S.showCommit;
   $('#soundOn').checked = S.sound;
+  $('#quickSound').textContent = S.sound ? 'Sound on' : 'Sound off';
+  $('#quickSound').setAttribute('aria-pressed', String(S.sound));
   $('#musicOn').checked = S.music;
   $('#ovSound').checked = S.ovSound;
   $('#spinSeconds').value = S.spinSeconds;
@@ -609,7 +612,16 @@ $('#winnersPerRun').addEventListener('input', e => { S.winnersPerRun = Math.max(
 $('#winnersPerRun').addEventListener('change', e => { e.target.value = S.winnersPerRun; });
 $('#gameLength').addEventListener('change', e => { S.gameLength = e.target.value; save(); });
 $('#spinSeconds').addEventListener('input', e => { S.spinSeconds = +e.target.value; save(); render(); });
-$('#soundOn').addEventListener('change', e => { S.sound = sound.enabled = e.target.checked; if (!S.sound) sound.stopMusic(); save(); });
+function setSound(on) {
+  S.sound = sound.enabled = on;
+  save();
+  $('#soundOn').checked = on;
+  $('#quickSound').textContent = on ? 'Sound on' : 'Sound off';
+  $('#quickSound').setAttribute('aria-pressed', String(on));
+  if (on) sound.beep(true); else sound.stopMusic();   // a blip, so people can hear it's working
+}
+$('#soundOn').addEventListener('change', e => setSound(e.target.checked));
+$('#quickSound').addEventListener('click', () => { setSound(!S.sound); $('#quickSound').blur(); });
 $('#musicOn').addEventListener('change', e => { S.music = sound.musicOn = e.target.checked; if (!S.music) sound.stopMusic(); save(); });
 $('#helpBtn').addEventListener('click', () => $('#helpDialog').showModal());
 

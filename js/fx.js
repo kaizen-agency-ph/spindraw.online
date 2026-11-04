@@ -1,5 +1,5 @@
 // Confetti + Web Audio sounds and music (no assets to load).
-import { createMusicPlayer, scheduleJingle } from './games/music.js';
+import { createMusicPlayer, scheduleJingle, scheduleTada } from './games/music.js';
 
 const COLORS = ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c', '#f4f1e8'];
 
@@ -66,6 +66,14 @@ function tone(freq, at, len, { type = 'triangle', vol = 0.12 } = {}) {
 
 const player = createMusicPlayer(audio);
 
+// Browsers keep audio blocked until someone interacts with the page, and some only allow it
+// directly inside that click or key press. So try on every interaction until it's running.
+export const audioBlocked = () => !ac || ac.state !== 'running';
+const onGesture = () => { try { audio().resume().then(() => audioListeners.forEach(fn => fn())); } catch {} };
+const audioListeners = new Set();
+export const onAudioChange = fn => audioListeners.add(fn);
+if (typeof document !== 'undefined') for (const type of ['pointerdown', 'keydown', 'touchend']) document.addEventListener(type, onGesture, { capture: true, passive: true });
+
 export const sound = {
   enabled: true,
   musicOn: true,
@@ -80,13 +88,16 @@ export const sound = {
     if (!this.enabled) return;
     try { tone(go ? 1319 : 659, 0, go ? 0.34 : 0.12, { type: 'square', vol: go ? 0.09 : 0.07 }); } catch {}
   },
-  fanfare(mode) {
+  fanfare(mode) { this.stab(a => (g, at) => scheduleJingle(a, g, mode, at)); },
+  // Ta-dah! Plays as the winner is shown.
+  tada() { this.stab(a => (g, at) => scheduleTada(a, g, at)); },
+  stab(build) {
     if (!this.enabled) return;
     try {
       const a = audio(), g = a.createGain();
       g.gain.value = 0.6;
       g.connect(a.destination);
-      const end = scheduleJingle(a, g, mode, a.currentTime + 0.03);
+      const end = build(a)(g, a.currentTime + 0.03);
       setTimeout(() => g.disconnect(), (end - a.currentTime + 0.5) * 1000);
     } catch {}
   },
@@ -96,12 +107,5 @@ export const sound = {
     if (now - this.last < 40) return;
     this.last = now;
     try { tone(1500, 0, 0.03, { type: 'square', vol: 0.035 }); } catch {}
-  },
-  win() {
-    if (!this.enabled) return;
-    try {
-      [523.25, 659.25, 783.99].forEach((f, i) => tone(f, i * 0.11, 0.18));
-      tone(1046.5, 0.33, 0.7, { vol: 0.14 });
-    } catch {}
   },
 };

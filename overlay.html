@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <script type="importmap">{"imports":{"/js/app.js":"/js/app.js?v=db6409fa9a","/js/fair.js":"/js/fair.js?v=8fe5497132","/js/fx.js":"/js/fx.js?v=8bd474af9a","/js/games/battle-sim.js":"/js/games/battle-sim.js?v=f8edeb6ca5","/js/games/horse-sim.js":"/js/games/horse-sim.js?v=07b5b3f0b1","/js/games/index.js":"/js/games/index.js?v=c986a9ef52","/js/games/match-report.js":"/js/games/match-report.js?v=249df87f40","/js/games/music.js":"/js/games/music.js?v=ab8530bdfc","/js/games/race-sim.js":"/js/games/race-sim.js?v=59d4b67763","/js/games/rng.js":"/js/games/rng.js?v=bb782d9059","/js/games/sprites.js":"/js/games/sprites.js?v=f66a003c3c","/js/home-demo.js":"/js/home-demo.js?v=83889e1e7f","/js/images.js":"/js/images.js?v=bc0b156257","/js/intake.js":"/js/intake.js?v=ee870224d6","/js/overlay.js":"/js/overlay.js?v=2d2f5ee9cd","/js/sync.js":"/js/sync.js?v=2f2cb7fefc","/js/theme.js":"/js/theme.js?v=4dae5720c3","/js/verify.js":"/js/verify.js?v=949302079b","/js/wheel.js":"/js/wheel.js?v=6d442c5b53"}}</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SpinDraw overlay</title>
   <meta name="robots" content="noindex">
@@ -42,6 +43,8 @@
     .ov-mark { background: rgba(15, 16, 19, .85); padding: .8vmin 1.4vmin; border-radius: 1vmin; font-weight: 600; display: inline-flex; align-items: center; gap: .8vmin; }
     .ov-mark img { width: 2.2vmin; height: 2.2vmin; }
 
+    .ov-sound-hint { position: absolute; left: 50%; bottom: 3vmin; transform: translateX(-50%); z-index: 6; background: var(--accent); color: var(--ink); font-weight: 700; font-size: 2.4vmin; padding: 1vmin 2.4vmin; border-radius: 99px; pointer-events: none; }
+    .ov-sound-hint[hidden] { display: none; }
     .ov-winner { position: absolute; inset: 0; display: grid; place-items: center; z-index: 5; }
     .ov-winner .box { background: var(--accent); color: var(--ink); border-radius: 3vmin; padding: 4vmin 7vmin; text-align: center; max-width: 86vw; box-shadow: 0 3vmin 8vmin rgba(0, 0, 0, .5); animation: pop .6s cubic-bezier(.2, 1.4, .4, 1); }
     .ov-winner .k { text-transform: uppercase; letter-spacing: .2em; font-weight: 800; font-size: 3vmin; }
@@ -88,7 +91,7 @@
     .ov-empty .card { max-width: 70vmin; }
   </style>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
-  <script type="module" src="js/overlay.js"></script>
+  <script type="module" src="js/overlay.js?v=2d2f5ee9cd"></script>
 </head>
 <body data-layout="wide" data-bg="transparent">
   <div class="ov-bg" id="ovBg" hidden></div>
@@ -109,6 +112,7 @@
       <span class="ov-mark"><img src="logo-mark-dark.svg" alt="" width="18" height="18">made with SpinDraw</span>
     </footer>
   </div>
+  <div class="ov-sound-hint" id="ovSoundHint" hidden>Click this window to turn on sound</div>
   <div class="ov-winner" id="ovWinner" hidden>
     <div class="box">
       <div class="k" id="ovWinnerK">Winner</div>

@@ -675,55 +675,75 @@ class BattleView extends View {
       g.fillStyle = word ? word[1] : '#ffd23f'; g.fillText(text, tx, ty);
       g.globalAlpha = 1;
     }
-    this.hud(living, topKills);
+    this.hud(living, topKills, p => ({ x: c.width / 2 + (drawX(p) - cx) * s, y: c.height / 2 + (drawY(p) - 14 - cy) * s }), Math.min(dt, 0.1));
     this.footer(FOOT.battle);
   }
 
-  hud(living, topKills) {
-    const { g, canvas: c, sim } = this, f = Math.max(11, Math.min(c.width, c.height * 1.6) * 0.017), m = f * 0.8;
-    // alive counter
+  // Deliberately slim, so it never hides the fight: one line each side of the top edge, which
+  // fades away whenever a fighter is underneath it. The full story is in the match report.
+  hud(living, topKills, toScreen, dt) {
+    const { g, canvas: c, sim } = this, f = Math.max(11, Math.min(c.width, c.height * 1.6) * 0.0145), m = f * 0.6, h = f * 1.75;
     const label = !this.live ? `${sim.n} READY` : sim.winners ? (sim.count > 1 ? `LAST ${sim.count} STANDING` : 'LAST ONE STANDING') : living.length === sim.count + 1 && sim.n > living.length ? `FINAL ${living.length}` : `${living.length} ALIVE`;
-    g.font = `700 ${f * 1.25}px 'Geist Mono', monospace`;
-    g.textAlign = 'left'; g.textBaseline = 'middle';
-    const lw = g.measureText(label).width + f * 1.6;
-    plate(g, m, m, lw, f * 2.2, f * 0.6);
-    g.fillStyle = this.live && (sim.winners || living.length === sim.count + 1) ? '#ffd23f' : '#f4f4f5';
-    g.fillText(label, m + f * 0.8, m + f * 1.12);
+    const big = `700 ${f}px 'Geist Mono', monospace`, small = `600 ${f * 0.82}px 'Geist', system-ui, sans-serif`, mono = `600 ${f * 0.72}px 'Geist Mono', monospace`;
+    g.textBaseline = 'middle'; g.textAlign = 'left';
+    g.font = big;
+    const lw = g.measureText(label).width + f * 1.4;
 
-    // kill feed + top fighters on the right
-    const w = Math.max(c.width * 0.26, f * 13), x = c.width - w - m;
-    const feed = [];
-    for (let e = sim.events.length - 1; e >= 0 && feed.length < 3; e--) if (sim.events[e].type === 'ko' || sim.events[e].type === 'zone') feed.push(sim.events[e]);
-    const rows = Math.min(3, topKills.filter(i => sim.f[i].kills).length);
-    const h = f * 1.6 * (feed.length + rows) + (rows ? f * 2 : 0) + (feed.length ? f * 0.9 : 0);
-    if (h > 0) {
-      plate(g, x, m, w, h, f * 0.6);
-      let y = m + f * 1.1;
-      g.textAlign = 'left';
-      if (rows) {
-        g.font = `600 ${f * 0.7}px 'Geist Mono', monospace`;
-        g.fillStyle = '#a1a1aa';
-        g.fillText('MOST KOs', x + f * 0.7, y);
-        y += f * 1.45;
-        for (const i of topKills.slice(0, rows)) {
-          g.font = `600 ${f * 0.88}px 'Geist', system-ui, sans-serif`;
-          g.fillStyle = '#f4f4f5';
-          g.fillText(fit(g, this.name(i), w - f * 3.4), x + f * 0.7, y);
-          g.textAlign = 'right';
-          g.fillStyle = '#ffd23f';
-          g.fillText(String(sim.f[i].kills), x + w - f * 0.7, y);
-          g.textAlign = 'left';
-          y += f * 1.6;
-        }
+    // Most KOs, plus the latest knockout for a moment when there's room.
+    const leader = topKills.find(i => sim.f[i].kills);
+    let latest = '';
+    for (let e = sim.events.length - 1; e >= 0; e--) {
+      const ev = sim.events[e];
+      if (ev.type !== 'ko' && ev.type !== 'zone') continue;
+      if (sim.t - ev.t < 2.5) latest = ev.type === 'ko' ? `${this.name(ev.a)} KO’d ${this.name(ev.b)}` : `The zone took ${this.name(ev.b)}`;
+      break;
+    }
+    const room = c.width - lw - m * 3 - f * 1.4;
+    const parts = [];
+    g.font = small;
+    if (leader != null) {
+      const kills = String(sim.f[leader].kills);
+      g.font = mono; const tag = g.measureText('MOST KOs').width;
+      g.font = small; const kw = g.measureText(kills).width;
+      const name = fit(g, this.name(leader), Math.min(f * 9, room - tag - kw - f * 1.4));
+      parts.push({ tag, name, nw: g.measureText(name).width, kills, kw });
+    }
+    const used = parts[0] ? parts[0].tag + parts[0].nw + parts[0].kw + f * 1.4 : 0;
+    const left = room - used - (parts[0] ? f * 1.2 : 0);
+    let tail = '';
+    if (latest && left > f * 8) tail = fit(g, latest, left);
+    const tw = tail ? g.measureText(tail).width : 0;
+    const w = used + tw + (parts[0] && tail ? f * 1.2 : 0) + (used || tail ? f * 1.4 : 0);
+    const x = c.width - m - w;
+
+    // Fade out while anyone is under either plate.
+    const under = (x0, x1) => living.some(i => { const p = toScreen(sim.f[i]); return p.x > x0 && p.x < x1 && p.y > 0 && p.y < m + h + f * 2.5; });
+    const lerp = Math.min(1, dt * 7);
+    this.hudL = (this.hudL ?? 1) + ((under(m, m + lw) ? 0.28 : 0.9) - (this.hudL ?? 1)) * lerp;
+    this.hudR = (this.hudR ?? 1) + ((under(x, x + w) ? 0.18 : 0.8) - (this.hudR ?? 1)) * lerp;
+
+    g.globalAlpha = this.hudL;
+    plate(g, m, m, lw, h, f * 0.45, 'rgba(15,16,19,.72)');
+    g.font = big;
+    g.fillStyle = this.live && (sim.winners || living.length === sim.count + 1) ? '#ffd23f' : '#f4f4f5';
+    g.fillText(label, m + f * 0.7, m + h / 2 + f * 0.04);
+    if (w > 0 && (parts[0] || tail)) {
+      g.globalAlpha = this.hudR;
+      plate(g, x, m, w, h, f * 0.45, 'rgba(15,16,19,.72)');
+      let tx = x + f * 0.7;
+      const y = m + h / 2 + f * 0.04;
+      if (parts[0]) {
+        const { tag, name, nw, kills, kw } = parts[0];
+        g.font = mono; g.fillStyle = '#a1a1aa'; g.fillText('MOST KOs', tx, y); tx += tag + f * 0.5;
+        g.font = small; g.fillStyle = '#f4f4f5'; g.fillText(name, tx, y); tx += nw + f * 0.4;
+        g.fillStyle = '#ffd23f'; g.fillText(kills, tx, y); tx += kw;
       }
-      g.font = `500 ${f * 0.78}px 'Geist', system-ui, sans-serif`;
-      for (const ev of feed) {
-        const line = ev.type === 'ko' ? `${this.name(ev.a)} KO’d ${this.name(ev.b)}` : `The zone took ${this.name(ev.b)}`;
-        g.fillStyle = '#d4d4d8';
-        g.fillText(fit(g, line, w - f * 1.4), x + f * 0.7, y);
-        y += f * 1.6;
+      if (tail) {
+        if (parts[0]) tx += f * 1.2;
+        g.font = small; g.fillStyle = '#d4d4d8'; g.fillText(tail, tx, y);
       }
     }
+    g.globalAlpha = 1;
   }
 }
 
