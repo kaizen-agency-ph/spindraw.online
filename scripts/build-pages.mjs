@@ -619,6 +619,7 @@ const footer = `
       <ul>
         <li><a href="/app.html">Name picker app</a></li>
         <li><a href="/verify.html">Verify a draw</a></li>
+        <li><a href="/patch-notes/">Patch notes</a></li>
         <li><a href="/about/">About</a></li>
         <li><a href="/privacy.html">Privacy</a></li>
       </ul>
@@ -632,6 +633,73 @@ const faqLd = faq => ({
   mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
 });
 const faqHtml = faq => `<div class="faq">${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>`;
+
+// ---------- patch notes ----------
+// Newest first in each mode. Add an entry here when a mode changes; home and /patch-notes/ follow.
+const PATCHES = [
+  {
+    id: 'pixel-battle', name: 'Pixel Battle', icon: 'sword', guide: '/battle-royale-name-picker/',
+    log: [
+      { v: '1.2', date: '2026-11-05', title: 'Fighters learned to fight', notes: [
+        ['new', 'Fighters now think for themselves: they pick targets, circle, press forward and back off when hurt or outnumbered.'],
+        ['new', 'Attacks have a visible wind-up, so opponents can roll out of the way or raise a guard, then counter.'],
+        ['new', 'Slash arcs, dodge rolls, knockback, and floating DODGE, BLOCK and MISS text.'],
+        ['balance', 'Health retuned so most fighters are knocked out in combat instead of being finished by the zone.'],
+        ['improved', 'Smoother movement between frames.'],
+      ] },
+      { v: '1.1', date: '2026-11-04', title: 'Names and more winners', notes: [
+        ['improved', 'Every fighter shows their name, with smaller labels in crowded fights.'],
+        ['new', '“How many winners?” lets the last few standing all win, up to 50.'],
+      ] },
+      { v: '1.0', date: '2026-11-04', title: 'Into the arena', notes: [
+        ['new', 'Up to 100 pixel fighters in a shrinking zone, with HP bars, a kill feed and a zoom on the final fighters.'],
+      ] },
+    ],
+  },
+  {
+    id: 'ball-race', name: 'Ball Race', icon: 'race', guide: '/ball-race-name-picker/',
+    log: [
+      { v: '1.2', date: '2026-11-04', title: 'A name on every ball', notes: [
+        ['improved', 'Every ball shows its name, not just the leaders. Labels shrink in big fields, and the leaders’ names stay on top.'],
+      ] },
+      { v: '1.1', date: '2026-11-04', title: 'More than one winner', notes: [
+        ['new', '“How many winners?” lets the first balls across the line all win, up to 50.'],
+      ] },
+      { v: '1.0', date: '2026-11-04', title: 'Off they drop', notes: [
+        ['new', 'Up to 100 balls race through pegs, spinning bars and bumpers, with a live “Who’s winning” board.'],
+      ] },
+    ],
+  },
+  {
+    id: 'horse-race', name: 'Horse Race', icon: 'horse', guide: '/horse-race-name-picker/',
+    log: [
+      { v: '1.1', date: '2026-11-04', title: 'A name on every horse', notes: [
+        ['improved', 'Every horse shows its name, even in a field of 100. Labels shrink as the field grows, and the leaders’ names stay on top.'],
+      ] },
+      { v: '1.0', date: '2026-11-04', title: 'And they’re off', notes: [
+        ['new', 'A pixel horse and jockey for every name, with lead changes, a grandstand crowd and a checkered finish.'],
+        ['new', '“How many winners?” lets the first horses across the line all win, up to 50.'],
+      ] },
+    ],
+  },
+  {
+    id: 'wheel', name: 'Wheel', icon: 'wheel', guide: '/random-name-picker/',
+    log: [
+      { v: '1.1', date: '2026-10-20', title: 'Make it yours', notes: [
+        ['new', 'Style tab with your own slice, rim, pointer and hub colours, a centre logo, a wheel image and an overlay background.'],
+        ['new', 'Light and dark mode.'],
+        ['improved', 'Proof files, and a way to compare the commitment code on the verify page.'],
+      ] },
+      { v: '1.0', date: '2026-10-20', title: 'First spin', notes: [
+        ['new', 'A raffle wheel with verifiable draws and an overlay for OBS.'],
+      ] },
+    ],
+  },
+];
+const PATCH_LABEL = { new: 'New', improved: 'Improved', balance: 'Balance', fix: 'Fix' };
+const patchDate = d => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+const patchLatest = PATCHES.flatMap(m => m.log.map(e => e.date)).sort().at(-1);
+const patchNotes = notes => `<ul class="patch-notes">${notes.map(([tag, text]) => `<li><span class="patch-tag ${tag}">${PATCH_LABEL[tag]}</span><span>${esc(text)}</span></li>`).join('')}</ul>`;
 
 // ---------- home ----------
 const HOME_FAQ = [
@@ -688,6 +756,17 @@ const homeBody = `
         <a class="card game-card" href="/horse-race-name-picker/"><img src="/media/game-horse.jpg" alt="Horse Race: a pack of pixel horses with every entrant’s name on the track" width="1200" height="900" loading="lazy"><h3>Horse Race</h3><p>A horse and jockey for every name, with the lead changing hands all the way to the finish line.</p><p class="fine-print">The locked draw decides. The race reveals it.</p><span class="go">How the horse race works →</span></a>
         <a class="card game-card" href="/battle-royale-name-picker/"><img src="/media/game-battle.jpg" alt="Pixel Battle: named pixel fighters in an arena inside a shrinking zone" width="1200" height="900" loading="lazy"><h3>Pixel Battle</h3><p>A battle royale name picker. Names become pixel fighters in an arena, and the last one standing wins.</p><p class="fine-print">The locked draw decides. The battle reveals it.</p><span class="go">How the battle works →</span></a>
         <a class="card game-card" href="/random-name-picker/"><img src="/media/game-wheel.jpg" alt="Spin the wheel: a colourful name wheel with twelve names" width="1200" height="900" loading="lazy"><h3>Wheel</h3><p>The classic spin the wheel picker. It handles thousands of names, with custom colours and your logo in the middle.</p><p class="fine-print">Locked and verifiable, like every SpinDraw draw.</p><span class="go">How the wheel works →</span></a>
+      </div>
+    </section>
+
+    <section class="section" id="patches">
+      <div class="section-head">
+        <div class="kicker">Patch notes</div>
+        <h2>What’s new in each game</h2>
+        <p>We keep tuning these. Here’s the latest update for every way to pick. Updates change how a game looks and plays, never anyone’s odds.</p>
+      </div>
+      <div class="grid two">
+        ${PATCHES.map(m => { const e = m.log[0]; return `<a class="card patch-card" href="/patch-notes/#${m.id}"><div class="patch-head">${icon(m.icon)}<div><h3>${esc(m.name)}</h3><p class="patch-meta">v${e.v} · ${patchDate(e.date)}</p></div></div><p class="patch-title">${esc(e.title)}</p>${patchNotes(e.notes.slice(0, 2))}<span class="go">See all ${esc(m.name)} updates →</span></a>`; }).join('\n        ')}
       </div>
     </section>
 
@@ -957,6 +1036,34 @@ write('about/index.html', `${head({
 </html>
 `);
 
+write('patch-notes/index.html', `${head({
+  title: 'SpinDraw Patch Notes: Updates to Every Name Picker Game',
+  description: 'The latest updates to the SpinDraw wheel, Ball Race, Horse Race and Pixel Battle: new features, improvements and balance changes for each name picker.',
+  path: '/patch-notes/',
+  extra: ld({ '@context': 'https://schema.org', '@type': 'WebPage', name: 'SpinDraw patch notes', url: `${SITE}/patch-notes/`, dateModified: patchLatest }),
+})}
+<body>${header}
+  <main class="page">
+    <section class="page-hero">
+      <div class="crumbs"><a href="/">SpinDraw</a> / Patch notes</div>
+      <h1>Patch notes</h1>
+      <p>Every update to each way of picking a winner, newest first. Updates change how a game looks and plays, never anyone’s odds: the locked draw still decides who wins.</p>
+      <p class="small">Last update <time datetime="${patchLatest}">${patchDate(patchLatest)}</time></p>
+      <nav class="patch-jump" aria-label="Jump to a game">${PATCHES.map(m => `<a class="btn" href="#${m.id}">${esc(m.name)}</a>`).join('')}</nav>
+    </section>
+    ${PATCHES.map(m => `<section class="section patch-mode" id="${m.id}">
+      <div class="patch-head">${icon(m.icon)}<h2>${esc(m.name)}</h2><a class="patch-guide" href="${m.guide}">How it works →</a></div>
+      ${m.log.map(e => `<article class="patch-entry"><div class="patch-when"><strong>v${e.v}</strong><time datetime="${e.date}">${patchDate(e.date)}</time></div><div><h3>${esc(e.title)}</h3>${patchNotes(e.notes)}</div></article>`).join('\n      ')}
+    </section>`).join('\n    ')}
+    <div class="cta-band">
+      <div><h2>Try the latest version</h2><p>Free, no sign-up, nothing to install.</p></div>
+      <a class="btn primary big" href="/app.html">Start a draw</a>
+    </div>
+  </main>${footer}
+</body>
+</html>
+`);
+
 write('404.html', `${head({ title: 'Page not found | SpinDraw', description: 'This page doesn’t exist. Open the raffle wheel or read a guide.', path: '/404.html', noindex: true })}
 <body>${header}
   <main class="page">
@@ -978,6 +1085,7 @@ const urls = [
   ['/', '1.0'],
   ['/app.html', '0.9'],
   ...GUIDES.map(g => [`/${g.slug}/`, '0.8']),
+  ['/patch-notes/', '0.5'],
   ['/about/', '0.5'],
   ['/privacy.html', '0.2'],
 ];

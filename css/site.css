@@ -44,6 +44,26 @@ html { scroll-padding-top: 80px; }
 .about-links { display: flex; flex-wrap: wrap; gap: 8px; }
 .cta-band .about-links .btn:not(.primary) { color: var(--text); background: var(--panel); }
 
+.patch-card { display: flex; flex-direction: column; }
+.patch-head { display: flex; align-items: center; gap: 12px; }
+.patch-head h3, .patch-head h2 { margin: 0; }
+.patch-head h2 { font-size: 1.5rem; letter-spacing: -.03em; }
+.card p.patch-meta { font: 500 .8rem var(--mono); }
+.card p.patch-title { margin: 14px 0 8px; color: var(--text); font-weight: 600; }
+.patch-card .go { margin-top: auto; padding-top: 12px; }
+.patch-notes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; color: var(--muted); font-size: .93rem; }
+.patch-notes li { display: flex; align-items: flex-start; gap: 10px; }
+.patch-tag { flex: none; width: 66px; text-align: center; margin-top: 2px; padding: 1px 0; border-radius: 5px; font: 600 .68rem var(--mono); border: 1px solid var(--line); color: var(--muted); background: var(--panel-2); }
+.patch-tag.new { background: var(--accent-soft); color: var(--accent-text); }
+.patch-jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.patch-mode .patch-head { margin-bottom: 24px; }
+.patch-guide { margin-left: auto; font-size: .9rem; font-weight: 500; color: var(--accent-text); text-decoration: none; }
+.patch-guide:hover { text-decoration: underline; }
+.patch-entry { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 20px; padding: 18px 0; border-top: 1px solid var(--line); max-width: 860px; }
+.patch-entry h3 { margin: 0 0 10px; font-size: 1.05rem; }
+.patch-when { display: grid; align-content: start; gap: 2px; font-size: .85rem; color: var(--muted); }
+.patch-when strong { font-family: var(--mono); color: var(--text); }
+
 .section { padding: 64px 0; border-top: 1px solid var(--line); }
 .section-head { max-width: 640px; margin-bottom: 32px; }
 .section-head h2 { font-size: clamp(1.7rem, 3vw, 2.3rem); letter-spacing: -.035em; margin-bottom: 10px; }
@@ -131,6 +151,8 @@ footer.site p { color: var(--muted); margin: 10px 0 0; max-width: 28em; }
 @media (max-width: 600px) {
   .demo { aspect-ratio: 1; }
   .grid, .grid.two, .steps-row { grid-template-columns: 1fr; }
+  .patch-entry { grid-template-columns: 1fr; gap: 8px; }
+  .patch-when { display: flex; gap: 10px; }
   .cta-band { padding: 28px; }
   .section { padding: 48px 0; }
 }
