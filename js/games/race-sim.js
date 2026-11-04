@@ -58,7 +58,7 @@ function buildCourse(rng, target, n) {
   }
   const chuteTop = y + 60, chuteEnd = chuteTop + 340;
   seg(0, chuteTop, 370, chuteEnd); seg(WORLD_W, chuteTop, WORLD_W - 370, chuteEnd);
-  const finishY = chuteEnd + 220, floorY = finishY + 260;
+  const finishY = chuteEnd + 220, floorY = finishY + 900;   // deep enough that a pile never reaches the line
   seg(370, chuteEnd, 370, floorY); seg(WORLD_W - 370, chuteEnd, WORLD_W - 370, floorY);
   seg(370, floorY, WORLD_W - 370, floorY, 8, 0.2);
 
@@ -159,12 +159,11 @@ export class RaceSim {
       }
     }
     if (this.steps % 120 === 0) this.unstick();
-    if (this.first < 0 && this.t >= this.limit) {   // hard stop: furthest ball takes it
-      let best = 0;
-      for (let i = 1; i < b.length; i++) if (b[i].y > b[best].y) best = i;
-      this.first = best; this.firstAt = this.t;
-    }
   }
+
+  // Have enough balls finished? The time limit means a run always ends: whoever is
+  // furthest down the course at that point fills the remaining places.
+  decided(count) { return this.order.length >= Math.min(count, this.n) || this.t >= this.limit; }
 
   collideBalls() {
     const { b, R } = this, cell = R * 2.2, grid = new Map(), min = R * 2, min2 = min * min;
@@ -207,9 +206,9 @@ export class RaceSim {
   }
 }
 
-// Pre-run a race to find the winning slot and when it finished.
-export function preRunRace(n, seed, length) {
+// Pre-run a race to find the winning slots, in finishing order, and when the last one crossed.
+export function preRunRace(n, seed, length, count = 1) {
   const sim = new RaceSim(n, seed, length);
-  while (sim.first < 0) sim.step();
-  return { winSlot: sim.first, finishAt: sim.firstAt };
+  while (!sim.decided(count)) sim.step();
+  return { winSlots: sim.ranking().slice(0, Math.min(count, n)), finishAt: sim.t };
 }

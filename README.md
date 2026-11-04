@@ -19,15 +19,15 @@ After the domain is live, add the site in Google Search Console (a DNS TXT recor
 
 ## Game modes
 
-Besides the wheel, the app has **Ball Race** and **Pixel Battle** (up to 100 people, `js/games/`).
+Besides the wheel, the app has **Ball Race**, **Horse Race** and **Pixel Battle** (up to 100 people, `js/games/`), each with a "How many winners?" setting (up to 50; needs Remove winners on).
 
-The locked draw still decides. `fair.pickIndex()` picks the winner, exactly as for the wheel. The game then pre-runs a real simulation from a seed (`fair.gameSeed()`) with nothing steered, finds the slot that came first or survived, puts the winner's name on that slot, shuffles the others over the rest (`assignSlots()` in `rng.js`), and replays it on screen. Lock, salt, weights, verify links and proof files work unchanged. The overlay runs the same simulation from the `spin` message, and always puts the winner's name on its own first-place slot.
+The locked draw still decides. `fair.pickIndex()` picks each winner as its own draw from whoever is left, exactly as the verify page replays them. The game then pre-runs a real simulation from a seed (`fair.gameSeed()`) with nothing steered, finds the slots that came first or survived, puts the winners' names on those slots in order, shuffles the others over the rest (`assignSlots()` in `rng.js`), and replays it on screen. Winners are dealt with one at a time (C or R); no-show prizes are held in `S.owedPrizes` and a redraw runs once nobody in the run is left pending. Lock, salt, weights, verify links and proof files work unchanged. The overlay runs the same simulation from the `spin` message, and always puts the winner's name on its own first-place slot.
 
-- `race-sim.js` / `battle-sim.js`: pure simulations with no DOM, tested in Node.
+- `race-sim.js` / `horse-sim.js` / `battle-sim.js`: pure simulations with no DOM, tested in Node.
 - `index.js`: the canvas views, with a timer fallback so a background tab still finishes.
 - `sprites.js`: hand-authored 16×16 pixel layers, coloured from a hash of each name.
 
-To tune length, change `AVG_DESCENT` and course sections in `race-sim.js`, or the HP formula in `battle-sim.js`, then re-measure.
+To tune length, change `AVG_DESCENT` and course sections in `race-sim.js`, `CRUISE` and the pace values in `horse-sim.js`, or the HP formula in `battle-sim.js`, then re-measure.
 
 ## Brand assets
 

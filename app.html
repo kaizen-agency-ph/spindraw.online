@@ -62,9 +62,15 @@
       <div class="mode-switch" id="modeSwitch" role="group" aria-label="How to pick the winner">
         <button type="button" data-mode="wheel">Wheel</button>
         <button type="button" data-mode="race">Ball Race</button>
+        <button type="button" data-mode="horse">Horse Race</button>
         <button type="button" data-mode="battle">Pixel Battle</button>
       </div>
       <p id="modeNote" class="note" hidden></p>
+      <div class="winners-set" id="winnersSet" hidden>
+        <label for="winnersPerRun">How many winners?</label>
+        <input type="number" id="winnersPerRun" min="1" max="50" step="1" value="1" inputmode="numeric">
+      </div>
+      <p id="winnersHint" class="muted small winners-hint" hidden></p>
       <div class="wheel-box"><canvas id="wheel" aria-label="Raffle wheel"></canvas></div>
       <div class="game-box" id="gameBox" hidden><canvas id="game" aria-label="Game view: who is winning the draw"></canvas></div>
       <div id="ticker" class="ticker" aria-live="off">&nbsp;</div>
@@ -77,6 +83,7 @@
         <div class="wc-prize" id="wcPrize"></div>
         <div class="wc-name" id="wcName"></div>
         <div class="wc-timer" id="wcTimer"></div>
+        <div class="wc-more" id="wcMore" hidden></div>
       </div>
       <div id="doneNote" class="note done-note" hidden>
         <span>Everyone in the wheel has been drawn.</span>

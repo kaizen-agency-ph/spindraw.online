@@ -208,4 +208,11 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
 .mode-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .game-box { position: relative; width: 100%; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: #0d0e12; border: 1px solid var(--line); }
 .game-box canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-@media (max-width: 600px) { .game-box[data-mode="race"] { aspect-ratio: 4 / 5; } }
+@media (max-width: 600px) { .game-box[data-mode="race"], .game-box[data-mode="horse"] { aspect-ratio: 4 / 5; } }
+
+.mode-switch { max-width: 620px; }
+.winners-set { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; font-size: .95rem; }
+.winners-set label { color: var(--text); font-size: .95rem; }
+.winners-set input { width: 84px; text-align: center; font-weight: 600; }
+.winners-hint { text-align: center; margin: -6px 0 0; }
+.wc-more { margin-top: 8px; font-size: .9rem; font-weight: 500; overflow-wrap: anywhere; }

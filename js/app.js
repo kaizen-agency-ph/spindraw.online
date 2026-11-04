@@ -4,7 +4,7 @@ import * as fair from './fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl, toCSV } from './intake.js';
 import { Channel } from './sync.js';
 import { confetti, sound } from './fx.js';
-import { createGame, MAX_PLAYERS } from './games/index.js';
+import { createGame, MAX_PLAYERS, MAX_WINNERS } from './games/index.js';
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -19,7 +19,7 @@ const defaults = () => ({
   format: 'lines', rawText: SAMPLE, keyword: '', dedupe: true,
   entries: [], stats: null,
   prizesText: '', removeWinners: true, claimSeconds: 60,
-  mode: 'wheel', gameLength: 'normal',
+  mode: 'wheel', gameLength: 'normal', winnersPerRun: 1, owedPrizes: [],
   spinSeconds: 7, sound: true, theme: { ...DEFAULT_THEME }, showCommit: true,
   ovLayout: 'wide', ovBg: 'transparent', ovSound: true,
   locked: null, salt: '', draws: [], revealed: false, verifyUrl: '',
@@ -52,7 +52,7 @@ try { IMG = JSON.parse(localStorage.getItem(IMG_KEY)) || {}; } catch {}
 let imgVersion = 0;
 // Ball Race / Pixel Battle view, created when one of those modes is selected.
 let game = null;
-const MODES = { wheel: { label: 'Wheel', start: 'Spin' }, race: { label: 'Ball Race', start: 'Start race' }, battle: { label: 'Pixel Battle', start: 'Start battle' } };
+const MODES = { wheel: { label: 'Wheel', start: 'Spin' }, race: { label: 'Ball Race', start: 'Start race' }, horse: { label: 'Horse Race', start: 'Start race' }, battle: { label: 'Pixel Battle', start: 'Start battle' } };
 const tooMany = () => S.mode !== 'wheel' && wheelPool().length > MAX_PLAYERS;
 function syncMode() {
   $('.wheel-box').hidden = S.mode !== 'wheel';
@@ -76,11 +76,15 @@ const wheelPool = () => fair.currentPool(S.entries, S.draws.filter(d => d.status
 const pending = () => S.draws.find(d => d.status === 'pending');
 const prizes = () => S.prizesText.split('\n').map(p => p.trim()).filter(Boolean);
 const wonCount = () => S.draws.filter(d => d.status !== 'noshow').length;
-function nextPrize() {
-  const n = wonCount(), list = prizes();
+function prizeAt(n) {
+  const list = prizes();
   if (list[n]) return list[n];
   return list.length ? `Bonus prize ${n - list.length + 1}` : `Winner #${n + 1}`;
 }
+// A no-show's prize goes to whoever replaces them, ahead of the next one on the list.
+const nextPrize = () => S.owedPrizes[0] ?? prizeAt(wonCount());
+// Several winners in one run need Remove winners on, so nobody can win twice in a run.
+const winnersWanted = () => (S.mode === 'wheel' || !S.removeWinners ? 1 : Math.max(1, Math.min(MAX_WINNERS, S.winnersPerRun || 1)));
 const nameOf = i => S.entries[i]?.name ?? '?';
 const lastWin = () => [...S.draws].reverse().find(d => d.status !== 'noshow');
 
@@ -97,6 +101,7 @@ function overlayState() {
     salt: S.draws.length ? S.salt : '',
     prize: p ? p.prize : nextPrize(),
     winner: p ? nameOf(p.winner) : '',
+    winners: S.draws.filter(d => d.status === 'pending').map(d => ({ name: nameOf(d.winner), prize: d.prize })),
     claimEndsAt: p ? S.claimEndsAt : 0,
     countdownEndsAt: S.countdownEndsAt,
     revealed: S.revealed,
@@ -194,58 +199,82 @@ async function spin() {
   }
   const k = S.draws.length;
   if (k === 0 && S.salt) addLog(`Public salt fixed: "${S.salt}"`);
-  const idx = await fair.pickIndex(S.locked.seed, S.locked.eHash, S.salt, k, p);
-  const winner = p[idx];
-  const prize = nextPrize();
+  // One fair draw per winner, each from whoever is left after the ones before it, exactly as
+  // the verify page replays them. Replacing no-shows draws as many as are owed.
+  const count = Math.min(S.mode === 'wheel' ? 1 : S.owedPrizes.length || winnersWanted(), p.length);
+  const owed = S.owedPrizes.splice(0, count);
+  const picks = [];
+  for (let j = 0; j < count; j++) {
+    const left = fair.currentPool(S.entries, [...S.draws, ...picks], S.removeWinners);
+    const e = left[await fair.pickIndex(S.locked.seed, S.locked.eHash, S.salt, k + j, left)];
+    picks.push({ prize: owed[j] ?? prizeAt(wonCount() + j), winner: e.i, status: 'pending', at: 0 });
+  }
+  const winners = picks.map(d => ({ name: nameOf(d.winner), prize: d.prize }));
   const pairs = p.map(e => [e.name, e.weight]);
   $('#winnerCard').hidden = true;
   if (S.mode === 'wheel') {
+    const idx = p.findIndex(e => e.i === picks[0].winner);
     wheel.setEntries(p);
     const ms = S.spinSeconds * 1000;
     const { from, to } = wheel.planSpin(idx, S.spinSeconds);
-    channel.send('spin', { mode: 'wheel', from, to, ms, pool: pairs, winner: winner.name, prize });
+    channel.send('spin', { mode: 'wheel', from, to, ms, pool: pairs, winners });
     await wheel.animate(from, to, ms, e => { $('#ticker').textContent = e.name; sound.tick(); });
   } else {
-    // The fair pick above already decided. The game replays a real simulation with that
-    // winner's name on whichever slot comes out on top.
+    // The fair picks above already decided. The game replays a real simulation with each
+    // winner's name on a slot that comes out on top, in the same order.
+    const winnerIdxs = picks.map(d => p.findIndex(e => e.i === d.winner));
     const seed = await fair.gameSeed(S.locked.seed, S.locked.eHash, S.salt, k);
     game.setEntries(p);
-    channel.send('spin', { mode: S.mode, seed, winnerIdx: idx, length: S.gameLength, pool: pairs, winner: winner.name, prize });
-    await game.play({ seed, winnerIdx: idx, length: S.gameLength, sound, onLeader: text => { $('#ticker').textContent = text; } });
+    channel.send('spin', { mode: S.mode, seed, winnerIdxs, length: S.gameLength, pool: pairs, winners });
+    await game.play({ seed, winnerIdxs, length: S.gameLength, sound, onLeader: text => { $('#ticker').textContent = text; } });
   }
-  S.draws.push({ prize, winner: winner.i, status: 'pending', at: Date.now() });
+  picks.forEach((d, j) => {
+    d.at = Date.now();
+    S.draws.push(d);
+    addLog(`Draw #${k + j + 1} (${d.prize}${S.mode === 'wheel' ? '' : `, ${MODES[S.mode].label}`}): ${nameOf(d.winner)}`);
+  });
   S.claimEndsAt = S.claimSeconds > 0 ? Date.now() + S.claimSeconds * 1000 : 0;
-  addLog(`Draw #${k + 1} (${prize}${S.mode === 'wheel' ? '' : `, ${MODES[S.mode].label}`}): ${winner.name}`);
   spinning = false;
   sound.win();
   confetti();
   update();
 }
 
+// After a claim or no-show: on to the next winner in this run, or, when everyone is dealt
+// with, reset the wheel and redraw for any no-shows.
+function afterResolve() {
+  if (pending()) {
+    S.claimEndsAt = S.claimSeconds > 0 ? Date.now() + S.claimSeconds * 1000 : 0;
+    return update();
+  }
+  S.claimEndsAt = 0;
+  update({ wheelEntries: true });
+  if (S.owedPrizes.length) spin();
+}
+
 function claimed() {
   const p = pending();
   if (!p || spinning) return;
   p.status = 'claimed';
-  S.claimEndsAt = 0;
   addLog(`${nameOf(p.winner)} claimed ${p.prize}`);
-  update({ wheelEntries: true });
+  afterResolve();
 }
 
 function noShow() {
   const p = pending();
   if (!p || spinning) return;
   p.status = 'noshow';
-  S.claimEndsAt = 0;
-  addLog(`${nameOf(p.winner)} didn't claim ${p.prize}. Removed and redrawing`);
-  update({ wheelEntries: true });
-  spin();
+  S.owedPrizes.push(p.prize);
+  addLog(`${nameOf(p.winner)} didn't claim ${p.prize}. Removed; will be redrawn`);
+  afterResolve();
 }
 
 async function reveal() {
   if (!S.draws.length) return toast('Draw at least one winner first');
   if (spinning) return;
-  const p = pending();
-  if (p) { p.status = 'claimed'; S.claimEndsAt = 0; addLog(`${nameOf(p.winner)} claimed ${p.prize}`); }
+  for (const p of S.draws) if (p.status === 'pending') { p.status = 'claimed'; addLog(`${nameOf(p.winner)} claimed ${p.prize}`); }
+  S.claimEndsAt = 0;
+  S.owedPrizes = [];
   if (!S.revealed) {
     S.revealed = true;
     addLog(`Raffle finished. Seed revealed: ${S.locked.seed}`);
@@ -268,7 +297,7 @@ const proofPayload = () => ({
 
 function newRaffle() {
   if (S.draws.length && !S.revealed && !confirm('This raffle has winners but no verify link yet. Start over anyway?')) return;
-  Object.assign(S, { locked: null, salt: '', draws: [], revealed: false, verifyUrl: '', claimEndsAt: 0, countdownEndsAt: 0, log: [] });
+  Object.assign(S, { locked: null, salt: '', owedPrizes: [], draws: [], revealed: false, verifyUrl: '', claimEndsAt: 0, countdownEndsAt: 0, log: [] });
   addLog('New raffle started');
   applyEntries();
 }
@@ -427,10 +456,20 @@ function render() {
     ? `${st.kept} people · ${st.tickets} entries` + (st.dupes ? ` · ${st.dupes} duplicates removed` : '') + (st.filtered ? ` · ${st.filtered} without keyword skipped` : '')
     : '';
   const pl = pool();
-  $('#poolCount').textContent = `${pl.length} in wheel`;
+  $('#poolCount').textContent = `${pl.length} ${S.mode === 'wheel' ? 'in wheel' : 'in the draw'}`;
 
   $('#spinBtn').disabled = spinning || !!p || S.revealed || !pl.length || tooMany();
-  $('#spinBtn').firstChild.textContent = MODES[S.mode].start;
+  const runCount = S.mode === 'wheel' ? 1 : Math.min(S.owedPrizes.length || winnersWanted(), Math.max(pl.length, 1));
+  $('#spinBtn').firstChild.textContent = MODES[S.mode].start + (runCount > 1 ? ` · ${runCount} winners` : '');
+  $('#winnersSet').hidden = S.mode === 'wheel';
+  $('#winnersPerRun').disabled = spinning || !S.removeWinners;
+  $('#winnersPerRun').max = String(Math.min(MAX_WINNERS, Math.max(pl.length, 1)));
+  if (document.activeElement !== $('#winnersPerRun')) $('#winnersPerRun').value = S.removeWinners ? S.winnersPerRun : 1;
+  const hint = !S.removeWinners ? 'Turn on “Remove winners” in the Prizes tab to pick several winners.'
+    : winnersWanted() < 2 ? '' : S.mode === 'battle' ? 'The last fighters standing win. The one with the most KOs takes the first prize on your list.'
+    : 'First across the line takes the first prize on your list, second takes the next, and so on.';
+  $('#winnersHint').textContent = hint;
+  $('#winnersHint').hidden = S.mode === 'wheel' || !hint;
   $('#modeNote').hidden = !tooMany();
   $('#modeNote').textContent = `${MODES[S.mode].label} fits up to ${MAX_PLAYERS} people and this list has ${wheelPool().length}. Switch to the Wheel, or trim the list.`;
   $$('#modeSwitch button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)); b.disabled = spinning; });
@@ -448,8 +487,11 @@ function render() {
   const card = $('#winnerCard');
   if (p && !spinning) {
     card.hidden = false;
+    const waiting = S.draws.filter(d => d.status === 'pending');
     $('#wcPrize').textContent = p.prize;
     $('#wcName').textContent = nameOf(p.winner);
+    $('#wcMore').hidden = waiting.length < 2;
+    $('#wcMore').textContent = waiting.length > 1 ? `Next up: ${waiting.slice(1).map(d => `${nameOf(d.winner)} (${d.prize})`).join(' · ')}` : '';
   } else if (!spinning) card.hidden = true;
   renderTimers();
 
@@ -556,6 +598,8 @@ $$('#modeSwitch button').forEach(b => b.addEventListener('click', () => {
   syncMode();
   update();
 }));
+$('#winnersPerRun').addEventListener('input', e => { S.winnersPerRun = Math.max(1, Math.min(MAX_WINNERS, parseInt(e.target.value, 10) || 1)); save(); render(); broadcast(); });
+$('#winnersPerRun').addEventListener('change', e => { e.target.value = S.winnersPerRun; });
 $('#gameLength').addEventListener('change', e => { S.gameLength = e.target.value; save(); });
 $('#spinSeconds').addEventListener('input', e => { S.spinSeconds = +e.target.value; save(); render(); });
 $('#soundOn').addEventListener('change', e => { S.sound = sound.enabled = e.target.checked; save(); });

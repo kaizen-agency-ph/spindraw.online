@@ -53,11 +53,16 @@
     /* Ball Race / Pixel Battle: the game takes the wheel's place, with more room. */
     .ov-game { display: none; position: relative; min-height: 0; border-radius: 2vmin; overflow: hidden; box-shadow: 0 1.5vmin 4vmin rgba(0, 0, 0, .4); }
     .ov-game canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-    body[data-mode="race"] .ov-wheel, body[data-mode="battle"] .ov-wheel { display: none; }
-    body[data-mode="race"] .ov-game, body[data-mode="battle"] .ov-game { display: block; }
+    body[data-mode="race"] .ov-wheel, body[data-mode="horse"] .ov-wheel, body[data-mode="battle"] .ov-wheel { display: none; }
+    body[data-mode="race"] .ov-game, body[data-mode="horse"] .ov-game, body[data-mode="battle"] .ov-game { display: block; }
     body[data-layout="wide"] .ov-game { grid-area: wheel; }
     body[data-layout="vertical"] .ov-game { order: 2; }
-    body[data-layout="wide"][data-mode="race"] .ov, body[data-layout="wide"][data-mode="battle"] .ov { grid-template-columns: 2.4fr 1fr; }
+    body[data-layout="wide"][data-mode="race"] .ov, body[data-layout="wide"][data-mode="horse"] .ov, body[data-layout="wide"][data-mode="battle"] .ov { grid-template-columns: 2.4fr 1fr; }
+    .ov-winner ol { display: none; list-style: none; margin: 1.5vmin 0 0; padding: 0; text-align: left; columns: 2; column-gap: 4vmin; }
+    .ov-winner.many ol { display: block; }
+    .ov-winner.many .name, .ov-winner.many .prize { display: none; }
+    .ov-winner ol li { break-inside: avoid; padding: .7vmin 0; border-top: .2vmin solid rgba(15, 16, 19, .25); font-size: 2.2vmin; font-weight: 600; }
+    .ov-winner ol li b { display: block; font-size: 3.6vmin; font-weight: 800; line-height: 1.1; }
 
     /* 16:9 */
     body[data-layout="wide"] .ov { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto; grid-template-areas: "wheel head" "wheel side" "wheel foot"; }
@@ -106,7 +111,8 @@
   </div>
   <div class="ov-winner" id="ovWinner" hidden>
     <div class="box">
-      <div class="k">Winner</div>
+      <div class="k" id="ovWinnerK">Winner</div>
+      <ol id="ovWinnerList"></ol>
       <div class="name" id="ovWinnerName"></div>
       <div class="prize" id="ovWinnerPrize"></div>
       <div class="claim" id="ovClaim"></div>

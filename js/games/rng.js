@@ -16,21 +16,22 @@ export function makeRng(seed) {
   return next;
 }
 
-// Which entry each simulation slot shows: the fair winner sits on the slot that came
-// out on top; everyone else is shuffled over the remaining slots.
-export function assignSlots(n, winnerIdx, winSlot, rng) {
-  const others = [];
-  for (let i = 0; i < n; i++) if (i !== winnerIdx) others.push(i);
+// Which entry each simulation slot shows: each fair winner sits on the slot that came out
+// on top in the same order; everyone else is shuffled over the remaining slots.
+export function assignSlots(n, winnerIdxs, winSlots, rng) {
+  const taken = new Set(winnerIdxs), others = [];
+  for (let i = 0; i < n; i++) if (!taken.has(i)) others.push(i);
   for (let i = others.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
     [others[i], others[j]] = [others[j], others[i]];
   }
-  const slots = new Array(n);
-  slots[winSlot] = winnerIdx;
+  const slots = new Array(n).fill(-1);
+  winSlots.forEach((slot, j) => { slots[slot] = winnerIdxs[j]; });
   let k = 0;
-  for (let s = 0; s < n; s++) if (s !== winSlot) slots[s] = others[k++];
+  for (let s = 0; s < n; s++) if (slots[s] < 0) slots[s] = others[k++];
   return slots;
 }
 
 export const LENGTHS = { quick: 20, normal: 35, epic: 60 };
 export const MAX_PLAYERS = 100;
+export const MAX_WINNERS = 50;

@@ -24,16 +24,29 @@ const fmt = ms => {
 };
 const toEntries = pool => pool.map(([name, weight]) => ({ name, weight }));
 
-function showWinner(name, prize) {
-  $('#ovWinnerName').textContent = name;
-  $('#ovWinnerPrize').textContent = prize;
+const MAX_ROWS = 12;
+
+function showWinners(list) {
+  const many = list.length > 1;
+  $('#ovWinner').classList.toggle('many', many);
+  $('#ovWinnerK').textContent = many ? `${list.length} winners` : 'Winner';
+  $('#ovWinnerName').textContent = many ? '' : list[0].name;
+  $('#ovWinnerPrize').textContent = many ? '' : list[0].prize;
+  const box = $('#ovWinnerList');
+  box.innerHTML = '';
+  for (const w of many ? list.slice(0, MAX_ROWS) : []) {
+    const li = document.createElement('li');
+    li.append(Object.assign(document.createElement('b'), { textContent: w.name }), Object.assign(document.createElement('span'), { textContent: w.prize }));
+    box.append(li);
+  }
+  if (list.length > MAX_ROWS) box.append(Object.assign(document.createElement('li'), { textContent: `+${list.length - MAX_ROWS} more` }));
   $('#ovWinner').hidden = false;
 }
 
 function apply(s) {
   state = s;
   $('#ovTitle').textContent = s.title;
-  $('#ovCount').textContent = `${s.pool.length} in the wheel${s.total !== s.pool.length ? ` · ${s.total} entered` : ''}`;
+  $('#ovCount').textContent = `${s.pool.length} in the ${(s.mode || 'wheel') === 'wheel' ? 'wheel' : 'draw'}${s.total !== s.pool.length ? ` · ${s.total} entered` : ''}`;
   $('#ovPrize').textContent = s.prize;
   $('#ovCommit').textContent = s.commit ? `commitment ${s.commit.slice(0, 16)}…${s.salt ? ` · salt "${s.salt}"` : ''}${s.revealed ? ' · proof shared by host' : ''}` : '';
   const key = JSON.stringify(s.theme);
@@ -48,7 +61,7 @@ function apply(s) {
   wheel.setEntries(toEntries(s.pool));
   const pk = JSON.stringify(s.pool);
   if (game && pk !== poolKey) { poolKey = pk; game.setEntries(toEntries(s.pool)); }
-  if (s.winner) showWinner(s.winner, s.prize);
+  if (s.winners?.length) showWinners(s.winners);
   else $('#ovWinner').hidden = true;
 }
 
@@ -72,7 +85,7 @@ async function applyImages(srcs) {
   $('#ovBg').hidden = !bgSrc;
 }
 
-async function onSpin({ mode = 'wheel', from, to, ms, seed, winnerIdx, length, pool, winner, prize }) {
+async function onSpin({ mode = 'wheel', from, to, ms, seed, winnerIdxs, length, pool, winners }) {
   setMode(mode);
   animating = true;
   $('#ovWinner').hidden = true;
@@ -82,10 +95,10 @@ async function onSpin({ mode = 'wheel', from, to, ms, seed, winnerIdx, length, p
   } else {
     poolKey = JSON.stringify(pool);
     game.setEntries(toEntries(pool));
-    await game.play({ seed, winnerIdx, length, sound, onLeader: text => { $('#ovTicker').textContent = text; } });
+    await game.play({ seed, winnerIdxs, length, sound, onLeader: text => { $('#ovTicker').textContent = text; } });
   }
   animating = false;
-  showWinner(winner, prize);
+  showWinners(winners);
   sound.win();
   confetti();
 }

@@ -5,7 +5,7 @@ import { makeRng, LENGTHS } from './rng.js';
 const DT = 1 / 30, RANGE = 15;
 
 export class BattleSim {
-  constructor(n, seed, length = 'normal') {
+  constructor(n, seed, length = 'normal', count = 1) {
     const rng = this.rng = makeRng(`battle|${seed}`);
     this.n = n;
     this.target = LENGTHS[length] ?? LENGTHS.normal;
@@ -16,7 +16,8 @@ export class BattleSim {
     this.steps = 0;
     this.alive = n;
     this.events = [];       // { t, type: 'hit'|'ko'|'zone', a, b, dmg, x, y }
-    this.winner = n === 1 ? 0 : -1;
+    this.count = Math.max(1, Math.min(count, n));
+    this.winners = null;    // survivors once only `count` are left
 
     // HP scales with game length and shrinks with lobby size (crowds gang up), calibrated
     // so fights fill the target time and the zone only has to finish the last few.
@@ -39,6 +40,12 @@ export class BattleSim {
     this.z1 = 16;
     this.zStart = this.target * 0.2;
     this.zEnd = this.target * 0.92;
+    if (this.alive <= this.count) this.finish();
+  }
+
+  // Survivors, best fight first: most KOs, then most health left.
+  finish() {
+    this.winners = this.aliveList().sort((a, b) => this.f[b].kills - this.f[a].kills || this.f[b].hp / this.f[b].max - this.f[a].hp / this.f[a].max || a - b);
   }
 
   zone() {
@@ -59,21 +66,21 @@ export class BattleSim {
 
   kill(i, by) {
     const v = this.f[i];
-    if (v.dead || this.alive <= 1) return;
+    if (v.dead || this.winners) return;
     v.dead = true; v.deadAt = this.t; v.hp = 0;
     this.alive--;
     if (by >= 0) this.f[by].kills++;
     this.events.push({ t: this.t, type: by >= 0 ? 'ko' : 'zone', a: by, b: i, x: v.x, y: v.y });
-    if (this.alive === 1) this.winner = this.f.findIndex(p => !p.dead);
+    if (this.alive <= this.count) this.finish();
   }
 
   step() {
-    if (this.winner >= 0) return;
+    if (this.winners) return;
     const { f, rng } = this;
     this.t += DT;
     this.steps++;
     const r = this.zone();
-    for (let i = 0; i < this.n && this.winner < 0; i++) {
+    for (let i = 0; i < this.n && !this.winners; i++) {
       const a = f[i];
       if (a.dead) continue;
       a.cd -= DT;
@@ -89,7 +96,7 @@ export class BattleSim {
         a.cd = a.cool;
         this.events.push({ t: this.t, type: 'hit', a: i, b: a.tgt, dmg: Math.round(dmg), x: t.x, y: t.y });
         if (t.hp <= 0) this.kill(a.tgt, i);
-        if (this.winner >= 0) break;
+        if (this.winners) break;
       }
       const m = Math.hypot(mx, my);
       a.moving = m > 0;
@@ -101,7 +108,7 @@ export class BattleSim {
         if (a.hp <= 0) this.kill(i, -1);
       }
     }
-    if (this.winner >= 0) return;
+    if (this.winners) return;
     // Keep fighters from stacking on one pixel, and inside the arena.
     for (let i = 0; i < this.n; i++) {
       const a = f[i];
@@ -125,9 +132,9 @@ export class BattleSim {
   }
 }
 
-// Pre-run a battle to find the survivor and when it ended.
-export function preRunBattle(n, seed, length) {
-  const sim = new BattleSim(n, seed, length);
-  while (sim.winner < 0) sim.step();
-  return { winSlot: sim.winner, finishAt: sim.t };
+// Pre-run a battle to find the surviving slots and when it ended.
+export function preRunBattle(n, seed, length, count = 1) {
+  const sim = new BattleSim(n, seed, length, count);
+  while (!sim.winners) sim.step();
+  return { winSlots: sim.winners, finishAt: sim.t };
 }

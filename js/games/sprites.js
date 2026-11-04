@@ -106,3 +106,92 @@ export function paintArena(W, H, rng) {
   for (let y = 0; y < H; y += 2) { for (const x of [0, W - 8]) { g.fillStyle = (x + y) % 4 ? '#2f6fb0' : '#3a83c9'; g.fillRect(x, y, 8, 2); } }
   return cv;
 }
+
+// ---------- Horses (28×20, facing right) ----------
+// Keys: k outline · a/A coat · m mane and tail · s/S silks · c cap · y skin · w saddle cloth · h hoof
+const HORSE_BODY = [
+  [2, '....................k.k.....'],
+  [3, '...................kakak....'],
+  [4, '..................kaaaaakk..'],
+  [5, '.................kmaakaaaak.'],
+  [6, '................kmmaaaaaaak.'],
+  [7, '...kk..........kmmaaaakAaak.'],
+  [8, '..kmmkkkkkkkkkkkmaaaak.kkk..'],
+  [9, '.kmmkaaaaaaaaaaaaaaak.......'],
+  [10, '.kmkaaaaawwwwwaaaaaAk.......'],
+  [11, '.kmkaaaaawwwwwaaaaaAk.......'],
+  [12, '.kk.kaaaawwwwwaaaaAk........'],
+  [13, '....kAAaaaaaaaaaAAAk........'],
+];
+const HORSE_JOCKEY = [
+  [0, '............kkkk............'],
+  [1, '...........kcccck...........'],
+  [2, '...........kyyyyk...........'],
+  [3, '..........kkssskk...........'],
+  [4, '.........kssssssyk..........'],
+  [5, '.........kSsssskkk..........'],
+  [6, '.........kSssssk............'],
+  [7, '..........kSSSk.............'],
+  [8, '..........kwwwk.............'],
+];
+const HORSE_LEGS = [
+  [ // gathered
+    [14, '.....kAAk.kAk.kAAk.kAk......'],
+    [15, '.....kAk..kAk.kAk...kAk.....'],
+    [16, '....kAk...kAk.kAk....kAk....'],
+    [17, '....kAk...kAk.kAk....kAk....'],
+    [18, '...khhk...khhkkhhk...khhk...'],
+    [19, '...kkk....kkk.kkk....kkk....'],
+  ],
+  [ // reaching
+    [14, '....kAAk..kAkkAAk..kAAk.....'],
+    [15, '...kAk....kAkkAk....kAAk....'],
+    [16, '..kAk.....kAk.kAk.....kAk...'],
+    [17, '.kAk......kAk..kAk.....kAk..'],
+    [18, 'khhk......khhk..khhk....khhk'],
+    [19, 'kkk.......kkk....kkk.....kkk'],
+  ],
+  [ // pushing off
+    [14, '.....kAAkkAAk..kAAkkAk......'],
+    [15, '......kAkkAk....kAkkAk......'],
+    [16, '.......kAkAk.....kAkAk......'],
+    [17, '.......kAkAk.....kAkAk......'],
+    [18, '.......khhhk.....khhhk......'],
+    [19, '.......kkkk......kkkk.......'],
+  ],
+  [ // airborne
+    [14, '....kAAk.kAk...kAAk.kAk.....'],
+    [15, '...kAk...kAk....kAk..kAk....'],
+    [16, '..kAk.....kAk....kAk..kAk...'],
+    [17, '.khhk......khhk...khhk.khhk.'],
+    [18, '.kkk........kkk....kkk..kkk.'],
+    [19, '............................'],
+  ],
+];
+export const HORSE_GRIDS = [HORSE_BODY, HORSE_JOCKEY, ...HORSE_LEGS];
+
+const COATS = [['#7a4a26', '#5a341a', '#2a1a10'], ['#a8682f', '#7f4d20', '#3a2414'], ['#3a2c26', '#261c18', '#100c0a'], ['#c9c4b8', '#9c978b', '#6d695f'], ['#d9b37a', '#b18e59', '#f0e6cf'], ['#5d3a22', '#432916', '#1b110a']];
+const SILKS = [['#e63946', '#a4202c', '#ffd23f'], ['#3a86ff', '#1f57b3', '#f4f1e8'], ['#2ec4b6', '#178a7f', '#16171d'], ['#ff9f1c', '#b86e08', '#3a86ff'], ['#9b5de5', '#6b37ab', '#ffd23f'], ['#43aa3b', '#2a7524', '#f4f1e8'], ['#f15bb5', '#a83480', '#16171d'], ['#ffd23f', '#c79f1a', '#e63946'], ['#f4f1e8', '#b9b5a6', '#e63946'], ['#16171d', '#000000', '#2ec4b6']];
+
+const horseCache = new Map();
+
+// Four gallop frames for one name: coat and racing silks come from the name's hash.
+export function horseFrames(name) {
+  const h = hashName(name);
+  const [a, A, m] = COATS[h % COATS.length], [s, S, c] = SILKS[(h >>> 4) % SILKS.length], skin = SKIN[(h >>> 9) % SKIN.length];
+  const key = [a, s, skin].join();
+  if (horseCache.has(key)) return horseCache.get(key);
+  const pal = { k: '#16171d', a, A, m, s, S, c, y: skin, w: c, h: '#2a2320' };
+  const frames = HORSE_LEGS.map(legs => {
+    const cv = document.createElement('canvas');
+    cv.width = 28; cv.height = 20;
+    const g = cv.getContext('2d');
+    for (const layer of [legs, HORSE_BODY, HORSE_JOCKEY]) for (const [y, line] of layer) for (let x = 0; x < 28; x++) {
+      const ch = line[x];
+      if (ch !== '.') { g.fillStyle = pal[ch]; g.fillRect(x, y, 1, 1); }
+    }
+    return cv;
+  });
+  horseCache.set(key, frames);
+  return frames;
+}
