@@ -4,7 +4,7 @@ import { fileToDataURL, loadAll } from './images.js';
 import * as fair from './fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl, toCSV } from './intake.js';
 import { Channel } from './sync.js';
-import { confetti, sound } from './fx.js';
+import { confetti, sound, audioBlocked } from './fx.js';
 import { createGame, MAX_PLAYERS, MAX_WINNERS } from './games/index.js';
 
 const $ = s => document.querySelector(s);
@@ -182,6 +182,10 @@ function unlock() {
 
 async function spin() {
   if (spinning || pending() || S.revealed) return;
+  sound.unlock();   // first, while we're still inside the click: Safari refuses it after an await
+  setTimeout(() => {
+    if (spinning && sound.enabled && audioBlocked()) toast('Your browser is blocking sound. Click anywhere on the page, and check that this site is allowed to play audio.');
+  }, 700);
   const wasLocked = !!S.locked;
   if (!(await lock())) return;
   const p = pool();

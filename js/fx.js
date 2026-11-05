@@ -69,16 +69,29 @@ const player = createMusicPlayer(audio);
 // Browsers keep audio blocked until someone interacts with the page, and some only allow it
 // directly inside that click or key press. So try on every interaction until it's running.
 export const audioBlocked = () => !ac || ac.state !== 'running';
-const onGesture = () => { try { audio().resume().then(() => audioListeners.forEach(fn => fn())); } catch {} };
+// Safari is the strict one: it can refuse pointerdown and anything after an await, and it can
+// also leave a context "interrupted" after sleep. So wake on every event, synchronously, and
+// play one silent sample, which is what finally unlocks audio on some Safari versions.
 const audioListeners = new Set();
 export const onAudioChange = fn => audioListeners.add(fn);
-if (typeof document !== 'undefined') for (const type of ['pointerdown', 'keydown', 'touchend']) document.addEventListener(type, onGesture, { capture: true, passive: true });
+function wakeAudio() {
+  try {
+    const a = audio();
+    if (a.state === 'running') return;
+    const s = a.createBufferSource();
+    s.buffer = a.createBuffer(1, 1, a.sampleRate);
+    s.connect(a.destination);
+    s.start(0);
+    a.resume().then(() => audioListeners.forEach(fn => fn())).catch(() => {});
+  } catch {}
+}
+if (typeof document !== 'undefined') for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click', 'keydown', 'touchstart', 'touchend']) document.addEventListener(type, wakeAudio, { capture: true, passive: true });
 
 export const sound = {
   enabled: true,
   musicOn: true,
   last: 0,
-  unlock() { try { audio().resume(); } catch {} },
+  unlock() { wakeAudio(); },
   startMusic(mode) { if (this.enabled && this.musicOn) { try { player.start(mode); } catch {} } },
   tension() { player.tension(); },
   stopMusic() { player.stop(); },
