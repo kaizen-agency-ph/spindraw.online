@@ -443,8 +443,7 @@ function render() {
   $('#removeWinners').checked = S.removeWinners;
   $('#showCommit').checked = S.showCommit;
   $('#soundOn').checked = S.sound;
-  $('#quickSound').textContent = S.sound ? 'Sound on' : 'Sound off';
-  $('#quickSound').setAttribute('aria-pressed', String(S.sound));
+  renderSoundButtons();
   $('#musicOn').checked = S.music;
   $('#ovSound').checked = S.ovSound;
   $('#spinSeconds').value = S.spinSeconds;
@@ -632,13 +631,35 @@ function setSound(on) {
   S.sound = sound.enabled = on;
   save();
   $('#soundOn').checked = on;
-  $('#quickSound').textContent = on ? 'Sound on' : 'Sound off';
-  $('#quickSound').setAttribute('aria-pressed', String(on));
-  if (on) sound.beep(true); else sound.stopMusic();   // a blip, so people can hear it's working
+  renderSoundButtons();
+  if (on) { sound.beep(true); resumeMusic(); } else sound.stopMusic();   // a blip, so people can hear it's working
+}
+// Music needs sound on too, so the button only says "on" when music can actually be heard.
+function renderSoundButtons() {
+  const music = S.sound && S.music;
+  $('#quickSound').textContent = S.sound ? 'Sound on' : 'Sound off';
+  $('#quickSound').setAttribute('aria-pressed', String(S.sound));
+  $('#quickMusic').textContent = music ? 'Music on' : 'Music off';
+  $('#quickMusic').setAttribute('aria-pressed', String(music));
+}
+// Switching music on during a game starts it straight away.
+const resumeMusic = () => { if (spinning && S.mode !== 'wheel' && !sound.musicPlaying) sound.startMusic(S.mode); };
+function setMusic(on) {
+  S.music = sound.musicOn = on;
+  save();
+  $('#musicOn').checked = on;
+  renderSoundButtons();
+  if (on) resumeMusic(); else sound.stopMusic();
 }
 $('#soundOn').addEventListener('change', e => setSound(e.target.checked));
 $('#quickSound').addEventListener('click', () => { setSound(!S.sound); $('#quickSound').blur(); });
-$('#musicOn').addEventListener('change', e => { S.music = sound.musicOn = e.target.checked; if (!S.music) sound.stopMusic(); save(); });
+$('#quickMusic').addEventListener('click', () => {
+  const heard = S.sound && S.music;
+  if (!heard && !S.sound) { S.music = sound.musicOn = true; $('#musicOn').checked = true; setSound(true); }
+  else setMusic(!heard);
+  $('#quickMusic').blur();
+});
+$('#musicOn').addEventListener('change', e => setMusic(e.target.checked));
 // The ? guide: one page per tab, opening on whichever tab you're looking at.
 function showHelp(tab) {
   document.querySelectorAll('[data-help]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.help === tab)));

@@ -256,7 +256,7 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
 @media (max-width: 600px) { .game-box[data-mode="race"], .game-box[data-mode="horse"] { aspect-ratio: 4 / 5; } }
 
 .mode-switch { max-width: 620px; }
-.winners-set { display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; font-size: .95rem; }
+.winners-set { flex-wrap: wrap; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; font-size: .95rem; }
 .winners-set label { color: var(--text); font-size: .95rem; }
 .winners-set input { width: 84px; text-align: center; font-weight: 600; }
 .winners-hint { text-align: center; margin: -6px 0 0; }

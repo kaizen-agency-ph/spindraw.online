@@ -648,6 +648,7 @@ const PATCHES = [
     log: [
       { v: '1.5', date: '2026-11-05', title: 'Seasonal themes', notes: [
         ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
+        ['improved', 'A Music on/off button now sits next to the Sound button.'],
         ['new', 'Fighters dress for the season: witches and skeletons, Santas and elves, party hats, bunny ears and more, in a matching arena.'],
       ] },
       { v: '1.4', date: '2026-11-05', title: 'Countdown and champion’s finish', notes: [
@@ -682,6 +683,7 @@ const PATCHES = [
     log: [
       { v: '1.6', date: '2026-11-05', title: 'Seasonal themes', notes: [
         ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
+        ['improved', 'A Music on/off button now sits next to the Sound button.'],
         ['new', 'Balls become pumpkins, ornaments, hearts, eggs and beach balls, on a matching course.'],
       ] },
       { v: '1.5', date: '2026-11-05', title: 'Countdown and checkered finish', notes: [
@@ -712,6 +714,7 @@ const PATCHES = [
     log: [
       { v: '1.5', date: '2026-11-05', title: 'Seasonal themes', notes: [
         ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
+        ['improved', 'A Music on/off button now sits next to the Sound button.'],
         ['new', 'Reindeer with antlers and red noses for Christmas, skeleton horses for Halloween, and more, on a matching track.'],
       ] },
       { v: '1.4', date: '2026-11-05', title: 'Countdown and winner’s circle', notes: [
