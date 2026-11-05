@@ -5,6 +5,7 @@ import { RaceSim, preRunRace, WORLD_W } from './race-sim.js';
 import { BattleSim, preRunBattle, BATTLE_DT, DODGE_TIME } from './battle-sim.js';
 import { HorseSim, preRunHorse } from './horse-sim.js';
 import { framesFor, paintArena, horseFrames } from './sprites.js';
+import { seasonOf } from './seasons.js';
 
 export { MAX_PLAYERS, MAX_WINNERS, LENGTHS };
 
@@ -39,6 +40,53 @@ function fit(g, text, max) {
   return `${t}…`;
 }
 
+// A ball's body in the current theme. It's the same size and position in every theme.
+function ballBody(g, x, y, R, col, shape, lineW, lineCol) {
+  const ring = () => { g.lineWidth = lineW; g.strokeStyle = lineCol; g.stroke(); };
+  if (shape === 'heart') {
+    g.beginPath();
+    g.moveTo(x, y + R * 1.05);
+    g.bezierCurveTo(x - R * 1.5, y + R * 0.1, x - R * 1.05, y - R * 1.15, x, y - R * 0.45);
+    g.bezierCurveTo(x + R * 1.05, y - R * 1.15, x + R * 1.5, y + R * 0.1, x, y + R * 1.05);
+    g.closePath();
+    g.fillStyle = col; g.fill(); ring();
+    return;
+  }
+  if (shape === 'egg') {
+    g.beginPath(); g.ellipse(x, y, R * 0.86, R * 1.06, 0, 0, 6.2832);
+    g.fillStyle = col; g.fill();
+    g.save(); g.clip();
+    g.fillStyle = 'rgba(255,255,255,.55)'; g.fillRect(x - R, y - R * 0.7, R * 2, R * 0.22); g.fillRect(x - R, y + R * 0.5, R * 2, R * 0.22);
+    g.restore();
+    ring();
+    return;
+  }
+  g.beginPath(); g.arc(x, y, R, 0, 6.2832);
+  g.fillStyle = col; g.fill();
+  if (shape === 'pumpkin') {
+    g.save(); g.lineWidth = Math.max(1, R * 0.08); g.strokeStyle = 'rgba(0,0,0,.25)';
+    for (const k of [-0.5, 0.5]) { g.beginPath(); g.ellipse(x, y, R * Math.abs(k) * 1.3, R, 0, 0, 6.2832); g.stroke(); }
+    g.restore();
+    g.fillStyle = '#2f9e44'; g.fillRect(x - R * 0.14, y - R * 1.3, R * 0.28, R * 0.42);
+  } else if (shape === 'ornament') {
+    g.fillStyle = '#d4af37'; g.fillRect(x - R * 0.28, y - R * 1.24, R * 0.56, R * 0.34);
+    g.strokeStyle = '#d4af37'; g.lineWidth = Math.max(1, R * 0.08);
+    g.beginPath(); g.arc(x, y - R * 1.34, R * 0.14, 0, 6.2832); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,.5)'; g.beginPath(); g.arc(x - R * 0.42, y - R * 0.42, R * 0.17, 0, 6.2832); g.fill();
+  } else if (shape === 'party') {
+    g.fillStyle = 'rgba(255,255,255,.75)';
+    g.fillRect(x - R * 0.68, y - R * 0.52, R * 0.3, R * 0.08); g.fillRect(x - R * 0.57, y - R * 0.63, R * 0.08, R * 0.3);
+    g.fillRect(x + R * 0.38, y + R * 0.46, R * 0.26, R * 0.07); g.fillRect(x + R * 0.47, y + R * 0.37, R * 0.07, R * 0.26);
+  } else if (shape === 'beach') {
+    g.save(); g.beginPath(); g.arc(x, y, R, 0, 6.2832); g.clip();
+    g.fillStyle = 'rgba(255,255,255,.8)';
+    for (let k = 0; k < 3; k++) { const a = -1.57 + k * 2.094; g.beginPath(); g.moveTo(x, y); g.arc(x, y, R, a - 0.35, a + 0.35); g.fill(); }
+    g.restore();
+  }
+  g.beginPath(); g.arc(x, y, R, 0, 6.2832);
+  ring();
+}
+
 class View {
   constructor(canvas, theme) {
     this.canvas = canvas;
@@ -62,7 +110,56 @@ class View {
   // Whatever should be on screen when nothing is playing.
   paint() { if (this.scene) this.drawScene((performance.now() - this.scene.t0) / 1000); else this.draw(); }
   destroy() { this.ro.disconnect(); this.dead = true; }
-  setTheme(theme) { this.theme = theme; if (!this.playing) this.paint(); }
+  setTheme(theme) {
+    const before = this.season;
+    this.theme = theme;
+    if (this.season !== before) this.seasonChanged?.();
+    if (!this.playing) this.paint();
+  }
+  // Themes are drawing only: nothing about them ever reaches a simulation.
+  get season() { const id = this.theme?.season; return seasonOf(id) === seasonOf('none') ? 'none' : id; }
+  get look() { return seasonOf(this.season); }
+  get colors() { return this.look.colors ?? (this.theme?.colors?.length ? this.theme.colors : BALL_COLORS); }
+
+  // Seasonal weather, drawn behind the players so it never hides them.
+  drawWeather(t) {
+    const kind = this.look.weather;
+    if (!kind) return;
+    const { g, canvas: c } = this, u = Math.max(3, Math.min(c.width, c.height) * 0.0075);
+    g.save();
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    const n = kind === 'sun' ? 16 : 34;
+    for (let i = 0; i < n; i++) {
+      const a = (i * 0.61803) % 1, b = (i * 0.37139) % 1, speed = 0.05 + b * 0.09;
+      const y = (((t * speed + a) % 1) + 1) % 1, x = ((b + Math.sin(t * 0.7 + i) * 0.015) % 1 + 1) % 1;
+      const px = x * c.width, py = y * c.height, sz = u * (0.6 + (i % 3) * 0.3);
+      if (kind === 'snow') {
+        g.fillStyle = 'rgba(255,255,255,.85)';
+        g.fillRect(px, py, sz, sz);
+      } else if (kind === 'confetti') {
+        g.fillStyle = ['#ffc72c', '#7c3aed', '#60a5fa', '#f4f1e8', '#fb7185'][i % 5];
+        g.fillRect(px, py, sz * 1.5, sz * (i % 2 ? 0.7 : 1.4));
+      } else if (kind === 'hearts') {
+        g.fillStyle = i % 2 ? 'rgba(225,29,72,.75)' : 'rgba(255,255,255,.7)';
+        g.fillRect(px, py, sz, sz); g.fillRect(px + sz * 1.3, py, sz, sz);
+        g.fillRect(px - sz * 0.15, py + sz * 0.6, sz * 2.6, sz); g.fillRect(px + sz * 0.55, py + sz * 1.5, sz, sz * 0.8);
+      } else if (kind === 'petals') {
+        g.fillStyle = ['#fbcfe8', '#fde68a', '#bae6fd', '#ffffff'][i % 4];
+        g.fillRect(px, py, sz * 1.3, sz * 0.8);
+      } else if (kind === 'bats') {
+        if (i % 2) continue;
+        const bx = (((t * speed * (i % 4 ? 1 : -1) + b) % 1) + 1) % 1 * c.width, by = a * c.height * 0.55, flap = Math.floor(t * 8 + i) % 2 ? 0 : sz;
+        g.fillStyle = '#100a18';
+        g.fillRect(bx - sz * 0.5, by, sz, sz);
+        g.fillRect(bx - sz * 2, by - flap, sz * 1.5, sz * 0.7);
+        g.fillRect(bx + sz * 0.5, by - flap, sz * 1.5, sz * 0.7);
+      } else {                                     // sun: sparkles on the air
+        const on = (t * 1.5 + i * 0.3) % 2 < 1;
+        if (on) { g.fillStyle = 'rgba(255,255,255,.65)'; g.fillRect(px - sz, py, sz * 2, sz * 0.4); g.fillRect(px - sz * 0.2, py - sz, sz * 0.4, sz * 2); }
+      }
+    }
+    g.restore();
+  }
   name(slot) { return this.pool[this.slots[slot]]?.name ?? ''; }
 
   // Advance the sim from the clock. A timer also ends the run, because rAF pauses in
@@ -86,13 +183,15 @@ class View {
         const t = (now - t0) / 1000;
         if (t >= duration) return finish();
         onFrame(t, dt);
-        if (this.goText && t < GO_SECS) this.bigText(this.goText, t / GO_SECS, STAGE[this.mode].color, true);
+        if (this.goText && t < GO_SECS) this.bigText(this.goText, t / GO_SECS, this.stageColor, true);
         requestAnimationFrame(frame);
       };
       requestAnimationFrame(frame);
       setTimeout(finish, (duration + 0.2) * 1000);
     });
   }
+
+  get stageColor() { return this.season === 'none' ? STAGE[this.mode].color : this.look.accent; }
 
   // 3, 2, 1 over the waiting field, so everyone can find their name. Then the start word
   // rides over the first moments of the game itself.
@@ -104,7 +203,7 @@ class View {
       const t = Math.max(0, time), left = Math.max(1, 3 - Math.floor(t / COUNT_STEP));
       if (left !== shown) { shown = left; sound?.beep?.(false); }
       this.drawField(Math.min(dt, 0.1));
-      this.bigText(String(left), (t % COUNT_STEP) / COUNT_STEP, STAGE[this.mode].color, false);
+      this.bigText(String(left), (t % COUNT_STEP) / COUNT_STEP, this.stageColor, false);
     });
     if (this.dead) return;
     sound?.beep?.(true);
@@ -170,6 +269,7 @@ class View {
     const appear = Math.min(1, t / 0.3);
     g.globalAlpha = appear;
     this.sceneBack(t);
+    this.drawWeather(t);
     g.globalAlpha = 1;
 
     const slots = scene.slots, shown = slots.slice(0, 5), extra = slots.length - shown.length;
@@ -211,7 +311,7 @@ class View {
     g.textAlign = 'center'; g.textBaseline = 'middle';
     g.lineJoin = 'round'; g.lineWidth = tf * 0.14; g.strokeStyle = '#0d0e12';
     g.strokeText(title, 0, 0);
-    g.fillStyle = STAGE[this.mode].color;
+    g.fillStyle = this.stageColor;
     g.fillText(title, 0, 0);
     g.restore();
     this.footer(this.mode === 'battle' ? FOOT.battle : FOOT.race);
@@ -300,7 +400,7 @@ class RaceView extends View {
 
   sceneBack(t) {
     const { g, canvas: c } = this, sq = Math.max(8, Math.min(c.width, c.height) * 0.035), shift = (t * 90 * this.px) % (sq * 2);
-    const colors = this.theme?.colors?.length ? this.theme.colors : BALL_COLORS;
+    const colors = this.colors;
     for (let i = 0; i < 26; i++) {                  // balls raining and bouncing off the floor
       const r = sq * (0.3 + (i % 3) * 0.14), x = (i + 0.5) / 26 * c.width;
       const period = 0.8 + (i % 5) * 0.14, u = ((t + i * 0.19) % period) / period;
@@ -316,7 +416,7 @@ class RaceView extends View {
   }
 
   sceneActor(slot, x, y, size, t) {
-    const { g } = this, r = size / 2, colors = this.theme?.colors?.length ? this.theme.colors : BALL_COLORS;
+    const { g } = this, r = size / 2, colors = this.colors;
     const hop = Math.abs(Math.sin(t * 5)), lift = hop * size * 0.34, squash = 1 + (1 - Math.min(1, hop * 4)) * 0.16;
     const col = colors[this.slots[slot] % colors.length];
     g.fillStyle = 'rgba(0,0,0,.4)';
@@ -324,9 +424,7 @@ class RaceView extends View {
     g.save();
     g.translate(x, y - r * (2 - squash) * 1 - lift);
     g.scale(squash, 2 - squash);
-    g.beginPath(); g.arc(0, 0, r, 0, 6.2832);
-    g.fillStyle = col; g.fill();
-    g.lineWidth = r * 0.12; g.strokeStyle = '#ffd23f'; g.stroke();
+    ballBody(g, 0, 0, r, col, this.look.race.ball, r * 0.12, '#ffd23f');
     g.font = `800 ${r * 0.72}px 'Geist', system-ui, sans-serif`;
     g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillStyle = ink(col);
@@ -353,10 +451,11 @@ class RaceView extends View {
     g.save();
     g.translate(ox, -cam * s);
     g.scale(s, s);
-    g.fillStyle = '#171a21';
+    const look = this.look.race;
+    g.fillStyle = look.bg;
     g.fillRect(0, cam - 10, WORLD_W, viewH + 20);
     // subtle depth markers so motion reads even in empty stretches
-    g.fillStyle = '#1d2129';
+    g.fillStyle = look.depth;
     for (let y = Math.floor(cam / 120) * 120; y < bot; y += 120) g.fillRect(0, y, WORLD_W, 2);
 
     g.lineCap = 'round';
@@ -364,18 +463,18 @@ class RaceView extends View {
       if (o.k === 'c') {
         if (o.y + o.r < top || o.y - o.r > bot) continue;
         g.beginPath(); g.arc(o.x, o.y, o.r, 0, 6.2832);
-        if (o.kind === 'bumper') { g.fillStyle = '#ff5d73'; g.fill(); g.lineWidth = 6; g.strokeStyle = '#ffd23f'; g.stroke(); }
-        else { g.fillStyle = '#6b7385'; g.fill(); }
+        if (o.kind === 'bumper') { g.fillStyle = look.bump; g.fill(); g.lineWidth = 6; g.strokeStyle = look.ring; g.stroke(); }
+        else { g.fillStyle = look.peg; g.fill(); }
       } else {
         if (Math.max(o.ay, o.by) < top || Math.min(o.ay, o.by) > bot) continue;
-        g.beginPath(); g.moveTo(o.ax, o.ay); g.lineTo(o.bx, o.by); g.lineWidth = o.t * 2; g.strokeStyle = '#4a5162'; g.stroke();
+        g.beginPath(); g.moveTo(o.ax, o.ay); g.lineTo(o.bx, o.by); g.lineWidth = o.t * 2; g.strokeStyle = look.wall; g.stroke();
       }
     }
     for (const m of sim.course.movers) {
       if (m.cy < top - 200 || m.cy > bot + 200) continue;
       const q = sim.moverSeg(m);
-      g.beginPath(); g.moveTo(q.ax, q.ay); g.lineTo(q.bx, q.by); g.lineWidth = m.t * 2; g.strokeStyle = m.k === 'rot' ? '#2ec4b6' : '#3a86ff'; g.stroke();
-      if (m.k === 'rot') { g.beginPath(); g.arc(m.cx, m.cy, 11, 0, 6.2832); g.fillStyle = '#e8e4d8'; g.fill(); }
+      g.beginPath(); g.moveTo(q.ax, q.ay); g.lineTo(q.bx, q.by); g.lineWidth = m.t * 2; g.strokeStyle = m.k === 'rot' ? look.rot : look.mover; g.stroke();
+      if (m.k === 'rot') { g.beginPath(); g.arc(m.cx, m.cy, 11, 0, 6.2832); g.fillStyle = look.pin; g.fill(); }
     }
     // checkered finish
     const fy = sim.course.finishY;
@@ -384,7 +483,8 @@ class RaceView extends View {
       g.fillRect(x, fy - 20 + i * 20, 20, 20);
     }
 
-    const colors = this.theme?.colors?.length ? this.theme.colors : BALL_COLORS;
+    this.drawWeather(performance.now() / 1000);
+    const colors = this.colors;
     const R = sim.R;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
@@ -392,12 +492,8 @@ class RaceView extends View {
       const p = sim.b[i];
       if (p.y < top || p.y > bot) continue;
       const col = colors[this.slots[i] % colors.length];
-      g.beginPath(); g.arc(p.x, p.y, R, 0, 6.2832);
-      g.fillStyle = col; g.fill();
       const leads = this.live && i === rank[0];
-      g.lineWidth = leads ? 5 : 2.5;
-      g.strokeStyle = leads ? '#ffffff' : '#0f1013';
-      g.stroke();
+      ballBody(g, p.x, p.y, R, col, look.ball, leads ? 5 : 2.5, leads ? '#ffffff' : '#0f1013');
       g.font = `700 ${R * 0.92}px 'Geist', system-ui, sans-serif`;
       g.fillStyle = ink(col);
       g.fillText(initials(this.name(i)), p.x, p.y + 1);
@@ -435,7 +531,8 @@ class BattleView extends View {
     this.pool = pool;
     this.sim = pool.length ? new BattleSim(pool.length, 'idle', 'quick') : null;
     this.slots = pool.map((_, i) => i);
-    this.arena = this.sim ? paintArena(this.sim.W, this.sim.H, makeRng(`arena|${this.sim.W}`)) : null;
+    this.arenaSeed = this.sim ? `arena|${this.sim.W}` : null;
+    this.arena = this.sim ? paintArena(this.sim.W, this.sim.H, makeRng(this.arenaSeed), this.season) : null;
     this.zoom = 1; this.fx = 0; this.fy = 0;
     this.live = false;
     this.scene = null;
@@ -446,7 +543,8 @@ class BattleView extends View {
     const n = this.pool.length, count = winnerIdxs.length, pre = preRunBattle(n, seed, length, count);
     this.sim = new BattleSim(n, seed, length, count);
     this.slots = assignSlots(n, winnerIdxs, pre.winSlots, makeRng(`${seed}|slots`));
-    this.arena = paintArena(this.sim.W, this.sim.H, makeRng(`arena|${seed}`));
+    this.arenaSeed = `arena|${seed}`;
+    this.arena = paintArena(this.sim.W, this.sim.H, makeRng(this.arenaSeed), this.season);
     this.zoom = 1; this.fx = 0; this.fy = 0;
     this.live = true;
     let seen = 0, alive = n;
@@ -467,6 +565,8 @@ class BattleView extends View {
   }
 
   drawField(dt) { this.draw(dt); }
+
+  seasonChanged() { if (this.sim) this.arena = paintArena(this.sim.W, this.sim.H, makeRng(this.arenaSeed), this.season); }
 
   sceneTitle(n) { return n > 1 ? `LAST ${n} STANDING!` : 'LAST ONE STANDING!'; }
 
@@ -494,7 +594,7 @@ class BattleView extends View {
   }
 
   sceneActor(slot, x, y, size, t, place) {
-    const { g } = this, fr = framesFor(this.name(slot)), s = size / 16, swing = Math.floor(t * 2.5) % 2 === 0;
+    const { g } = this, fr = framesFor(this.name(slot), this.season), s = size / 16, swing = Math.floor(t * 2.5) % 2 === 0;
     const hop = Math.abs(Math.sin(t * 5)) * size * 0.08, px = s;
     g.fillStyle = 'rgba(0,0,0,.4)';
     g.fillRect(x - size * 0.34, y - px, size * 0.68, px * 1.6);
@@ -550,6 +650,7 @@ class BattleView extends View {
     g.translate(c.width / 2 - cx * s, c.height / 2 - cy * s);
     g.scale(s, s);
     if (this.arena) g.drawImage(this.arena, 0, 0);
+    g.save(); this.drawWeather(performance.now() / 1000); g.restore();
 
     // The shrinking zone: everything outside the ring is dimmed and hurts.
     const r = sim.zone();
@@ -570,14 +671,14 @@ class BattleView extends View {
       const age = sim.t - p.deadAt;
       if (age > 5) continue;
       g.globalAlpha = Math.max(0, 1 - age / 5);
-      g.drawImage(framesFor(this.name(i)).dead, Math.round(p.x - 8), Math.round(p.y - 13));
+      g.drawImage(framesFor(this.name(i), this.season).dead, Math.round(p.x - 8), Math.round(p.y - 13));
       g.globalAlpha = 1;
     }
     const topKills = living.slice().sort((a, b) => sim.f[b].kills - sim.f[a].kills || a - b).slice(0, 5);
     for (const i of order) {
       const p = sim.f[i];
       if (p.dead) continue;
-      const fr = framesFor(this.name(i));
+      const fr = framesFor(this.name(i), this.season);
       const swinging = sim.t - p.swing < 0.18, dodging = p.dodge > 0, windup = p.wind > 0;
       const img = swinging ? fr.attack : p.moving && !dodging ? (Math.floor(sim.t * (6 + Math.hypot(p.vx, p.vy) * 0.08) + i) % 2 ? fr.walk1 : fr.walk2) : fr.idle;
       const won = sim.winners?.includes(i);
@@ -787,13 +888,13 @@ class HorseView extends View {
   sceneTitle() { return 'WINNER’S CIRCLE!'; }
 
   sceneBack(t) {
-    const { g, canvas: c } = this, turf = c.height * 0.56, post = Math.max(12, c.width * 0.05);
-    g.fillStyle = '#3f7d3a';
+    const { g, canvas: c } = this, look = this.look.horse, turf = c.height * 0.56, post = Math.max(12, c.width * 0.05);
+    g.fillStyle = look.turf;
     g.fillRect(0, turf, c.width, c.height - turf);
     g.fillStyle = 'rgba(255,255,255,.06)';
     for (let x = 0; x < c.width; x += post * 3) g.fillRect(x, turf, post * 1.5, c.height - turf);
     const railH = Math.max(3, c.height * 0.012);
-    g.fillStyle = '#f4f4f5';
+    g.fillStyle = look.rail;
     g.fillRect(0, turf, c.width, railH);
     for (let x = post / 2; x < c.width; x += post) g.fillRect(x, turf, railH, c.height * 0.045);
     for (let i = 0; i < 9; i++) {                  // camera flashes from the stands
@@ -804,6 +905,7 @@ class HorseView extends View {
       g.fillRect(x - r, y - r * 0.2, r * 2, r * 0.4);
       g.fillRect(x - r * 0.2, y - r, r * 0.4, r * 2);
     }
+    if (this.season !== 'none') return;            // themes bring their own weather
     const petal = Math.max(3, Math.min(c.width, c.height) * 0.012);
     for (let i = 0; i < 34; i++) {                 // falling rose petals
       const period = 2.2 + (i % 5) * 0.3, u = ((t + i * 0.27) % period) / period;
@@ -813,7 +915,7 @@ class HorseView extends View {
   }
 
   sceneActor(slot, x, y, size, t, place) {
-    const { g } = this, frames = horseFrames(this.name(slot)), w = size * 1.4, h = w * 20 / 28, px = w / 28;
+    const { g } = this, frames = horseFrames(this.name(slot), this.season), w = size * 1.4, h = w * 20 / 28, px = w / 28;
     const hop = Math.abs(Math.sin(t * 9)) * px * 1.2;
     g.fillStyle = 'rgba(0,0,0,.28)';
     g.fillRect(x - w * 0.4, y - px, w * 0.8, px * 1.6);
@@ -832,16 +934,44 @@ class HorseView extends View {
     g.fillText(String(place + 1), rx, ry + r * 0.05);
   }
 
+  seasonChanged() { this.crowd = null; }
+
+  // Something in the sky behind the hills, set in the same units as the track.
+  skyFeature(kind, viewW, cam) {
+    const { g } = this;
+    if (kind === 'moon') {
+      g.fillStyle = '#f2e8cf'; g.beginPath(); g.arc(viewW * 0.2, 24, 13, 0, 6.2832); g.fill();
+      g.fillStyle = '#d9cfb4'; g.fillRect(viewW * 0.2 - 5, 18, 3, 3); g.fillRect(viewW * 0.2 + 3, 26, 3, 2);
+    } else if (kind === 'sun') {
+      g.fillStyle = '#ffe066'; g.beginPath(); g.arc(viewW * 0.2, 24, 14, 0, 6.2832); g.fill();
+    } else if (kind === 'fireworks') {
+      const t = performance.now() / 1000;
+      for (let b = 0; b < 3; b++) {
+        const period = 2 + b * 0.4, u = ((t + b * 0.7) % period) / period, bx = viewW * (0.18 + b * 0.3), by = 20 + b * 7;
+        g.globalAlpha = Math.max(0, 1 - u);
+        g.fillStyle = ['#ffc72c', '#fb7185', '#60a5fa'][b];
+        for (let i = 0; i < 10; i++) { const a = i * 0.628; g.fillRect(bx + Math.cos(a) * u * 18, by + Math.sin(a) * u * 18, 2, 2); }
+      }
+      g.globalAlpha = 1;
+    } else if (kind === 'pines') {
+      for (let x = -((cam * 0.15) % 46) - 46; x < viewW + 46; x += 46) {
+        g.fillStyle = '#1f5a3a';
+        for (let k = 0; k < 3; k++) g.fillRect(x + 8 - k * 4, 26 + k * 7, 8 + k * 8, 7);
+      }
+    }
+  }
+
   crowdTile() {
     if (this.crowd) return this.crowd;
+    const look = this.look.horse;
     const cv = document.createElement('canvas');
     cv.width = 320; cv.height = 44;
     const g = cv.getContext('2d'), rng = makeRng('crowd');
-    g.fillStyle = '#5b6170'; g.fillRect(0, 0, 320, 44);
-    g.fillStyle = '#e8e4d8'; g.fillRect(0, 0, 320, 5);
-    g.fillStyle = '#c0392b';
+    g.fillStyle = look.stand; g.fillRect(0, 0, 320, 44);
+    g.fillStyle = look.roof[0]; g.fillRect(0, 0, 320, 5);
+    g.fillStyle = look.roof[1];
     for (let x = 0; x < 320; x += 16) g.fillRect(x, 0, 8, 5);
-    const shirts = ['#e63946', '#3a86ff', '#ffd23f', '#2ec4b6', '#f4f1e8', '#ff9f1c', '#9b5de5', '#43aa3b'], skins = ['#ffd9b3', '#d9a06b', '#8a5a34'];
+    const shirts = look.shirts, skins = ['#ffd9b3', '#d9a06b', '#8a5a34'];
     for (let y = 9; y < 42; y += 7) for (let x = 2 + (y % 2) * 3; x < 318; x += 5) {
       g.fillStyle = shirts[Math.floor(rng() * shirts.length)]; g.fillRect(x, y + 2, 3, 3);
       g.fillStyle = skins[Math.floor(rng() * skins.length)]; g.fillRect(x + 1, y, 2, 2);
@@ -853,7 +983,8 @@ class HorseView extends View {
     const { g, canvas: c, sim } = this;
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.imageSmoothingEnabled = false;
-    g.fillStyle = '#8fc7ea';
+    const look = this.look.horse;
+    g.fillStyle = look.sky;
     g.fillRect(0, 0, c.width, c.height);
     if (!sim) {
       g.fillStyle = '#16171d';
@@ -864,7 +995,7 @@ class HorseView extends View {
     }
     rank ??= sim.ranking();
     const s = Math.min(c.height / VIEW_H, c.width / 340), viewW = c.width / s, oy = Math.round((c.height - VIEW_H * s) * 0.55);
-    g.fillStyle = '#3f7d34';
+    g.fillStyle = look.turf;
     g.fillRect(0, oy + 96 * s, c.width, c.height);
     // The camera runs with the leader, then waits at the post for the next finishers.
     const lead = sim.h[rank[0]].x;
@@ -876,26 +1007,27 @@ class HorseView extends View {
     g.translate(0, oy);
     g.scale(s, s);
     // Far hills drift slowly; the stands and the rail move faster, so speed reads clearly.
-    g.fillStyle = '#6fa85a';
+    this.skyFeature(look.feature, viewW, cam);
+    g.fillStyle = look.hill;
     for (let x = -4; x < viewW + 8; x += 4) { const wx = x + cam * 0.15; g.fillRect(x, 44 + Math.sin(wx * 0.021) * 8 + Math.sin(wx * 0.007) * 10, 4, 50); }
     const tile = this.crowdTile(), off = ((cam * 0.55) % 320 + 320) % 320;
     for (let x = -off; x < viewW; x += 320) g.drawImage(tile, Math.round(x), 52);
-    g.fillStyle = '#3f7d34';
+    g.fillStyle = look.turf;
     g.fillRect(0, 96, viewW, VIEW_H - 96);
     // mown stripes on the turf
     const stripe = 90, first = Math.floor(cam / stripe) * stripe;
     for (let wx = first - stripe; wx < cam + viewW + stripe; wx += stripe) {
-      g.fillStyle = Math.round(wx / stripe) % 2 ? '#4f8a3c' : '#47803a';
+      g.fillStyle = Math.round(wx / stripe) % 2 ? look.stripes[0] : look.stripes[1];
       g.fillRect(wx - cam, TRACK_TOP, stripe, TRACK_BOTTOM - TRACK_TOP);
     }
     // white rails with posts
     for (const y of [TRACK_TOP - 8, TRACK_BOTTOM + 2]) {
-      g.fillStyle = '#f4f1e8'; g.fillRect(0, y, viewW, 2);
+      g.fillStyle = look.rail; g.fillRect(0, y, viewW, 2);
       for (let wx = Math.floor(cam / 36) * 36; wx < cam + viewW + 36; wx += 36) g.fillRect(wx - cam, y, 2, 8);
     }
     // starting stalls
     if (cam < 40) {
-      g.fillStyle = '#c0392b'; g.fillRect(-cam + 2, TRACK_TOP - 14, 4, TRACK_BOTTOM - TRACK_TOP + 18);
+      g.fillStyle = look.stall; g.fillRect(-cam + 2, TRACK_TOP - 14, 4, TRACK_BOTTOM - TRACK_TOP + 18);
       g.fillStyle = '#f4f1e8'; g.fillRect(-cam + 3, TRACK_TOP - 14, 2, TRACK_BOTTOM - TRACK_TOP + 18);
     }
     // finish: checkered line and post
@@ -908,6 +1040,7 @@ class HorseView extends View {
       g.fillText('FINISH', fx + 6, TRACK_TOP - 49.5);
     }
 
+    g.save(); this.drawWeather(performance.now() / 1000); g.restore();
     const n = sim.n, gap = n > 1 ? Math.min(32, (TRACK_BOTTOM - TRACK_TOP - 34) / (n - 1)) : 0, mid = (TRACK_TOP + TRACK_BOTTOM + 16) / 2;
     const laneY = lane => mid + (lane - (n - 1) / 2) * gap;
     const order = sim.h.map((_, i) => i).sort((a, b) => sim.h[a].lane - sim.h[b].lane);
@@ -916,10 +1049,10 @@ class HorseView extends View {
       const p = sim.h[i], x = p.x - cam, y = laneY(p.lane);
       if (x < -40 || x > viewW + 40) continue;
       visible.push(i);
-      const frames = horseFrames(this.name(i)), fr = Math.floor(p.phase) % 4, moving = p.v > 1;
+      const frames = horseFrames(this.name(i), this.season), fr = Math.floor(p.phase) % 4, moving = p.v > 1;
       const img = frames[moving ? fr : 0], hop = moving && fr === 3 ? 1 : 0;
       g.fillStyle = 'rgba(15,16,19,.22)'; g.fillRect(Math.round(x - 21), Math.round(y - 2), 26, 3);
-      if (moving && p.v > 30) { g.fillStyle = 'rgba(214,190,140,.55)'; g.fillRect(Math.round(x - 30 - fr * 2), Math.round(y - 4 - fr), 3, 2); }
+      if (moving && p.v > 30) { g.fillStyle = look.dust; g.fillRect(Math.round(x - 30 - fr * 2), Math.round(y - 4 - fr), 3, 2); }
       g.drawImage(img, Math.round(x - 24), Math.round(y - 20 - hop));
     }
     g.restore();
@@ -940,7 +1073,7 @@ class HorseView extends View {
       g.fillStyle = place ? '#ffd23f' : this.live && i === rank[0] ? '#ffe9a0' : '#f4f4f5';
       g.fillText(text, sx, sy);
     }
-    this.board(rank, 0, Math.min(1, lead / sim.finishX), `${n} horse${n === 1 ? '' : 's'} ready`);
+    this.board(rank, 0, Math.min(1, lead / sim.finishX), `${n} ${look.noun}${n === 1 || look.noun === 'reindeer' ? '' : 's'} ready`);
     this.footer(FOOT.race);
   }
 }

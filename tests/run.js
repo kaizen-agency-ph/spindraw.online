@@ -9,6 +9,7 @@ import { RaceSim, preRunRace } from '../js/games/race-sim.js';
 import { BattleSim, preRunBattle } from '../js/games/battle-sim.js';
 import { HorseSim, preRunHorse } from '../js/games/horse-sim.js';
 import { matchReport } from '../js/games/match-report.js';
+import { SEASONS, SEASON_IDS, SPRITE_PAL, SEASON_FIGHTER_GRIDS, SEASON_HORSE_GRIDS, seasonOf, withSeason } from '../js/games/seasons.js';
 import { SONGS, CHORDS, songBars } from '../js/games/music.js';
 import { ALL_GRIDS, HORSE_GRIDS } from '../js/games/sprites.js';
 
@@ -278,6 +279,55 @@ await test('every page loads the current fingerprint of the code', () => {
     assert.ok(first > -1 && first < mod, `${page}: the import map must come before module scripts`);
     for (const [, file, ver] of html.matchAll(/type="module" src="\/?(js\/[\w-]+\.js)(?:\?v=(\w+))?"/g)) assert.equal(ver, v[file], `${page}: ${file}`);
   }
+});
+
+await test('seasonal themes: every sprite row fits and every colour exists', () => {
+  const fighter = new Set(Object.keys(SPRITE_PAL).concat(['k', 's', 'c', 'C', 'b', 'h', 'H', 'm', 'M', 'w', 'y', '.']));
+  for (const grid of SEASON_FIGHTER_GRIDS) for (const [y, line] of grid) {
+    assert.equal(line.length, 16, line);
+    assert.ok(y >= 0 && y < 16, String(y));
+    for (const ch of line) assert.ok(fighter.has(ch), `unknown colour ${ch} in ${line}`);
+  }
+  const horse = new Set(Object.keys(SPRITE_PAL).concat(['k', '.']));
+  for (const grid of SEASON_HORSE_GRIDS) for (const [y, line] of grid) {
+    assert.equal(line.length, 28, line);
+    assert.ok(y >= 0 && y < 20, String(y));
+    for (const ch of line) assert.ok(horse.has(ch), `unknown colour ${ch} in ${line}`);
+  }
+  assert.equal(seasonOf('nonsense'), seasonOf('none'));
+  const hex = /^(#[0-9a-f]{6}|rgba\(.+\))$/i;
+  const check = (v, where) => {
+    if (typeof v === 'string' && (v.startsWith('#') || v.startsWith('rgba'))) assert.match(v, hex, where);
+    else if (Array.isArray(v)) v.forEach(x => check(x, where));
+  };
+  const base = SEASONS.none;
+  for (const id of SEASON_IDS) {
+    const s = SEASONS[id];
+    assert.ok(s.label && s.accent, id);
+    for (const part of ['race', 'horse', 'arena']) for (const key of Object.keys(base[part])) {
+      if (key !== 'feature') assert.ok(s[part][key] !== undefined, `${id}.${part}.${key} is missing`);
+      check(s[part][key], `${id}.${part}.${key}`);
+    }
+    if (id === 'none') continue;
+    assert.ok(s.colors.length >= 3 && s.wheel.rim && s.wheel.pointer && s.wheel.hub, id);
+    assert.ok(s.battle.hats.length && s.battle.weapons.length && s.battle.skin.length && s.battle.cloth.length && s.battle.hair.length, id);
+    assert.ok(s.horse.coats.length && s.horse.silks.length && s.horse.overlay.length, id);
+    for (const c of [...s.horse.coats, ...s.horse.silks]) assert.equal(c.length, 3, id);
+    for (const c of s.battle.cloth) assert.equal(c.length, 2, id);
+  }
+  // Keeping the wheel's themed colours separate means switching off restores the host's own.
+  const mine = { colors: ['#111111'], season: 'christmas' };
+  assert.deepEqual(withSeason(mine).colors, SEASONS.christmas.colors);
+  assert.deepEqual(mine.colors, ['#111111']);
+  assert.deepEqual(withSeason({ ...mine, season: 'none' }).colors, ['#111111']);
+});
+
+await test('seasonal themes can never reach a simulation', () => {
+  for (const file of ['race-sim', 'horse-sim', 'battle-sim', 'rng', 'match-report']) {
+    const src = readFileSync(new URL(`../js/games/${file}.js`, import.meta.url), 'utf8');
+    assert.ok(!/season/i.test(src), `${file}.js mentions seasons`);
+  }
+  assert.ok(!/season/i.test(readFileSync(new URL('../js/fair.js', import.meta.url), 'utf8')));
 });
 
 await test('gameSeed is stable, varies per draw, and does not contain the seed', async () => {

@@ -1,4 +1,5 @@
 import { Wheel, PALETTES, DEFAULT_THEME } from './wheel.js';
+import { SEASONS, SEASON_IDS, seasonOf } from './games/seasons.js';
 import { fileToDataURL, loadAll } from './images.js';
 import * as fair from './fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl, toCSV } from './intake.js';
@@ -482,6 +483,7 @@ function render() {
   $('#modeNote').hidden = !tooMany();
   $('#modeNote').textContent = `${MODES[S.mode].label} fits up to ${MAX_PLAYERS} people and this list has ${wheelPool().length}. Switch to the Wheel, or trim the list.`;
   $$('#modeSwitch button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)); b.disabled = spinning; });
+  renderSeason();
   $('#gameLength').value = S.gameLength;
   $('#claimBtn').disabled = spinning || !p;
   $('#redrawBtn').disabled = spinning || !p;
@@ -602,6 +604,20 @@ $('#cdStart').addEventListener('click', () => {
 $('#cdStop').addEventListener('click', () => { S.countdownEndsAt = 0; update(); });
 $('#showCommit').addEventListener('change', e => { S.showCommit = e.target.checked; update(); });
 
+// Seasonal themes: click one to turn it on, click it again (or Off) to turn it off.
+function renderSeason() {
+  const on = seasonOf(S.theme.season) === seasonOf('none') ? 'none' : S.theme.season;
+  $$('#seasonSwitch button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.season === on)); b.disabled = spinning; });
+  const note = $('#seasonNote');
+  note.hidden = on === 'none';
+  if (on !== 'none') note.textContent = `The ${SEASONS[on].label} theme is using its own colours. Turn it off to use yours again.`;
+}
+for (const id of SEASON_IDS) {
+  const b = Object.assign(document.createElement('button'), { type: 'button', textContent: SEASONS[id].label });
+  b.dataset.season = id;
+  b.addEventListener('click', () => { if (!spinning) setTheme({ season: id === S.theme.season ? 'none' : id }); });
+  $('#seasonSwitch').append(b);
+}
 $$('#modeSwitch button').forEach(b => b.addEventListener('click', () => {
   if (spinning || S.mode === b.dataset.mode) return;
   S.mode = b.dataset.mode;

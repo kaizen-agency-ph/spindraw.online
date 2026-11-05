@@ -646,6 +646,10 @@ const PATCHES = [
   {
     id: 'pixel-battle', name: 'Pixel Battle', icon: 'sword', guide: '/battle-royale-name-picker/',
     log: [
+      { v: '1.5', date: '2026-11-05', title: 'Seasonal themes', notes: [
+        ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
+        ['new', 'Fighters dress for the season: witches and skeletons, Santas and elves, party hats, bunny ears and more, in a matching arena.'],
+      ] },
       { v: '1.4', date: '2026-11-05', title: 'Countdown and champion’s finish', notes: [
         ['new', 'A 3, 2, 1 countdown before the start: “Let’s battle!”'],
         ['new', 'A big “ta-dah!” as the winner card appears.'],
@@ -676,6 +680,10 @@ const PATCHES = [
   {
     id: 'ball-race', name: 'Ball Race', icon: 'race', guide: '/ball-race-name-picker/',
     log: [
+      { v: '1.6', date: '2026-11-05', title: 'Seasonal themes', notes: [
+        ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
+        ['new', 'Balls become pumpkins, ornaments, hearts, eggs and beach balls, on a matching course.'],
+      ] },
       { v: '1.5', date: '2026-11-05', title: 'Countdown and checkered finish', notes: [
         ['new', 'A 3, 2, 1 countdown before the start: “Let’s roll!”'],
         ['new', 'A big “ta-dah!” as the winner card appears.'],
@@ -702,6 +710,10 @@ const PATCHES = [
   {
     id: 'horse-race', name: 'Horse Race', icon: 'horse', guide: '/horse-race-name-picker/',
     log: [
+      { v: '1.5', date: '2026-11-05', title: 'Seasonal themes', notes: [
+        ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
+        ['new', 'Reindeer with antlers and red noses for Christmas, skeleton horses for Halloween, and more, on a matching track.'],
+      ] },
       { v: '1.4', date: '2026-11-05', title: 'Countdown and winner’s circle', notes: [
         ['new', 'A 3, 2, 1 countdown before the start: “And they’re off!”'],
         ['new', 'A big “ta-dah!” as the winner card appears.'],
@@ -726,6 +738,9 @@ const PATCHES = [
   {
     id: 'wheel', name: 'Wheel', icon: 'wheel', guide: '/random-name-picker/',
     log: [
+      { v: '1.4', date: '2026-11-05', title: 'Seasonal themes', notes: [
+        ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer colours for the wheel. Switch them on or off without losing your own colours.'],
+      ] },
       { v: '1.3', date: '2026-11-05', title: 'Ta-dah!', notes: [
         ['improved', 'A big new “ta-dah!” plays as the winner is shown.'],
       ] },

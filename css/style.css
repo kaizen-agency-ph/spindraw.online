@@ -239,6 +239,13 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
 .support-card p { margin: 0; font-size: .85rem; color: var(--muted); }
 
 /* Wheel / Ball Race / Pixel Battle */
+.season-switch { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; }
+.season-label { font-size: .85rem; font-weight: 500; color: var(--muted); margin-right: 4px; }
+.season-switch button { font: 500 .82rem var(--font); color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 99px; padding: 4px 11px; cursor: pointer; }
+.season-switch button:hover:not(:disabled) { color: var(--text); border-color: var(--line-strong); }
+.season-switch button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.season-switch button:disabled { cursor: not-allowed; opacity: .6; }
+.season-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .mode-switch { display: flex; gap: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 4px; max-width: 460px; width: 100%; margin: 0 auto; }
 .mode-switch button { flex: 1; font: 500 .9rem var(--font); color: var(--muted); background: none; border: 0; border-radius: 7px; padding: 8px 6px; cursor: pointer; }
 .mode-switch button[aria-pressed="true"] { background: var(--panel); color: var(--text); box-shadow: var(--shadow); }

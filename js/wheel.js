@@ -2,6 +2,8 @@
 // The slices are pre-rendered once to an offscreen canvas and rotated per frame,
 // so thousands of entries still animate smoothly.
 
+import { withSeason } from './games/seasons.js';
+
 export const PALETTES = {
   stream: ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c', '#f4f1e8'],
   fiesta: ['#e63946', '#f1c453', '#2a9d8f', '#264653', '#f4a261', '#fdfcf7'],
@@ -19,6 +21,7 @@ export const DEFAULT_THEME = {
   hub: '#0f1013',
   wheelOpacity: 0.5,
   bgDim: 0.35,
+  season: 'none',
 };
 
 const TAU = Math.PI * 2;
@@ -50,7 +53,7 @@ export class Wheel {
     this.entries = [];
     this.segs = [];
     this.rotation = 0;
-    this.theme = { ...DEFAULT_THEME, ...theme };
+    this.theme = withSeason({ ...DEFAULT_THEME, ...theme });
     this.images = {};
     this.cache = null;
     this.size = 0;
@@ -70,7 +73,7 @@ export class Wheel {
   }
 
   setTheme(theme) {
-    this.theme = { ...DEFAULT_THEME, ...theme };
+    this.theme = withSeason({ ...DEFAULT_THEME, ...theme });
     if (!this.theme.colors?.length) this.theme.colors = DEFAULT_THEME.colors;
     this.setEntries(this.entries);
   }
