@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script type="importmap">{"imports":{"/js/app.js":"/js/app.js?v=db6409fa9a","/js/fair.js":"/js/fair.js?v=8fe5497132","/js/fx.js":"/js/fx.js?v=8bd474af9a","/js/games/battle-sim.js":"/js/games/battle-sim.js?v=f8edeb6ca5","/js/games/horse-sim.js":"/js/games/horse-sim.js?v=07b5b3f0b1","/js/games/index.js":"/js/games/index.js?v=c986a9ef52","/js/games/match-report.js":"/js/games/match-report.js?v=249df87f40","/js/games/music.js":"/js/games/music.js?v=ab8530bdfc","/js/games/race-sim.js":"/js/games/race-sim.js?v=59d4b67763","/js/games/rng.js":"/js/games/rng.js?v=bb782d9059","/js/games/sprites.js":"/js/games/sprites.js?v=f66a003c3c","/js/home-demo.js":"/js/home-demo.js?v=83889e1e7f","/js/images.js":"/js/images.js?v=bc0b156257","/js/intake.js":"/js/intake.js?v=ee870224d6","/js/overlay.js":"/js/overlay.js?v=2d2f5ee9cd","/js/sync.js":"/js/sync.js?v=2f2cb7fefc","/js/theme.js":"/js/theme.js?v=4dae5720c3","/js/verify.js":"/js/verify.js?v=949302079b","/js/wheel.js":"/js/wheel.js?v=6d442c5b53"}}</script>
+  <script type="importmap">{"imports":{"/js/app.js":"/js/app.js?v=e44c62b49c","/js/fair.js":"/js/fair.js?v=8fe5497132","/js/fx.js":"/js/fx.js?v=8bd474af9a","/js/games/battle-sim.js":"/js/games/battle-sim.js?v=f8edeb6ca5","/js/games/horse-sim.js":"/js/games/horse-sim.js?v=07b5b3f0b1","/js/games/index.js":"/js/games/index.js?v=c986a9ef52","/js/games/match-report.js":"/js/games/match-report.js?v=249df87f40","/js/games/music.js":"/js/games/music.js?v=ab8530bdfc","/js/games/race-sim.js":"/js/games/race-sim.js?v=59d4b67763","/js/games/rng.js":"/js/games/rng.js?v=bb782d9059","/js/games/sprites.js":"/js/games/sprites.js?v=f66a003c3c","/js/home-demo.js":"/js/home-demo.js?v=83889e1e7f","/js/images.js":"/js/images.js?v=bc0b156257","/js/intake.js":"/js/intake.js?v=ee870224d6","/js/overlay.js":"/js/overlay.js?v=2d2f5ee9cd","/js/sync.js":"/js/sync.js?v=2f2cb7fefc","/js/theme.js":"/js/theme.js?v=4dae5720c3","/js/verify.js":"/js/verify.js?v=949302079b","/js/wheel.js":"/js/wheel.js?v=6d442c5b53"}}</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
   <!-- Google tag (gtag.js) -->
@@ -39,7 +39,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
   -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
-  <script type="module" src="js/app.js?v=db6409fa9a"></script>
+  <script type="module" src="js/app.js?v=e44c62b49c"></script>
 </head>
 <body>
   <header class="topbar">
@@ -48,7 +48,7 @@
       <span id="syncStatus" class="pill">Overlay: not connected</span>
       <button id="openOverlay" class="btn ghost" type="button" title="Open a clean view of the wheel for a projector, a video call or your stream">Present</button>
       <button class="btn ghost theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button>
-      <button id="helpBtn" class="btn ghost" type="button" aria-label="Keyboard shortcuts">?</button>
+      <button id="helpBtn" class="btn ghost" type="button" aria-label="How SpinDraw works">?</button>
     </div>
   </header>
 
@@ -248,7 +248,7 @@
         <button id="resetStyle" class="btn ghost" type="button">Reset style</button>
 
         <h4 class="sub">Spin</h4>
-        <label>Ball Race and Pixel Battle length
+        <label>Game length (Ball Race, Horse Race, Pixel Battle)
           <select id="gameLength">
             <option value="quick">Quick (about 20s)</option>
             <option value="normal">Normal (about 35s)</option>
@@ -271,16 +271,90 @@
     </aside>
   </main>
 
-  <dialog id="helpDialog">
-    <h3>Keyboard shortcuts</h3>
-    <dl>
-      <dt><kbd>Space</kbd></dt><dd>Spin</dd>
-      <dt><kbd>C</kbd></dt><dd>Winner claimed, move to next prize</dd>
-      <dt><kbd>R</kbd></dt><dd>No-show: log it and redraw</dd>
-      <dt><kbd>O</kbd></dt><dd>Present (open the wheel view)</dd>
-      <dt><kbd>?</kbd></dt><dd>Show this list</dd>
-    </dl>
-    <form method="dialog"><button class="btn primary">Got it</button></form>
+  <dialog id="helpDialog" aria-labelledby="helpTitle">
+    <div class="help-head">
+      <h3 id="helpTitle">How SpinDraw works</h3>
+      <form method="dialog"><button class="btn" aria-label="Close">Close</button></form>
+    </div>
+    <ol class="help-flow" aria-label="The usual order">
+      <li><b>1</b> Add entries</li>
+      <li><b>2</b> Add prizes</li>
+      <li><b>3</b> Run the draw</li>
+      <li class="opt">Optional: stream it or style it, any time</li>
+    </ol>
+    <div class="help-tabs"><button type="button" class="help-tab" data-help="entries" aria-pressed="false">Entries</button><button type="button" class="help-tab" data-help="prizes" aria-pressed="false">Prizes</button><button type="button" class="help-tab" data-help="draw" aria-pressed="false">Draw</button><button type="button" class="help-tab" data-help="stream" aria-pressed="false">Stream</button><button type="button" class="help-tab" data-help="style" aria-pressed="false">Style</button><button type="button" class="help-tab" data-help="keys" aria-pressed="false">Shortcuts</button></div>
+      <section class="help-page" data-help-page="entries" hidden>
+        <div><div class="help-shot" tabindex="0" aria-label="Screenshot of the Entries tab">
+          <img class="help-img light" data-src="media/help/entries-light.webp" alt="The Entries tab, with numbered markers matching the steps">
+          <img class="help-img dark" data-src="media/help/entries-dark.webp" alt="The Entries tab, with numbered markers matching the steps">
+        </div><p class="help-hint">Scroll the picture to see every numbered step.</p></div>
+        <div class="help-text">
+          <h4>Who’s in the draw</h4>
+          <p class="muted">Add everyone who can win. Your list stays in your browser.</p>
+          <ol class="help-steps"><li><b>Choose how you’re pasting</b><span>One name per line, copied comments or live chat lines. With comments, you can also count only those containing a keyword like #join.</span></li><li><b>Paste your names</b><span>Type or paste them here. “Juan x3” gives Juan three entries.</span></li><li><b>Remove duplicates</b><span>Keep this ticked for one entry per person, even if someone commented twice.</span></li><li><b>Or import a list</b><span>Upload a CSV, or fetch a Google Sheet that anyone with the link can view.</span></li></ol>
+          <button type="button" class="btn help-go" data-help-go="entries">Go to Entries</button>
+        </div>
+      </section>
+      <section class="help-page" data-help-page="prizes" hidden>
+        <div><div class="help-shot" tabindex="0" aria-label="Screenshot of the Prizes tab">
+          <img class="help-img light" data-src="media/help/prizes-light.webp" alt="The Prizes tab, with numbered markers matching the steps">
+          <img class="help-img dark" data-src="media/help/prizes-dark.webp" alt="The Prizes tab, with numbered markers matching the steps">
+        </div><p class="help-hint">Scroll the picture to see every numbered step.</p></div>
+        <div class="help-text">
+          <h4>What they can win</h4>
+          <p class="muted">List your prizes and decide what happens after each win.</p>
+          <ol class="help-steps"><li><b>List prizes in draw order</b><span>One per line. The first line is drawn first, so a common order is 3rd, 2nd, then 1st.</span></li><li><b>Remove winners</b><span>Keep this on so nobody can win twice. It’s required when a game has more than one winner.</span></li><li><b>Set a claim timer</b><span>Give winners time to respond. Set it to 0 to turn it off.</span></li><li><b>Track your prizes</b><span>This list shows what’s been won and what’s still left.</span></li></ol>
+          <button type="button" class="btn help-go" data-help-go="prizes">Go to Prizes</button>
+        </div>
+      </section>
+      <section class="help-page" data-help-page="draw" hidden>
+        <div><div class="help-shot" tabindex="0" aria-label="Screenshot of the Draw tab">
+          <img class="help-img light" data-src="media/help/draw-light.webp" alt="The Draw tab, with numbered markers matching the steps">
+          <img class="help-img dark" data-src="media/help/draw-dark.webp" alt="The Draw tab, with numbered markers matching the steps">
+        </div><p class="help-hint">Scroll the picture to see every numbered step.</p></div>
+        <div class="help-text">
+          <h4>Pick winners, fairly</h4>
+          <p class="muted">Run the raffle from top to bottom, then share the proof.</p>
+          <ol class="help-steps"><li><b>Lock the list</b><span>This freezes the entries and shows a code everyone can screenshot.</span></li><li><b>Add a public word (optional)</b><span>Ask someone else for any word after locking. It makes the result hard for anyone to steer.</span></li><li><b>Start the draw</b><span>Press Space. Then press C if the winner claims, or R to redraw a no-show.</span></li><li><b>Finish and share proof</b><span>This creates a verify link that works for 7 days. Save the proof file to keep a permanent record.</span></li><li><b>Download your records</b><span>Save a winner card image or your results and entries as CSV files. New raffle starts over.</span></li></ol>
+          <button type="button" class="btn help-go" data-help-go="draw">Go to Draw</button>
+        </div>
+      </section>
+      <section class="help-page" data-help-page="stream" hidden>
+        <div><div class="help-shot" tabindex="0" aria-label="Screenshot of the Stream tab">
+          <img class="help-img light" data-src="media/help/stream-light.webp" alt="The Stream tab, with numbered markers matching the steps">
+          <img class="help-img dark" data-src="media/help/stream-dark.webp" alt="The Stream tab, with numbered markers matching the steps">
+        </div><p class="help-hint">Scroll the picture to see every numbered step.</p></div>
+        <div class="help-text">
+          <h4>Show it to everyone</h4>
+          <p class="muted">Set up a view for your stream, projector or video call.</p>
+          <ol class="help-steps"><li><b>Pick a shape</b><span>16:9 for YouTube, Facebook and Twitch, or 9:16 for TikTok, Reels and Shorts.</span></li><li><b>Pick a background</b><span>Transparent for OBS and Streamlabs, green screen for chroma key, or dark for Zoom and Meet.</span></li><li><b>Choose sound</b><span>Decide whether the overlay plays sounds and music. If this tab plays sound too on the same computer, you’ll hear it twice.</span></li><li><b>Copy the overlay link</b><span>Add it as a Browser source in OBS or Streamlabs, or a Link source in TikTok LIVE Studio.</span></li><li><b>Count down to the cutoff</b><span>Shows viewers how long they have left to enter.</span></li><li><b>Show the code</b><span>Keeps the commitment code on the overlay so viewers can screenshot it.</span></li></ol>
+          <button type="button" class="btn help-go" data-help-go="stream">Go to Stream</button>
+        </div>
+      </section>
+      <section class="help-page" data-help-page="style" hidden>
+        <div><div class="help-shot" tabindex="0" aria-label="Screenshot of the Style tab">
+          <img class="help-img light" data-src="media/help/style-light.webp" alt="The Style tab, with numbered markers matching the steps">
+          <img class="help-img dark" data-src="media/help/style-dark.webp" alt="The Style tab, with numbered markers matching the steps">
+        </div><p class="help-hint">Scroll the picture to see every numbered step.</p></div>
+        <div class="help-text">
+          <h4>Make it yours</h4>
+          <p class="muted">Change the look, length and sound. The overlay follows your style.</p>
+          <ol class="help-steps"><li><b>Choose colours</b><span>Pick a colour set, or customise the slices, text, rim, pointer and hub. Ball colours in the Ball Race follow these too.</span></li><li><b>Add your logo</b><span>Puts your logo in the middle of the wheel.</span></li><li><b>Add a wheel image</b><span>Spins with the wheel, blended over the slices.</span></li><li><b>Add a background</b><span>Fills the overlay behind everything.</span></li><li><b>Set the game length</b><span>Quick, Normal or Epic, for the Ball Race, Horse Race and Pixel Battle.</span></li><li><b>Turn sound on or off</b><span>Separate switches for sounds and game music.</span></li></ol>
+          <button type="button" class="btn help-go" data-help-go="style">Go to Style</button>
+        </div>
+      </section>
+      <section class="help-page" data-help-page="keys" hidden>
+        <div class="help-text">
+          <h4>Keyboard shortcuts</h4>
+          <dl>
+            <dt><kbd>Space</kbd></dt><dd>Start the spin or game</dd>
+            <dt><kbd>C</kbd></dt><dd>Winner claimed, move to next prize</dd>
+            <dt><kbd>R</kbd></dt><dd>No-show: log it and redraw</dd>
+            <dt><kbd>O</kbd></dt><dd>Present (open the wheel view)</dd>
+            <dt><kbd>?</kbd></dt><dd>Open this guide</dd>
+          </dl>
+        </div>
+      </section>
   </dialog>
   <div id="toast" class="toast" role="status"></div>
   <script type="module" src="js/theme.js?v=4dae5720c3"></script>

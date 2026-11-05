@@ -623,7 +623,26 @@ function setSound(on) {
 $('#soundOn').addEventListener('change', e => setSound(e.target.checked));
 $('#quickSound').addEventListener('click', () => { setSound(!S.sound); $('#quickSound').blur(); });
 $('#musicOn').addEventListener('change', e => { S.music = sound.musicOn = e.target.checked; if (!S.music) sound.stopMusic(); save(); });
-$('#helpBtn').addEventListener('click', () => $('#helpDialog').showModal());
+// The ? guide: one page per tab, opening on whichever tab you're looking at.
+function showHelp(tab) {
+  document.querySelectorAll('[data-help]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.help === tab)));
+  document.querySelectorAll('[data-help-page]').forEach(p => {
+    const on = p.dataset.helpPage === tab;
+    p.hidden = !on;
+    if (on) p.querySelectorAll('img[data-src]').forEach(img => { img.src = img.dataset.src; img.removeAttribute('data-src'); });
+  });
+}
+function openHelp() {
+  const current = document.querySelector('[data-tab][aria-selected="true"]')?.dataset.tab;
+  showHelp(document.querySelector(`[data-help="${current}"]`) ? current : 'entries');
+  $('#helpDialog').showModal();
+}
+$('#helpBtn').addEventListener('click', openHelp);
+document.querySelectorAll('[data-help]').forEach(b => b.addEventListener('click', () => showHelp(b.dataset.help)));
+document.querySelectorAll('[data-help-go]').forEach(b => b.addEventListener('click', () => {
+  $('#helpDialog').close();
+  document.querySelector(`[data-tab="${b.dataset.helpGo}"]`).click();
+}));
 
 document.addEventListener('keydown', e => {
   if (e.target.closest('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey || $('#helpDialog').open) return;
@@ -632,7 +651,7 @@ document.addEventListener('keydown', e => {
   else if (k === 'c') claimed();
   else if (k === 'r') noShow();
   else if (k === 'o') openOverlay();
-  else if (k === '?') $('#helpDialog').showModal();
+  else if (k === '?') openHelp();
 });
 
 
