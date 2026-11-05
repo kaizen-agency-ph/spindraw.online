@@ -648,7 +648,7 @@ const PATCHES = [
     log: [
       { v: '1.5', date: '2026-11-05', title: 'Seasonal themes', notes: [
         ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
-        ['improved', 'A Music on/off button now sits next to the Sound button.'],
+        ['improved', 'One Sound button now turns all game audio on or off.'],
         ['new', 'Fighters dress for the season: witches and skeletons, Santas and elves, party hats, bunny ears and more, in a matching arena.'],
       ] },
       { v: '1.4', date: '2026-11-05', title: 'Countdown and champion’s finish', notes: [
@@ -658,7 +658,7 @@ const PATCHES = [
         ['new', 'A new winner’s scene with a crown, sunburst, pixel sparks and a heroic jingle.'],
       ] },
       { v: '1.3', date: '2026-11-05', title: 'Battle music', notes: [
-        ['new', 'Original chiptune music made for the arena, which speeds up for the finish. Turn it off in the Style tab.'],
+        ['new', 'Original chiptune music made for the arena, which speeds up for the finish. The Sound button turns it off.'],
       ] },
       { v: '1.2', date: '2026-11-05', title: 'Fighters learned to fight', notes: [
         ['new', 'Fighters now think for themselves: they pick targets, circle, press forward and back off when hurt or outnumbered.'],
@@ -683,7 +683,7 @@ const PATCHES = [
     log: [
       { v: '1.6', date: '2026-11-05', title: 'Seasonal themes', notes: [
         ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
-        ['improved', 'A Music on/off button now sits next to the Sound button.'],
+        ['improved', 'One Sound button now turns all game audio on or off.'],
         ['new', 'Balls become pumpkins, ornaments, hearts, eggs and beach balls, on a matching course.'],
       ] },
       { v: '1.5', date: '2026-11-05', title: 'Countdown and checkered finish', notes: [
@@ -692,7 +692,7 @@ const PATCHES = [
         ['new', 'A new winner’s scene with checkered flags, bouncing balls and a jingle.'],
       ] },
       { v: '1.4', date: '2026-11-05', title: 'Bouncy new music', notes: [
-        ['new', 'Original chiptune music made for the race, which speeds up for the finish. Turn it off in the Style tab.'],
+        ['new', 'Original chiptune music made for the race, which speeds up for the finish. The Sound button turns it off.'],
       ] },
       { v: '1.3', date: '2026-11-05', title: 'Match reports', notes: [
         ['new', 'The verify page now has a match report: finishing order and times, lead changes, and who spent the most time in front.'],
@@ -714,7 +714,7 @@ const PATCHES = [
     log: [
       { v: '1.5', date: '2026-11-05', title: 'Seasonal themes', notes: [
         ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
-        ['improved', 'A Music on/off button now sits next to the Sound button.'],
+        ['improved', 'One Sound button now turns all game audio on or off.'],
         ['new', 'Reindeer with antlers and red noses for Christmas, skeleton horses for Halloween, and more, on a matching track.'],
       ] },
       { v: '1.4', date: '2026-11-05', title: 'Countdown and winner’s circle', notes: [
@@ -723,7 +723,7 @@ const PATCHES = [
         ['new', 'A new winner’s scene with a rosette, rose petals, camera flashes and a bugle call.'],
       ] },
       { v: '1.3', date: '2026-11-05', title: 'Galloping new music', notes: [
-        ['new', 'Original chiptune music made for the track, which speeds up for the finish. Turn it off in the Style tab.'],
+        ['new', 'Original chiptune music made for the track, which speeds up for the finish. The Sound button turns it off.'],
       ] },
       { v: '1.2', date: '2026-11-05', title: 'Match reports', notes: [
         ['new', 'The verify page now has a match report: finishing order and times, lead changes, and who spent the most time in front.'],

@@ -89,10 +89,9 @@ if (typeof document !== 'undefined') for (const type of ['pointerdown', 'mousedo
 
 export const sound = {
   enabled: true,
-  musicOn: true,
   last: 0,
   unlock() { wakeAudio(); },
-  startMusic(mode) { if (this.enabled && this.musicOn) { try { player.start(mode); } catch {} } },
+  startMusic(mode) { if (this.enabled) { try { player.start(mode); } catch {} } },
   tension() { player.tension(); },
   stopMusic() { player.stop(); },
   get musicPlaying() { return player.playing; },

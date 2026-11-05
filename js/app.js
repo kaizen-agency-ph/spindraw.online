@@ -21,7 +21,7 @@ const defaults = () => ({
   entries: [], stats: null,
   prizesText: '', removeWinners: true, claimSeconds: 60,
   mode: 'wheel', gameLength: 'normal', winnersPerRun: 1, owedPrizes: [],
-  spinSeconds: 7, sound: true, music: true, theme: { ...DEFAULT_THEME }, showCommit: true,
+  spinSeconds: 7, sound: true, theme: { ...DEFAULT_THEME }, showCommit: true,
   ovLayout: 'wide', ovBg: 'transparent', ovSound: true,
   locked: null, salt: '', draws: [], revealed: false, verifyUrl: '', linkMade: 0,
   countdownEndsAt: 0, claimEndsAt: 0, log: [],
@@ -69,7 +69,6 @@ function syncMode() {
 let channel;
 channel = new Channel(S.room, 'host', onMessage, renderSync);
 sound.enabled = S.sound;
-sound.musicOn = S.music;
 
 // ---------- derived state ----------
 const pool = () => fair.currentPool(S.entries, S.draws, S.removeWinners);
@@ -446,9 +445,7 @@ function render() {
   $('#dedupe').checked = S.dedupe;
   $('#removeWinners').checked = S.removeWinners;
   $('#showCommit').checked = S.showCommit;
-  $('#soundOn').checked = S.sound;
-  renderSoundButtons();
-  $('#musicOn').checked = S.music;
+  renderSoundButton();
   $('#ovSound').checked = S.ovSound;
   $('#spinSeconds').value = S.spinSeconds;
   $('#spinLabel').textContent = S.spinSeconds;
@@ -631,39 +628,24 @@ $('#winnersPerRun').addEventListener('input', e => { S.winnersPerRun = Math.max(
 $('#winnersPerRun').addEventListener('change', e => { e.target.value = S.winnersPerRun; });
 $('#gameLength').addEventListener('change', e => { S.gameLength = e.target.value; save(); });
 $('#spinSeconds').addEventListener('input', e => { S.spinSeconds = +e.target.value; save(); render(); });
+// One button for all game audio. Switching on plays a clear sound and says what the browser
+// reports, so "the page is blocked" and "it isn't reaching your speakers" can be told apart.
 function setSound(on) {
   S.sound = sound.enabled = on;
   save();
-  $('#soundOn').checked = on;
-  renderSoundButtons();
-  if (on) { sound.beep(true); resumeMusic(); } else sound.stopMusic();   // a blip, so people can hear it's working
+  renderSoundButton();
+  if (!on) return sound.stopMusic();
+  sound.tada();
+  if (spinning && S.mode !== 'wheel' && !sound.musicPlaying) sound.startMusic(S.mode);
+  setTimeout(() => toast(audioBlocked()
+    ? 'Your browser is blocking sound on this page. Check this site’s Auto-Play setting, then click Sound again.'
+    : 'Sound is on and playing. If you heard nothing, check the tab isn’t muted and your volume.'), 400);
 }
-// Music needs sound on too, so the button only says "on" when music can actually be heard.
-function renderSoundButtons() {
-  const music = S.sound && S.music;
+function renderSoundButton() {
   $('#quickSound').textContent = S.sound ? 'Sound on' : 'Sound off';
   $('#quickSound').setAttribute('aria-pressed', String(S.sound));
-  $('#quickMusic').textContent = music ? 'Music on' : 'Music off';
-  $('#quickMusic').setAttribute('aria-pressed', String(music));
 }
-// Switching music on during a game starts it straight away.
-const resumeMusic = () => { if (spinning && S.mode !== 'wheel' && !sound.musicPlaying) sound.startMusic(S.mode); };
-function setMusic(on) {
-  S.music = sound.musicOn = on;
-  save();
-  $('#musicOn').checked = on;
-  renderSoundButtons();
-  if (on) resumeMusic(); else sound.stopMusic();
-}
-$('#soundOn').addEventListener('change', e => setSound(e.target.checked));
 $('#quickSound').addEventListener('click', () => { setSound(!S.sound); $('#quickSound').blur(); });
-$('#quickMusic').addEventListener('click', () => {
-  const heard = S.sound && S.music;
-  if (!heard && !S.sound) { S.music = sound.musicOn = true; $('#musicOn').checked = true; setSound(true); }
-  else setMusic(!heard);
-  $('#quickMusic').blur();
-});
-$('#musicOn').addEventListener('change', e => setMusic(e.target.checked));
 // The ? guide: one page per tab, opening on whichever tab you're looking at.
 function showHelp(tab) {
   document.querySelectorAll('[data-help]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.help === tab)));

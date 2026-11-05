@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <script type="importmap">{"imports":{"/js/app.js":"/js/app.js?v=705e363768","/js/fair.js":"/js/fair.js?v=8fe5497132","/js/fx.js":"/js/fx.js?v=3e6256d7b4","/js/games/battle-sim.js":"/js/games/battle-sim.js?v=f8edeb6ca5","/js/games/horse-sim.js":"/js/games/horse-sim.js?v=07b5b3f0b1","/js/games/index.js":"/js/games/index.js?v=b591dfdbd1","/js/games/match-report.js":"/js/games/match-report.js?v=249df87f40","/js/games/music.js":"/js/games/music.js?v=ab8530bdfc","/js/games/race-sim.js":"/js/games/race-sim.js?v=59d4b67763","/js/games/rng.js":"/js/games/rng.js?v=bb782d9059","/js/games/seasons.js":"/js/games/seasons.js?v=3d08bb3984","/js/games/sprites.js":"/js/games/sprites.js?v=e24d19673c","/js/home-demo.js":"/js/home-demo.js?v=83889e1e7f","/js/images.js":"/js/images.js?v=bc0b156257","/js/intake.js":"/js/intake.js?v=ee870224d6","/js/overlay.js":"/js/overlay.js?v=2d2f5ee9cd","/js/sync.js":"/js/sync.js?v=2f2cb7fefc","/js/theme.js":"/js/theme.js?v=4dae5720c3","/js/verify.js":"/js/verify.js?v=949302079b","/js/wheel.js":"/js/wheel.js?v=f2249f2bf9"}}</script>
+  <script type="importmap">{"imports":{"/js/app.js":"/js/app.js?v=751c315e31","/js/fair.js":"/js/fair.js?v=8fe5497132","/js/fx.js":"/js/fx.js?v=047bfc8d2b","/js/games/battle-sim.js":"/js/games/battle-sim.js?v=f8edeb6ca5","/js/games/horse-sim.js":"/js/games/horse-sim.js?v=07b5b3f0b1","/js/games/index.js":"/js/games/index.js?v=b591dfdbd1","/js/games/match-report.js":"/js/games/match-report.js?v=249df87f40","/js/games/music.js":"/js/games/music.js?v=ab8530bdfc","/js/games/race-sim.js":"/js/games/race-sim.js?v=59d4b67763","/js/games/rng.js":"/js/games/rng.js?v=bb782d9059","/js/games/seasons.js":"/js/games/seasons.js?v=3d08bb3984","/js/games/sprites.js":"/js/games/sprites.js?v=e24d19673c","/js/home-demo.js":"/js/home-demo.js?v=83889e1e7f","/js/images.js":"/js/images.js?v=bc0b156257","/js/intake.js":"/js/intake.js?v=ee870224d6","/js/overlay.js":"/js/overlay.js?v=2d2f5ee9cd","/js/sync.js":"/js/sync.js?v=2f2cb7fefc","/js/theme.js":"/js/theme.js?v=4dae5720c3","/js/verify.js":"/js/verify.js?v=949302079b","/js/wheel.js":"/js/wheel.js?v=f2249f2bf9"}}</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
   <!-- Google tag (gtag.js) -->
@@ -39,7 +39,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
   -->
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
-  <script type="module" src="js/app.js?v=705e363768"></script>
+  <script type="module" src="js/app.js?v=751c315e31"></script>
 </head>
 <body>
   <header class="topbar">
@@ -58,6 +58,7 @@
       <div class="stage-head">
         <input id="title" class="title-input" maxlength="60" aria-label="Raffle title">
         <span id="poolCount" class="pill"></span>
+        <button id="quickSound" class="btn" type="button" aria-pressed="true">Sound on</button>
         <button id="editEntriesBtn" class="btn" type="button">Edit entries</button>
       </div>
       <div class="mode-switch" id="modeSwitch" role="group" aria-label="How to pick the winner">
@@ -71,8 +72,6 @@
       <div class="winners-set" id="winnersSet" hidden>
         <label for="winnersPerRun">How many winners?</label>
         <input type="number" id="winnersPerRun" min="1" max="50" step="1" value="1" inputmode="numeric">
-        <button id="quickSound" class="btn" type="button" aria-pressed="true">Sound on</button>
-        <button id="quickMusic" class="btn" type="button" aria-pressed="true">Music on</button>
       </div>
       <p id="winnersHint" class="muted small winners-hint" hidden></p>
       <div class="wheel-box"><canvas id="wheel" aria-label="Raffle wheel"></canvas></div>
@@ -261,8 +260,6 @@
         <label><span>Spin length: <span id="spinLabel"></span>s</span>
           <input type="range" id="spinSeconds" min="3" max="15" step="1">
         </label>
-        <label class="check"><input type="checkbox" id="soundOn"> Sounds in this tab</label>
-        <label class="check"><input type="checkbox" id="musicOn"> Game music (Ball Race, Horse Race, Pixel Battle)</label>
       </div>
 
       <!-- Ad slot: the control panel only. Never put ads on overlay.html. -->
@@ -341,8 +338,8 @@
         </div><p class="help-hint">Scroll the picture to see every numbered step.</p></div>
         <div class="help-text">
           <h4>Make it yours</h4>
-          <p class="muted">Change the look, length and sound. The overlay follows your style. Seasonal themes are in the Theme row above the game.</p>
-          <ol class="help-steps"><li><b>Choose colours</b><span>Pick a colour set, or customise the slices, text, rim, pointer and hub. Ball colours in the Ball Race follow these too.</span></li><li><b>Add your logo</b><span>Puts your logo in the middle of the wheel.</span></li><li><b>Add a wheel image</b><span>Spins with the wheel, blended over the slices.</span></li><li><b>Add a background</b><span>Fills the overlay behind everything.</span></li><li><b>Set the game length</b><span>Quick, Normal or Epic, for the Ball Race, Horse Race and Pixel Battle.</span></li><li><b>Turn sound on or off</b><span>Separate switches for sounds and game music.</span></li></ol>
+          <p class="muted">Change the look and length. The overlay follows your style. Seasonal themes are in the Theme row above the game, and the Sound button at the top of the page turns all game audio on or off.</p>
+          <ol class="help-steps"><li><b>Choose colours</b><span>Pick a colour set, or customise the slices, text, rim, pointer and hub. Ball colours in the Ball Race follow these too.</span></li><li><b>Add your logo</b><span>Puts your logo in the middle of the wheel.</span></li><li><b>Add a wheel image</b><span>Spins with the wheel, blended over the slices.</span></li><li><b>Add a background</b><span>Fills the overlay behind everything.</span></li><li><b>Set the game length</b><span>Quick, Normal or Epic, for the Ball Race, Horse Race and Pixel Battle.</span></li></ol>
           <button type="button" class="btn help-go" data-help-go="style">Go to Style</button>
         </div>
       </section>
