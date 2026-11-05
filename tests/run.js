@@ -222,6 +222,29 @@ await test('battle: fighters really fight, with dodges, blocks and mostly KOs', 
   assert.ok(backedOff && circled);
 });
 
+await test('battle: fighters stay out of the circle instead of dodging to their deaths', () => {
+  let dodges = 0, outside = 0, zone = 0, falls = 0;
+  for (const n of [8, 30, 100]) for (let run = 0; run < 4; run++) {
+    const sim = new BattleSim(n, `zone${run}`, 'quick'), was = new Array(n).fill(false);
+    while (!sim.winners) {
+      sim.step();
+      const r = sim.zone();
+      sim.f.forEach((f, i) => {
+        if (f.dead) return;
+        const rolling = f.dodge > 0;
+        if (rolling && !was[i]) dodges++;
+        if (!rolling && was[i] && Math.hypot(f.x - sim.zx, f.y - sim.zy) > r) outside++;
+        was[i] = rolling;
+      });
+      for (const e of sim.events) { if (e.type === 'zone') { zone++; falls++; } else if (e.type === 'ko') falls++; }
+      sim.events = [];
+    }
+  }
+  assert.ok(dodges > 200, `only ${dodges} dodges`);
+  assert.ok(outside / dodges < 0.01, `${outside} of ${dodges} dodges ended outside`);
+  assert.ok(zone / falls < 0.02, `${zone} of ${falls} deaths were to the circle`);
+});
+
 await test('match reports rebuild the same winners as the game', () => {
   const pool = Array.from({ length: 24 }, (_, i) => ({ name: `P${i}`, weight: 1, i }));
   for (const [mode, pre] of [['race', preRunRace], ['horse', preRunHorse], ['battle', preRunBattle]]) for (const count of [1, 3]) for (let s = 0; s < 3; s++) {

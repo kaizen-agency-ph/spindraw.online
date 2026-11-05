@@ -646,6 +646,10 @@ const PATCHES = [
   {
     id: 'pixel-battle', name: 'Pixel Battle', icon: 'sword', guide: '/battle-royale-name-picker/',
     log: [
+      { v: '1.6', date: '2026-11-05', title: 'Smarter around the circle', notes: [
+        ['improved', 'Fighters now look before they roll, so they no longer dodge out of the circle to their deaths. If there’s nowhere safe to roll, they block instead.'],
+        ['improved', 'They also stop stepping outward near the edge, and stop chasing anyone already outside.'],
+      ] },
       { v: '1.5', date: '2026-11-05', title: 'Seasonal themes', notes: [
         ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
         ['improved', 'One Sound button now turns all game audio on or off.'],

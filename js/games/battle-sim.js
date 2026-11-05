@@ -8,6 +8,7 @@ import { makeRng, LENGTHS } from './rng.js';
 export const BATTLE_DT = 1 / 30;
 export const DODGE_TIME = 0.24;
 const DT = BATTLE_DT, RANGE = 15, REACH = RANGE + 5, SIGHT = 34;
+const ROLL_SPEED = 150, ROLL_MARGIN = 12, EDGE_ZONE = 30;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 export class BattleSim {
@@ -69,7 +70,7 @@ export class BattleSim {
 
   // A moment of thought: who to fight, and how. Called a few times a second per fighter.
   decide(i) {
-    const { f, rng } = this, a = f[i];
+    const { f, rng } = this, a = f[i], r = this.zone();
     a.think = 0.3 + rng() * 0.4;
     let best = -1, bs = Infinity, threats = 0;
     for (let j = 0; j < this.n; j++) {
@@ -78,7 +79,9 @@ export class BattleSim {
       const d = Math.hypot(b.x - a.x, b.y - a.y);
       if (d < SIGHT) threats++;
       // Nearest, but drawn to the wounded and a little loyal to the current opponent.
-      const score = d - (1 - b.hp / b.max) * 26 * a.aggro - (j === a.tgt ? 12 : 0);
+      // Anyone already outside the circle isn't worth following out there.
+      const outside = Math.hypot(b.x - this.zx, b.y - this.zy) > r;
+      const score = d - (1 - b.hp / b.max) * 26 * a.aggro - (j === a.tgt ? 12 : 0) + (outside ? 60 : 0);
       if (score < bs) { bs = score; best = j; }
     }
     a.tgt = best;
@@ -95,21 +98,36 @@ export class BattleSim {
   warn(i, by) {
     const { f, rng } = this, t = f[i];
     if (t.dead || t.dodge > 0 || t.stun > 0 || t.wind > 0) return;
-    if (t.dodgeCd <= 0 && rng() < t.reflex) { t.react = 0.04 + rng() * 0.1; t.reactFrom = by; }
-    else if (rng() < t.poise) t.guard = 0.42;
+    const wantsRoll = t.dodgeCd <= 0 && rng() < t.reflex;
+    if (wantsRoll && this.safeRoll(t, f[by])) { t.react = 0.04 + rng() * 0.1; t.reactFrom = by; }
+    else if (wantsRoll || rng() < t.poise) t.guard = 0.42;   // nowhere safe to roll: stand and block
+  }
+
+  // Where a roll could go: to either side, or backwards, away from the attacker. Returns the
+  // direction that lands furthest inside the circle with room to spare, or null if none is safe.
+  safeRoll(a, by) {
+    const dx = a.x - by.x, dy = a.y - by.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+    const r = this.zone(), keep = r - ROLL_MARGIN, reach = ROLL_SPEED * DODGE_TIME;
+    let best = null, bestRoom = -Infinity;
+    for (const [vx, vy] of [[-uy * 0.9 + ux * 0.45, ux * 0.9 + uy * 0.45], [uy * 0.9 + ux * 0.45, -ux * 0.9 + uy * 0.45], [-uy * 0.5 + ux * 0.87, ux * 0.5 + uy * 0.87], [uy * 0.5 + ux * 0.87, -ux * 0.5 + uy * 0.87], [ux, uy]]) {
+      const lx = a.x + vx * reach, ly = a.y + vy * reach;
+      if (lx < 12 || lx > this.W - 12 || ly < 14 || ly > this.H - 10) continue;   // not into the wall either
+      const room = keep - Math.hypot(lx - this.zx, ly - this.zy);
+      if (room >= 0 && room > bestRoom) { bestRoom = room; best = [vx, vy]; }
+    }
+    return best;
   }
 
   startDodge(i) {
     const { f, rng } = this, a = f[i], by = f[a.reactFrom];
     a.react = -1;
     if (!by || by.dead) return;
-    const dx = a.x - by.x, dy = a.y - by.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
-    // Roll sideways and a little back, choosing the side that stays closer to the zone's centre.
-    const side = (x, y) => Math.hypot(a.x + x * 30 - this.zx, a.y + y * 30 - this.zy);
-    const s = side(-uy, ux) < side(uy, -ux) ? 1 : -1, mix = rng() < 0.2 ? -s : s;
-    const speed = 125 + rng() * 25;
-    a.vx = (-uy * mix * 0.9 + ux * 0.45) * speed;
-    a.vy = (ux * mix * 0.9 + uy * 0.45) * speed;
+    // Checked again now, because the circle and the attacker have both moved since the warning.
+    const dir = this.safeRoll(a, by);
+    if (!dir) { a.guard = 0.3; return; }
+    const speed = ROLL_SPEED * (0.92 + rng() * 0.08);
+    a.vx = dir[0] * speed;
+    a.vy = dir[1] * speed;
     a.dodge = DODGE_TIME;
     a.dodgeCd = 1.3 + rng() * 1.3;
     a.guard = 0;
@@ -205,7 +223,14 @@ export class BattleSim {
         } else { mx = ux + tx * 0.32; my = uy + ty * 0.32; pace = 1; }
         // Mind the zone and the walls.
         if (zd > r - 6) { mx = this.zx - a.x; my = this.zy - a.y; pace = 1.15; }
-        else if (zd > r - 22) { const zm = zd || 1; mx += (this.zx - a.x) / zm * 0.9; my += (this.zy - a.y) / zm * 0.9; }
+        else if (zd > r - EDGE_ZONE) {
+          // Near the edge: whatever the plan, take no step outward, and lean back in.
+          const zm = zd || 1, ox = (a.x - this.zx) / zm, oy = (a.y - this.zy) / zm, len = Math.hypot(mx, my) || 1;
+          const out = (mx * ox + my * oy) / len;
+          if (out > 0) { mx -= out * len * ox; my -= out * len * oy; }
+          const lean = 0.5 + 0.7 * (1 - (r - zd - 6) / (EDGE_ZONE - 6));
+          mx -= ox * lean * len; my -= oy * lean * len;
+        }
         if (a.x < 22) mx += 0.8; else if (a.x > this.W - 22) mx -= 0.8;
         if (a.y < 24) my += 0.8; else if (a.y > this.H - 20) my -= 0.8;
         const m = Math.hypot(mx, my) || 1;
