@@ -12,8 +12,11 @@ export const POSTS = [
     h1: 'Office Christmas raffle ideas people actually look forward to',
     date: '2026-11-07',
     updated: '2026-11-07',
-    image: '/media/blog/office-christmas-raffle.jpg',
-    imageAlt: 'A Christmas-themed horse race in SpinDraw: reindeer with antlers and Santa-capped riders racing on a snowy track, with a live leaderboard',
+    cover: '/media/blog/covers/office-christmas-raffle-ideas.jpg',
+    coverAlt: 'A flat illustration of an office Christmas raffle: a ticket drum full of coloured raffle tickets on a desk, with wrapped prizes, a small Christmas tree and string lights',
+    shot: '/media/blog/office-christmas-raffle.jpg',
+    shotAlt: 'A Christmas-themed horse race in SpinDraw: reindeer with antlers and Santa-capped riders racing on a snowy track, with a live leaderboard',
+    shotCaption: 'The Christmas theme turns the Horse Race into a reindeer race.',
     answer: 'A good office Christmas raffle is free to enter, has lots of small prizes plus one big one, and ends with a draw everyone can watch, in the room or on a video call. Below you’ll find prize ideas for every budget, five ways to run the draw, and how to keep it fair for people working from home.',
     body: `
 <h2>What makes an office Christmas raffle work?</h2>
@@ -82,8 +85,11 @@ export const POSTS = [
     h1: 'Secret Santa rules: a simple guide for work, family and friends',
     date: '2026-11-07',
     updated: '2026-11-07',
-    image: '/media/blog/secret-santa-rules.jpg',
-    imageAlt: 'A Christmas-themed pixel battle in SpinDraw: fighters in Santa hats, elf hats and antlers on a snowy arena with pine trees',
+    cover: '/media/blog/covers/secret-santa-rules.jpg',
+    coverAlt: 'A flat illustration of a Secret Santa gift exchange: hands passing wrapped presents around a Santa hat filled with folded name slips',
+    shot: '/media/blog/secret-santa-rules.jpg',
+    shotAlt: 'A Christmas-themed pixel battle in SpinDraw: fighters in Santa hats, elf hats and antlers on a snowy arena with pine trees',
+    shotCaption: 'With the Christmas theme on, Pixel Battle fighters wear Santa hats, elf hats and antlers.',
     answer: 'The core Secret Santa rules are: agree a spending limit, draw names so nobody gets themselves, set a date for the swap, share wishlists, keep your person secret until the reveal, and keep gifts suitable for everyone in the group. Agree these up front and the whole thing runs itself.',
     body: `
 <h2>What is Secret Santa?</h2>
@@ -137,8 +143,11 @@ export const POSTS = [
     h1: 'How to pick a random winner for a giveaway, and prove it was fair',
     date: '2026-11-07',
     updated: '2026-11-07',
-    image: '/media/blog/random-giveaway-winner.jpg',
-    imageAlt: 'The SpinDraw name picker wheel with eight names on coloured slices, ready to spin',
+    cover: '/media/blog/covers/how-to-pick-a-random-winner-for-a-giveaway.jpg',
+    coverAlt: 'A flat illustration of an online giveaway: a phone showing a prize wheel, comment bubbles, a wrapped prize and a shield with a check mark for a fair draw',
+    shot: '/media/blog/random-giveaway-winner.jpg',
+    shotAlt: 'The SpinDraw name picker wheel with eight names on coloured slices, ready to spin',
+    shotCaption: 'The SpinDraw wheel, ready to pick a giveaway winner.',
     answer: 'To pick a random giveaway winner, put every valid entry into one list, remove duplicates, lock the list, then draw the winner with a random tool your audience can watch. Give the winner a set time to claim, redraw if they don’t, and share proof of the draw so nobody can say it was rigged.',
     body: `
 <h2>Step by step: picking a giveaway winner</h2>
@@ -191,8 +200,11 @@ export const POSTS = [
     h1: 'Fun ways to pick a winner for raffles, classes and parties',
     date: '2026-11-07',
     updated: '2026-11-07',
-    image: '/media/blog/fun-ways-to-pick-a-winner.jpg',
-    imageAlt: 'Four ways to pick a winner in SpinDraw: a spinning name wheel, a ball race, a horse race and a pixel battle',
+    cover: '/media/blog/covers/fun-ways-to-pick-a-winner.jpg',
+    coverAlt: 'A flat illustration of ways to pick a winner: a prize wheel, marbles rolling down a ramp, a toy racehorse, a pixel knight, dice and a hat full of name slips',
+    shot: '/media/blog/fun-ways-to-pick-a-winner.jpg',
+    shotAlt: 'Four ways to pick a winner in SpinDraw: a spinning name wheel, a ball race, a horse race and a pixel battle',
+    shotCaption: 'Four ways to reveal the same fair draw in SpinDraw: the wheel, Ball Race, Horse Race and Pixel Battle.',
     answer: 'The most fun ways to pick a winner turn the draw into something people watch: a spinning wheel, a ball race, a horse race or a last-one-standing battle on screen, or classics like names in a hat and raffle tickets. Pick based on your group size, whether you have a screen, and whether people need proof the draw was fair.',
     body: `
 <h2>On-screen ways to pick a winner</h2>
@@ -255,8 +267,11 @@ export const POSTS = [
     h1: 'Baby shower raffle ideas, from the diaper raffle to the draw',
     date: '2026-11-07',
     updated: '2026-11-07',
-    image: '/media/blog/baby-shower-raffle.jpg',
-    imageAlt: 'A SpinDraw ball race in the pastel Easter theme, with egg-shaped balls labelled with guests’ names and LET’S ROLL on screen',
+    cover: '/media/blog/covers/baby-shower-raffle-ideas.jpg',
+    coverAlt: 'A flat illustration of a baby shower diaper raffle table: stacked diaper packs, a roll of raffle tickets, a bowl of tickets, balloons, a rattle and a gift',
+    shot: '/media/blog/baby-shower-raffle.jpg',
+    shotAlt: 'A SpinDraw ball race in the pastel Easter theme, with egg-shaped balls labelled with guests’ names and LET’S ROLL on screen',
+    shotCaption: 'With the Easter theme on, the Ball Race balls become pastel eggs, a good fit for a baby shower.',
     answer: 'The most popular baby shower raffle is the diaper raffle: guests who bring a pack of diapers get a raffle ticket, and a few names are drawn at the end for small prizes. It helps the parents-to-be stock up and gives guests a reason to stay for the draw.',
     body: `
 <h2>How does a diaper raffle work?</h2>

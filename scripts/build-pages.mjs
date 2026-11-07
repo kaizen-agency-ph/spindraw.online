@@ -784,7 +784,7 @@ const longDate = d => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { d
 const words = html => html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
 const postWords = p => words(p.answer + ' ' + p.body + ' ' + p.faq.flat().join(' '));
 const minutes = p => Math.max(1, Math.round(postWords(p) / 220));
-const postCard = p => `<a class="card post-card" href="/blog/${p.slug}/"><img src="${p.image}" alt="" width="1200" height="750" loading="lazy"><p class="post-card-meta"><time datetime="${p.date}">${longDate(p.date)}</time> · ${minutes(p)} min read</p><h3>${esc(p.h1)}</h3><p>${esc(p.description)}</p><span class="go">Read the post →</span></a>`;
+const postCard = p => `<a class="card post-card" href="/blog/${p.slug}/"><img src="${p.cover}" alt="" width="1200" height="750" loading="lazy"><p class="post-card-meta"><time datetime="${p.date}">${longDate(p.date)}</time> · ${minutes(p)} min read</p><h3>${esc(p.h1)}</h3><p>${esc(p.description)}</p><span class="go">Read the post →</span></a>`;
 const blogLatest = POSTS.map(p => p.updated).sort().at(-1);
 
 // ---------- home ----------
@@ -1210,7 +1210,7 @@ for (const p of POSTS) {
       '@type': 'BlogPosting',
       headline: p.h1,
       description: p.description,
-      image: [SITE + p.image],
+      image: [SITE + p.cover, SITE + p.shot],
       datePublished: p.date,
       dateModified: p.updated,
       author: person,
@@ -1230,7 +1230,7 @@ for (const p of POSTS) {
     },
     faqLd(p.faq),
   ];
-  write(`blog/${p.slug}/index.html`, `${head({ title: p.title, description: p.description, path, image: p.image, imageAlt: p.imageAlt, type: 'article', published: p.date, modified: p.updated, extra: schema.map(ld).join('\n  ') })}
+  write(`blog/${p.slug}/index.html`, `${head({ title: p.title, description: p.description, path, image: p.cover, imageAlt: p.coverAlt, type: 'article', published: p.date, modified: p.updated, extra: schema.map(ld).join('\n  ') })}
 <body>${header}
   <main class="page">
     <article class="post">
@@ -1240,9 +1240,10 @@ for (const p of POSTS) {
         <p class="post-meta">By <a href="${AUTHOR.url}" rel="author">${esc(AUTHOR.name)}</a> · <time datetime="${p.date}">${longDate(p.date)}</time>${p.updated !== p.date ? ` · Updated <time datetime="${p.updated}">${longDate(p.updated)}</time>` : ''} · ${minutes(p)} min read</p>
       </header>
       <div class="prose">
-        <figure class="post-figure"><img src="${p.image}" alt="${esc(p.imageAlt)}" width="1200" height="750" fetchpriority="high"></figure>
+        <figure class="post-figure"><img src="${p.cover}" alt="${esc(p.coverAlt)}" width="1200" height="750" fetchpriority="high"></figure>
         <aside class="answer" aria-label="Quick answer"><p class="answer-label">Quick answer</p><p>${esc(p.answer)}</p></aside>
         ${p.body}
+        <figure class="post-figure post-shot"><img src="${p.shot}" alt="${esc(p.shotAlt)}" width="1200" height="750" loading="lazy"><figcaption>${esc(p.shotCaption)}</figcaption></figure>
         <h2>Frequently asked questions</h2>
         ${faqHtml(p.faq)}
       </div>
