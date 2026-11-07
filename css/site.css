@@ -97,6 +97,24 @@ a.card .go { display: inline-block; margin-top: 12px; font-size: .9rem; font-wei
 ol.steps-row { padding: 0; margin: 0; }
 
 .prose { max-width: 720px; }
+.post-head { max-width: 760px; }
+.post-meta { margin-top: 14px !important; font-size: .9rem !important; }
+.post-meta a { color: inherit; font-weight: 600; }
+.post-figure { margin: 8px 0 28px; }
+.post-figure img { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); }
+.answer { margin: 0 0 8px; padding: 18px 20px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--line); }
+.answer-label { margin: 0 0 6px !important; font: 600 .78rem var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--accent-text) !important; }
+.answer p:last-child { margin: 0; color: var(--text); }
+.prose a { color: var(--accent-text); }
+.prose .table-scroll { margin: 16px 0; }
+.post-card { display: flex; flex-direction: column; padding: 12px 12px 18px; }
+.post-card img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 8px; background: #0d0e12; }
+.post-card h3, .post-card p, .post-card .go { margin-left: 8px; margin-right: 8px; }
+.card p.post-card-meta { margin-top: 12px; font: 500 .78rem var(--mono); }
+.post-card .go { margin-top: auto; padding-top: 12px; }
+.more-link { margin: 18px 0 0; font-weight: 500; }
+.more-link a { color: var(--accent-text); text-decoration: none; }
+.more-link a:hover { text-decoration: underline; }
 .prose p, .prose li { color: var(--muted); font-size: 1.02rem; }
 .prose h2 { font-size: 1.5rem; letter-spacing: -.03em; margin: 40px 0 12px; color: var(--text); }
 .prose h3 { font-size: 1.1rem; margin: 28px 0 8px; }

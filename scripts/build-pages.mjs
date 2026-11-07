@@ -3,6 +3,7 @@
 // GitHub Pages has no build step, so the generated files are committed.
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { jsVersions, importMapTag, stampScripts } from './js-versions.mjs';
+import { POSTS, AUTHOR } from './blog-posts.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -343,7 +344,7 @@ const GUIDES = [
 <p>Space spins, C marks the winner as claimed, R logs a no-show and redraws, O opens a preview window. You never need to look away from your stream to run it.</p>`,
     faq: [
       ['Is the overlay background transparent?', 'Yes, by default. You can also choose a green screen, a dark background or upload your own background image.'],
-      ['Do ads show on the overlay?', 'No. The overlay page never shows ads. Ads only appear on the control panel and the website.'],
+      ['Do ads show on the overlay?', 'No. The overlay page never shows ads.'],
       ['Does it work with Twitch, YouTube and Kick?', 'Yes. The overlay is just a browser source, so it works with any platform you stream to from OBS or Streamlabs.'],
       ['Can I play sounds through OBS?', 'Yes. The overlay plays the tick and win sounds, so they’re captured with the browser source. You can turn them off in the Stream tab.'],
     ],
@@ -398,7 +399,7 @@ const GUIDES = [
 <h2>Is it really random?</h2>
 <p>Each pick comes from a cryptographic HMAC-SHA256 of a 256-bit random seed, never from <code>Math.random()</code>. You can also lock the list first and share a verify page afterwards, so anyone can check that the result followed from the locked list.</p>`,
     faq: [
-      ['Is the random name picker free?', 'Yes. It’s free and needs no account. The site is supported by ads, which never appear on the stream overlay.'],
+      ['Is the random name picker free?', 'Yes. It’s free and needs no account. If the website ever shows ads, they’ll never appear on the wheel or the stream overlay.'],
       ['Are my names uploaded anywhere?', 'No. Names are stored only in your browser. They’re shared only if you choose to share a verify link or proof file.'],
       ['Can I change the wheel colors?', 'Yes. In the Style tab you can choose a preset or your own colors, add a logo to the center and an image to the wheel.'],
     ],
@@ -540,7 +541,7 @@ const GUIDES = [
   },
 ];
 
-function head({ title, description, path, extra = '', noindex = false }) {
+function head({ title, description, path, extra = '', noindex = false, image = null, imageAlt = '', type = 'website', published = null, modified = null }) {
   const url = SITE + path;
   return `<!doctype html>
 <html lang="en">
@@ -561,15 +562,17 @@ function head({ title, description, path, extra = '', noindex = false }) {
   <meta name="description" content="${esc(description)}">
   <link rel="canonical" href="${url}">
   ${noindex ? '<meta name="robots" content="noindex">' : ''}
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="${type}">
   <meta property="og:site_name" content="SpinDraw">
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${url}">
-  <meta property="og:image" content="${SITE}/og-image.png">
+  <meta property="og:image" content="${image ? SITE + image : SITE + '/og-image.png'}">
   <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="SpinDraw raffle wheel: spin the wheel, prove it was fair">
+  <meta property="og:image:height" content="${image ? 750 : 630}">
+  <meta property="og:image:alt" content="${esc(image ? imageAlt : 'SpinDraw raffle wheel: spin the wheel, prove it was fair')}">
+  ${published ? `<meta property="article:published_time" content="${published}">
+  <meta property="article:modified_time" content="${modified ?? published}">` : ''}
   <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#ffd23f">
@@ -577,6 +580,7 @@ function head({ title, description, path, extra = '', noindex = false }) {
   <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
   <link rel="manifest" href="/site.webmanifest?v=2">
+  <link rel="alternate" type="application/rss+xml" title="SpinDraw blog" href="${SITE}/blog/feed.xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -593,6 +597,7 @@ const header = `
       <a class="link" href="/#features">Features</a>
       <a class="link" href="/#how">How it works</a>
       <a class="link" href="/#use-cases">Use cases</a>
+      <a class="link" href="/blog/">Blog</a>
       <a class="link" href="/#faq">FAQ</a>
       <details class="mnav">
         <summary aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
@@ -600,6 +605,7 @@ const header = `
           <a href="/#features">Features</a>
           <a href="/#how">How it works</a>
           <a href="/#use-cases">Use cases</a>
+          <a href="/blog/">Blog</a>
           <a href="/#faq">FAQ</a>
         </div>
       </details>
@@ -624,6 +630,7 @@ const footer = `
       <h4>Product</h4>
       <ul>
         <li><a href="/app.html">Name picker app</a></li>
+        <li><a href="/blog/">Blog and resources</a></li>
         <li><a href="/verify.html">Verify a draw</a></li>
         <li><a href="/patch-notes/">Patch notes</a></li>
         <li><a href="/about/">About</a></li>
@@ -771,9 +778,18 @@ const patchDate = d => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { 
 const patchLatest = PATCHES.flatMap(m => m.log.map(e => e.date)).sort().at(-1);
 const patchNotes = notes => `<ul class="patch-notes">${notes.map(([tag, text]) => `<li><span class="patch-tag ${tag}">${PATCH_LABEL[tag]}</span><span>${esc(text)}</span></li>`).join('')}</ul>`;
 
+
+// ---------- blog ----------
+const longDate = d => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const words = html => html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+const postWords = p => words(p.answer + ' ' + p.body + ' ' + p.faq.flat().join(' '));
+const minutes = p => Math.max(1, Math.round(postWords(p) / 220));
+const postCard = p => `<a class="card post-card" href="/blog/${p.slug}/"><img src="${p.image}" alt="" width="1200" height="750" loading="lazy"><p class="post-card-meta"><time datetime="${p.date}">${longDate(p.date)}</time> · ${minutes(p)} min read</p><h3>${esc(p.h1)}</h3><p>${esc(p.description)}</p><span class="go">Read the post →</span></a>`;
+const blogLatest = POSTS.map(p => p.updated).sort().at(-1);
+
 // ---------- home ----------
 const HOME_FAQ = [
-  ['Is SpinDraw free?', 'Yes. SpinDraw is free with no sign-up. Ads on the website pay for it, and they never appear on the wheel people watch.'],
+  ['Is SpinDraw free?', 'Yes. SpinDraw is free with no sign-up. Tips help keep it running, and if the website ever shows ads, they’ll never appear on the wheel or the games people watch.'],
   ['Can I use it for an office raffle or a family draw?', 'Yes. Paste the names, put the wheel on a big screen or share your screen in a video call, and spin. Afterwards, send the verify link so anyone can check the result, even people who weren’t there.'],
   ['Who decides the winner in the Ball Race, Horse Race and Pixel Battle?', 'The same locked draw as the wheel. Each game is a real simulation with nothing steered, and the drawn names go on whoever comes out on top. Each person’s chance is exactly their share of the entries, and the verify link works the same way.'],
   ['Is there a random name picker game?', 'Yes. SpinDraw has three: a Ball Race (a marble race with names), a Horse Race and a Pixel Battle. Paste up to 100 names and everyone can watch who’s winning as it happens. They’re free, with no sign-up.'],
@@ -896,6 +912,18 @@ const homeBody = `
         <li><h3>Spin</h3><p>Press Space. Show it on a big screen, a video call or your stream.</p></li>
         <li><h3>Share the proof</h3><p>Send the verify link so anyone can replay the draw.</p></li>
       </ol>
+    </section>
+
+    <section class="section" id="blog">
+      <div class="section-head">
+        <div class="kicker">From the blog</div>
+        <h2>Raffle ideas and giveaway tips</h2>
+        <p>Practical ideas for office parties, giveaways, gift exchanges and fair draws.</p>
+      </div>
+      <div class="grid">
+        ${POSTS.slice(0, 3).map(postCard).join('\n        ')}
+      </div>
+      <p class="more-link"><a href="/blog/">See all posts and resources →</a></p>
     </section>
 
     <section class="section">
@@ -1172,6 +1200,135 @@ write('draw-expired/index.html', `${head({
 </html>
 `);
 
+
+for (const p of POSTS) {
+  const path = `/blog/${p.slug}/`, others = POSTS.filter(o => o !== p).slice(0, 3);
+  const person = { '@type': 'Person', name: AUTHOR.name, url: SITE + AUTHOR.url };
+  const schema = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: p.h1,
+      description: p.description,
+      image: [SITE + p.image],
+      datePublished: p.date,
+      dateModified: p.updated,
+      author: person,
+      publisher: { '@type': 'Organization', name: 'SpinDraw', url: SITE + '/', logo: { '@type': 'ImageObject', url: SITE + '/icon-512.png' } },
+      mainEntityOfPage: SITE + path,
+      wordCount: postWords(p),
+      inLanguage: 'en',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'SpinDraw', item: SITE + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: SITE + '/blog/' },
+        { '@type': 'ListItem', position: 3, name: p.h1, item: SITE + path },
+      ],
+    },
+    faqLd(p.faq),
+  ];
+  write(`blog/${p.slug}/index.html`, `${head({ title: p.title, description: p.description, path, image: p.image, imageAlt: p.imageAlt, type: 'article', published: p.date, modified: p.updated, extra: schema.map(ld).join('\n  ') })}
+<body>${header}
+  <main class="page">
+    <article class="post">
+      <header class="page-hero post-head">
+        <div class="crumbs"><a href="/">SpinDraw</a> / <a href="/blog/">Blog</a></div>
+        <h1>${esc(p.h1)}</h1>
+        <p class="post-meta">By <a href="${AUTHOR.url}" rel="author">${esc(AUTHOR.name)}</a> · <time datetime="${p.date}">${longDate(p.date)}</time>${p.updated !== p.date ? ` · Updated <time datetime="${p.updated}">${longDate(p.updated)}</time>` : ''} · ${minutes(p)} min read</p>
+      </header>
+      <div class="prose">
+        <figure class="post-figure"><img src="${p.image}" alt="${esc(p.imageAlt)}" width="1200" height="750" fetchpriority="high"></figure>
+        <aside class="answer" aria-label="Quick answer"><p class="answer-label">Quick answer</p><p>${esc(p.answer)}</p></aside>
+        ${p.body}
+        <h2>Frequently asked questions</h2>
+        ${faqHtml(p.faq)}
+      </div>
+    </article>
+    <div class="cta-band">
+      <div><h2>${esc(p.cta.heading)}</h2><p>${esc(p.cta.text)}</p></div>
+      <div class="about-links">
+        <a class="btn big" href="${p.cta.secondary.href}">${esc(p.cta.secondary.label)}</a>
+        <a class="btn primary big" href="${p.cta.primary.href}">${esc(p.cta.primary.label)}</a>
+      </div>
+    </div>
+    <section class="section">
+      <div class="section-head"><h2>Keep reading</h2></div>
+      <div class="grid">${others.map(postCard).join('')}</div>
+      <p class="more-link"><a href="/blog/">All posts and resources →</a></p>
+    </section>
+  </main>${footer}
+</body>
+</html>
+`);
+}
+
+write('blog/index.html', `${head({
+  title: 'SpinDraw Blog: Raffle Ideas, Giveaway Tips and Fair Draws',
+  description: 'Raffle ideas, giveaway tips and guides to fair draws, from office Christmas raffles to Secret Santa, baby showers and picking a random winner.',
+  path: '/blog/',
+  extra: [
+    ld({ '@context': 'https://schema.org', '@type': 'Blog', name: 'SpinDraw blog', url: SITE + '/blog/', blogPost: POSTS.map(p => ({ '@type': 'BlogPosting', headline: p.h1, url: `${SITE}/blog/${p.slug}/`, datePublished: p.date, dateModified: p.updated, author: { '@type': 'Person', name: AUTHOR.name, url: SITE + AUTHOR.url } })) }),
+    ld({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'SpinDraw', item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: 'Blog', item: SITE + '/blog/' }] }),
+  ].join('\n  '),
+})}
+<body>${header}
+  <main class="page">
+    <section class="page-hero">
+      <div class="crumbs"><a href="/">SpinDraw</a> / Blog</div>
+      <h1>Blog and resources</h1>
+      <p>Ideas and how-tos for raffles, giveaways, gift exchanges and fair draws, plus step-by-step guides for every way to use SpinDraw.</p>
+      <p class="small"><a href="/blog/feed.xml">Follow by RSS</a></p>
+    </section>
+    <section class="section">
+      <div class="section-head"><div class="kicker">Latest posts</div><h2>From the blog</h2></div>
+      <div class="grid">${POSTS.map(postCard).join('')}</div>
+    </section>
+    <section class="section">
+      <div class="section-head"><div class="kicker">Resources</div><h2>Step-by-step guides</h2><p>How to run every kind of draw with SpinDraw.</p></div>
+      <div class="grid">${GUIDES.map(g => `<a class="card" href="/${g.slug}/"><h3>${esc(g.nav)}</h3><p>${esc(g.description)}</p><span class="go">Read the guide →</span></a>`).join('')}</div>
+    </section>
+    <section class="section">
+      <div class="section-head"><div class="kicker">Updates</div><h2>What’s new</h2></div>
+      <div class="grid">
+        <a class="card" href="/patch-notes/"><h3>Patch notes</h3><p>Every update to the wheel, Ball Race, Horse Race and Pixel Battle, newest first.</p><span class="go">See what’s new →</span></a>
+        <a class="card" href="/verify.html"><h3>Verify a draw</h3><p>Check a draw from its verify link or proof file, right in your browser.</p><span class="go">Open the verify page →</span></a>
+        <a class="card" href="/about/"><h3>About SpinDraw</h3><p>Who makes SpinDraw, and why every draw can be checked.</p><span class="go">Meet the maker →</span></a>
+      </div>
+    </section>
+    <div class="cta-band">
+      <div><h2>Ready for your next draw?</h2><p>Spin the wheel, or race balls or horses. Free, with no sign-up.</p></div>
+      <a class="btn primary big" href="/app.html">Start a draw</a>
+    </div>
+  </main>${footer}
+</body>
+</html>
+`);
+
+const rssDate = d => new Date(`${d}T00:00:00Z`).toUTCString();
+const xml = s => esc(s).replace(/'/g, '&apos;');
+write('blog/feed.xml', `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SpinDraw blog</title>
+    <link>${SITE}/blog/</link>
+    <atom:link href="${SITE}/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Raffle ideas, giveaway tips and guides to fair draws.</description>
+    <language>en</language>
+    <lastBuildDate>${rssDate(blogLatest)}</lastBuildDate>
+${POSTS.map(p => `    <item>
+      <title>${xml(p.h1)}</title>
+      <link>${SITE}/blog/${p.slug}/</link>
+      <guid isPermaLink="true">${SITE}/blog/${p.slug}/</guid>
+      <pubDate>${rssDate(p.date)}</pubDate>
+      <description>${xml(p.description)}</description>
+    </item>`).join('\n')}
+  </channel>
+</rss>
+`);
+
 write('404.html', `${head({ title: 'Page not found | SpinDraw', description: 'This page doesn’t exist. Open the raffle wheel or read a guide.', path: '/404.html', noindex: true })}
 <body>${header}
   <main class="page">
@@ -1189,17 +1346,20 @@ write('404.html', `${head({ title: 'Page not found | SpinDraw', description: 'Th
 </html>
 `);
 
+// lastmod only where we know the real date: a build date on every page would be meaningless.
 const urls = [
   ['/', '1.0'],
   ['/app.html', '0.9'],
-  ...GUIDES.map(g => [`/${g.slug}/`, '0.8']),
-  ['/patch-notes/', '0.5'],
+  ['/blog/', '0.7', blogLatest],
+  ...POSTS.map(p => [`/blog/${p.slug}/`, '0.7', p.updated]),
+  ...GUIDES.map(g => [`/${g.slug}/`, '0.8', g.updated]),
+  ['/patch-notes/', '0.5', patchLatest],
   ['/about/', '0.5'],
   ['/privacy.html', '0.2'],
 ];
 write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(([u, p]) => `  <url><loc>${SITE}${u}</loc><lastmod>${TODAY}</lastmod><priority>${p}</priority></url>`).join('\n')}
+${urls.map(([u, p, d]) => `  <url><loc>${SITE}${u}</loc>${d ? `<lastmod>${d}</lastmod>` : ''}<priority>${p}</priority></url>`).join('\n')}
 </urlset>
 `);
 write('robots.txt', `User-agent: *
@@ -1212,4 +1372,4 @@ for (const page of ['app.html', 'overlay.html', 'verify.html', 'privacy.html']) 
   const file = join(ROOT, page);
   writeFileSync(file, stampScripts(readFileSync(file, 'utf8'), VERSIONS));
 }
-console.log(`built index + ${GUIDES.length} guides + sitemap (${urls.length} urls)`);
+console.log(`built index + ${GUIDES.length} guides + ${POSTS.length} posts + feed + sitemap (${urls.length} urls)`);

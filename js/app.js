@@ -42,6 +42,14 @@ function load() {
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
 
 const S = load();
+// Links from the blog can open a game and a theme, like /app.html?mode=horse&theme=christmas.
+// Only known values are accepted, and the address is tidied so a reload keeps the user's own choice.
+{
+  const q = new URLSearchParams(location.search), m = q.get('mode'), t = q.get('theme');
+  if (['wheel', 'race', 'horse', 'battle'].includes(m)) S.mode = m;
+  if (SEASON_IDS.includes(t)) S.theme = { ...S.theme, season: t };
+  if (q.has('mode') || q.has('theme')) { save(); history.replaceState(null, '', location.pathname + location.hash); }
+}
 let spinning = false;
 const overlays = new Map(); // overlay id → last seen
 
