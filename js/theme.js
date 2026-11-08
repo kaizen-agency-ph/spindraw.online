@@ -38,3 +38,6 @@ document.addEventListener('click', e => {
   const a = e.target.closest('[data-kofi]');
   if (a && typeof window.gtag === 'function') window.gtag('event', 'kofi_click', { link_location: a.dataset.kofi });
 });
+
+// The lower-left "Got an idea?" suggestion widget (not on the overlay, which doesn't load this file).
+import('./feedback.js').then(m => m.mountFeedback()).catch(() => {});

@@ -261,3 +261,27 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
 .winners-set input { width: 84px; text-align: center; font-weight: 600; }
 .winners-hint { text-align: center; margin: -6px 0 0; }
 .wc-more { margin-top: 8px; font-size: .9rem; font-weight: 500; overflow-wrap: anywhere; }
+
+/* Suggestion widget: a small pill in the lower-left corner, closable for 30 days. */
+.fb { position: fixed; left: 16px; bottom: 16px; z-index: 40; display: flex; align-items: flex-end; gap: 4px; font-family: var(--font); }
+.fb-pill { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px 0 12px; border-radius: 99px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font: 500 .85rem var(--font); box-shadow: var(--shadow); cursor: pointer; opacity: .92; }
+.fb-pill:hover, .fb.open .fb-pill { opacity: 1; border-color: var(--line-strong); }
+.fb-pill svg { width: 16px; height: 16px; color: var(--accent-text); }
+.fb-close { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font-size: 15px; line-height: 1; cursor: pointer; box-shadow: var(--shadow); margin-bottom: 6px; }
+.fb-close:hover { color: var(--text); }
+.fb-card { position: absolute; left: 0; bottom: 46px; width: min(300px, calc(100vw - 32px)); padding: 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); box-shadow: 0 16px 40px -12px rgba(0, 0, 0, .35); }
+.fb-card[hidden] { display: none; }
+.fb-title { margin: 0 0 6px; font-weight: 600; }
+.fb-text { margin: 0 0 12px; font-size: .88rem; color: var(--muted); }
+.fb-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fb-actions .btn { font-size: .85rem; padding: 7px 12px; }
+.fb-pill:focus-visible, .fb-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* On phones it becomes a slim tab on the left edge, so it never sits on top of the main buttons. */
+@media (max-width: 600px) {
+  .fb { left: 0; bottom: 34%; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .fb-pill span { display: none; }
+  .fb-pill { width: 34px; height: 40px; padding: 0 0 0 4px; justify-content: center; border-radius: 0 10px 10px 0; border-left: 0; }
+  .fb-close { order: -1; width: 22px; height: 22px; font-size: 13px; margin: 0 0 0 6px; }
+  .fb-card { left: 8px; bottom: 0; }
+}
+@media print { .fb { display: none; } }
