@@ -4,63 +4,145 @@ import { makeRng, LENGTHS } from './rng.js';
 
 export const WORLD_W = 1000;
 const DT = 1 / 120, GRAVITY = 1000, MAX_SPEED = 1300, BAND = 400;
-const AVG_DESCENT = 240;                 // px/s the leaders average; sets course length
+// How fast the leaders get through each kind of section, measured in px/s. Sections differ a
+// lot (ramps are slow, open spinner fields are fast), so the course is built to a time budget,
+// not a height, which keeps every random course close to the chosen game length.
+const PACE = {
+  pegs: { grid: 273, diamond: 255, plinko: 478 },
+  spinners: { pair: 781, trio: 605, quad: 513, giant: 401 },
+  ramps: 82, sliders: 312, splitter: 412, pads: 337,
+  bumpers: { rows: 400, triangle: 553, scatter: 474 },
+  windmills: { 2: 530, 3: 332 },
+};
+const paceOf = (kind, variant) => { const p = PACE[kind]; return typeof p === 'number' ? p : p[variant] ?? p[String(variant)[0]]; };
+const PACE_SCALE = 1.2;                 // tuned so median finishes match the length settings
+
+// Every draw builds its own course from its seed: the sections come in a shuffled order and
+// each one picks its own layout, size and speed, sometimes mirrored. All gaps stay wider than
+// the biggest ball (radius 20), so nothing can trap the field.
+export const SECTION_KINDS = ['pegs', 'spinners', 'ramps', 'bumpers', 'sliders', 'splitter', 'windmills', 'pads'];
+export const COURSE_PALETTES = 4;
 
 function buildCourse(rng, target, n) {
-  const statics = [], movers = [];
-  const seg = (ax, ay, bx, by, t = 7, e = 0.5) => statics.push({ k: 's', ax, ay, bx, by, t, e });
-  const circ = (x, y, r, e = 0.6, kind = 'peg') => statics.push({ k: 'c', x, y, r, e, kind });
+  const statics = [], movers = [], sections = [];
+  const pick = list => list[Math.floor(rng() * list.length)];
+  const between = (a, b) => a + rng() * (b - a);
+  let flip = false;
+  const X = x => (flip ? WORLD_W - x : x);
+  const seg = (ax, ay, bx, by, t = 7, e = 0.5, kind) => statics.push({ k: 's', ax: X(ax), ay, bx: X(bx), by, t, e, kind });
+  const circ = (x, y, r, e = 0.6, kind = 'peg') => statics.push({ k: 'c', x: X(x), y, r, e, kind });
+  const rot = (cx, cy, len, w, t = 8) => movers.push({ k: 'rot', cx: X(cx), cy, len, w: flip ? -w : w, a0: rng() * 6.28, t, e: 0.55 });
 
-  const pegs = y => {
-    const rows = 5 + Math.floor(rng() * 3);
-    for (let r = 0; r < rows; r++) for (let x = r % 2 ? 110 : 60; x < WORLD_W; x += 100) circ(x, y + 80 + r * 100, 10);
-    return y + 120 + rows * 100;
-  };
-  const spinners = y => {
-    const dir = rng() < 0.5 ? 1 : -1;
-    [[260, 200, 1], [740, 200, -1], [500, 520, 1]].forEach(([cx, dy, s]) => movers.push({ k: 'rot', cx, cy: y + dy, len: 170, w: dir * s * (1.5 + rng() * 0.8), a0: rng() * 6.28, t: 8, e: 0.55 }));
-    return y + 760;
-  };
-  const sliders = y => {
-    for (let i = 0; i < 3; i++) {
-      const dy = 130 + i * 190, tilt = i % 2 ? 26 : -26;
-      movers.push({ k: 'slide', cx: 500, cy: y + dy, half: 230, tilt, amp: 270, w: 0.9 + rng() * 0.6, a0: rng() * 6.28, t: 8, e: 0.45 });
-    }
-    return y + 720;
-  };
-  const bumpers = y => {
-    const rows = 3;
-    for (let r = 0; r < rows; r++) for (let c = 0; c < 3 + (r % 2); c++) {
-      const x = (r % 2 ? 125 : 250) + c * 250;
-      circ(x, y + 120 + r * 210, 44, 1.15, 'bumper');
-    }
-    return y + 120 + rows * 210;
-  };
-  const ramps = y => {
-    for (let i = 0; i < 4; i++) {
-      const dy = 100 + i * 190;
-      if (i % 2) seg(WORLD_W, y + dy, 260, y + dy + 110); else seg(0, y + dy, WORLD_W - 260, y + dy + 110);
-    }
-    return y + 960;
+  const SECTIONS = {
+    pegs(y) {
+      const variant = pick(['grid', 'diamond', 'plinko']), gap = Math.round(between(92, 118)), r = Math.round(between(8, 12));
+      if (variant === 'plinko') {
+        const rows = 6 + Math.floor(rng() * 2);
+        for (let row = 0; row < rows; row++) {
+          const count = row + 3, w = (count - 1) * gap;
+          for (let c = 0; c < count; c++) { const x = 500 - w / 2 + c * gap; if (x > 30 && x < WORLD_W - 30) circ(x, y + 80 + row * gap, r); }
+        }
+        return [variant, y + 120 + rows * gap];
+      }
+      const rows = 5 + Math.floor(rng() * 3);
+      for (let row = 0; row < rows; row++) {
+        const off = variant === 'diamond' ? (row % 2 ? gap / 2 : 0) + ((row >> 1) % 2 ? gap / 4 : 0) : row % 2 ? gap / 2 : 0;
+        for (let x = 50 + off; x < WORLD_W - 30; x += gap) if (variant !== 'diamond' || rng() > 0.12) circ(x, y + 80 + row * gap, r);
+      }
+      return [variant, y + 120 + rows * gap];
+    },
+    spinners(y) {
+      const variant = pick(['pair', 'trio', 'quad', 'giant']), dir = rng() < 0.5 ? 1 : -1, sp = () => dir * (1.4 + rng() * 0.9);
+      if (variant === 'pair') { rot(300, y + 200, 160, sp()); rot(700, y + 420, 160, -sp()); return [variant, y + 640]; }
+      if (variant === 'quad') { for (const [cx, dy, k] of [[260, 180, 1], [740, 180, -1], [260, 500, -1], [740, 500, 1]]) rot(cx, y + dy, 140, k * sp()); return [variant, y + 720]; }
+      if (variant === 'giant') { rot(500, y + 260, 250, sp(), 9); return [variant, y + 560]; }
+      for (const [cx, dy, k] of [[260, 200, 1], [740, 200, -1], [500, 520, 1]]) rot(cx, y + dy, 150 + rng() * 30, k * sp());
+      return [variant, y + 760];
+    },
+    ramps(y) {
+      const count = 3 + Math.floor(rng() * 3), open = Math.round(between(210, 300)), drop = Math.round(between(90, 140)), step = drop + 80;
+      for (let i = 0; i < count; i++) {
+        const dy = 100 + i * step;
+        if (i % 2) seg(WORLD_W, y + dy, open, y + dy + drop); else seg(0, y + dy, WORLD_W - open, y + dy + drop);
+      }
+      return [`${count} ramps`, y + 100 + count * step + 60];
+    },
+    bumpers(y) {
+      const variant = pick(['rows', 'triangle', 'scatter']), r = Math.round(between(36, 48));
+      if (variant === 'triangle') {
+        for (let row = 0; row < 3; row++) for (let c = 0; c <= row; c++) circ(500 + (c - row / 2) * 230, y + 120 + row * 200, r, 1.15, 'bumper');
+        return [variant, y + 560];
+      }
+      if (variant === 'scatter') {
+        const spots = [];
+        for (let tries = 0; spots.length < 7 && tries < 200; tries++) {
+          const x = between(110, WORLD_W - 110), dy = between(110, 560);
+          if (spots.every(([sx, sy]) => Math.hypot(sx - x, sy - dy) > r * 2 + 110)) spots.push([x, dy]);
+        }
+        for (const [x, dy] of spots) circ(x, y + dy, r, 1.15, 'bumper');
+        return [variant, y + 680];
+      }
+      for (let row = 0; row < 3; row++) for (let c = 0; c < 3 + (row % 2); c++) circ((row % 2 ? 125 : 250) + c * 250, y + 120 + row * 210, r, 1.15, 'bumper');
+      return [variant, y + 750];
+    },
+    sliders(y) {
+      const count = 2 + Math.floor(rng() * 3), tilt = Math.round(between(12, 32));
+      for (let i = 0; i < count; i++) {
+        movers.push({ k: 'slide', cx: 500, cy: y + 130 + i * 190, half: Math.round(between(170, 240)), tilt: i % 2 ? tilt : -tilt, amp: Math.round(between(200, 280)), w: 0.9 + rng() * 0.6, a0: rng() * 6.28, t: 8, e: 0.45 });
+      }
+      return [`${count} gates`, y + 130 + count * 190 + 20];
+    },
+    // A wedge splits the pack into two chutes, which open out again underneath.
+    splitter(y) {
+      const open = Math.round(between(115, 160)), side = 200, depth = 200;
+      seg(0, y + 60, side, y + 60 + depth);
+      seg(WORLD_W, y + 60, WORLD_W - side, y + 60 + depth);
+      seg(500, y + 40, side + open, y + 60 + depth);
+      seg(500, y + 40, WORLD_W - side - open, y + 60 + depth);
+      return ['wedge', y + 60 + depth + 160];
+    },
+    windmills(y) {
+      const rows = 2 + Math.floor(rng() * 2), cols = 3 + Math.floor(rng() * 2), len = Math.round(between(58, 78)), colW = WORLD_W / cols;
+      for (let row = 0; row < rows; row++) for (let c = 0; c < cols; c++) rot(colW * (c + 0.5) + (row % 2 ? colW / 4 : -colW / 4), y + 140 + row * 220, len, (rng() < 0.5 ? 1 : -1) * (1.8 + rng() * 1.4), 7);
+      return [`${rows}x${cols}`, y + 140 + rows * 220];
+    },
+    // Short springy pads that kick balls sideways.
+    pads(y) {
+      const rows = 3 + Math.floor(rng() * 2), len = 120;
+      for (let row = 0; row < rows; row++) for (let c = 0; c < 3; c++) {
+        const cx = (row % 2 ? 330 : 170) + c * 330, a = (c + row) % 2 ? 0.42 : -0.42;
+        if (cx > WORLD_W - 60) continue;
+        seg(cx - Math.cos(a) * len / 2, y + 120 + row * 190 - Math.sin(a) * len / 2, cx + Math.cos(a) * len / 2, y + 120 + row * 190 + Math.sin(a) * len / 2, 9, 1.1, 'pad');
+      }
+      return [`${rows} rows`, y + 120 + rows * 190 + 40];
+    },
   };
 
-  // Entry funnel (mixes the pack), then shuffled sections, then the final chute.
+  // Entry funnel (mixes the pack). Its opening and angle vary.
+  const lip = Math.round(between(310, 380)), fall = Math.round(between(170, 240));
   let y = 620;
-  seg(0, y - 200, 340, y); seg(WORLD_W, y - 200, WORLD_W - 340, y);
+  seg(0, y - fall, lip, y); seg(WORLD_W, y - fall, WORLD_W - lip, y);
   y += 60;
   // Big packs split up and produce fast leaders, so small fields get a shorter course.
-  const height = Math.max(2400, target * AVG_DESCENT * (n <= 5 ? 0.68 : n <= 12 ? 0.76 : n <= 40 ? 0.9 : 1));
-  const kinds = [pegs, spinners, ramps, bumpers, sliders];
-  let bag = [];
-  while (y < height) {
-    if (!bag.length) { bag = kinds.slice(); for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; } }
-    y = bag.pop()(y) + 40;
+  const budget = target * PACE_SCALE * (n <= 5 ? 0.62 : n <= 12 ? 0.76 : n <= 40 ? 0.9 : 1);
+  let bag = [], spent = 0;
+  while (spent < budget || sections.length < 3) {
+    if (!bag.length) { bag = SECTION_KINDS.slice(); for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; } }
+    const kind = bag.pop();
+    flip = rng() < 0.5;
+    const [variant, next] = SECTIONS[kind](y);
+    sections.push({ kind, variant, flip, y });
+    spent += (next + 40 - y) / paceOf(kind, variant);
+    flip = false;
+    y = next + 40;
   }
+  const chuteL = Math.round(between(345, 395) / 20) * 20, chuteR = WORLD_W - chuteL;
   const chuteTop = y + 60, chuteEnd = chuteTop + 340;
-  seg(0, chuteTop, 370, chuteEnd); seg(WORLD_W, chuteTop, WORLD_W - 370, chuteEnd);
+  seg(0, chuteTop, chuteL, chuteEnd); seg(WORLD_W, chuteTop, chuteR, chuteEnd);
   const finishY = chuteEnd + 220, floorY = finishY + 900;   // deep enough that a pile never reaches the line
-  seg(370, chuteEnd, 370, floorY); seg(WORLD_W - 370, chuteEnd, WORLD_W - 370, floorY);
-  seg(370, floorY, WORLD_W - 370, floorY, 8, 0.2);
+  seg(chuteL, chuteEnd, chuteL, floorY); seg(chuteR, chuteEnd, chuteR, floorY);
+  seg(chuteL, floorY, chuteR, floorY, 8, 0.2);
+  const palette = Math.floor(rng() * COURSE_PALETTES);
 
   // Bucket statics and movers into vertical bands so each ball checks only what's near it.
   const bands = new Map();
@@ -68,7 +150,7 @@ function buildCourse(rng, target, n) {
   const margin = 40;
   for (const o of statics) o.k === 's' ? add(o, Math.min(o.ay, o.by) - margin, Math.max(o.ay, o.by) + margin) : add(o, o.y - o.r - margin, o.y + o.r + margin);
   for (const m of movers) { const ext = m.k === 'rot' ? m.len : Math.abs(m.tilt); add(m, m.cy - ext - margin, m.cy + ext + margin); }
-  return { statics, movers, bands, finishY, floorY, height: floorY + 40 };
+  return { statics, movers, bands, finishY, floorY, height: floorY + 40, sections, chuteL, chuteR, palette };
 }
 
 export class RaceSim {

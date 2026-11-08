@@ -5,7 +5,7 @@ import { jsVersions, importMapTag } from '../scripts/js-versions.mjs';
 import * as fair from '../js/fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl } from '../js/intake.js';
 import { makeRng, assignSlots } from '../js/games/rng.js';
-import { RaceSim, preRunRace } from '../js/games/race-sim.js';
+import { RaceSim, preRunRace, SECTION_KINDS } from '../js/games/race-sim.js';
 import { BattleSim, preRunBattle } from '../js/games/battle-sim.js';
 import { HorseSim, preRunHorse } from '../js/games/horse-sim.js';
 import { matchReport } from '../js/games/match-report.js';
@@ -243,6 +243,28 @@ await test('battle: fighters stay out of the circle instead of dodging to their 
   assert.ok(dodges > 200, `only ${dodges} dodges`);
   assert.ok(outside / dodges < 0.01, `${outside} of ${dodges} dodges ended outside`);
   assert.ok(zone / falls < 0.02, `${zone} of ${falls} deaths were to the circle`);
+});
+
+await test('race: every draw gets its own course, rebuilt the same from its seed', () => {
+  const shape = sim => JSON.stringify([sim.course.sections.map(q => [q.kind, q.variant, q.flip]), sim.course.statics.length, sim.course.movers.length, sim.course.chuteL, sim.course.palette]);
+  const seen = new Set(), kinds = new Set(), variants = new Set();
+  for (let s = 0; s < 200; s++) {
+    const a = new RaceSim(12, `course${s}`, 'normal');
+    assert.equal(shape(a), shape(new RaceSim(12, `course${s}`, 'normal')));
+    seen.add(shape(a));
+    for (const q of a.course.sections) { kinds.add(q.kind); variants.add(`${q.kind}:${String(q.variant).replace(/^\d+[ x]?\d* ?/, '')}`); }
+  }
+  assert.ok(seen.size >= 195, `only ${seen.size} different courses in 200`);
+  assert.deepEqual([...kinds].sort(), [...SECTION_KINDS].sort());
+  for (const v of ['pegs:grid', 'pegs:diamond', 'pegs:plinko', 'spinners:pair', 'spinners:trio', 'spinners:quad', 'spinners:giant', 'bumpers:rows', 'bumpers:triangle', 'bumpers:scatter']) assert.ok(variants.has(v), `never saw ${v}`);
+});
+
+await test('race: no course traps the field', () => {
+  for (const n of [2, 12, 40, 100]) for (let s = 0; s < (n === 100 ? 6 : 20); s++) {
+    const sim = new RaceSim(n, `trap${s}`, 'quick');
+    while (!sim.decided(1)) sim.step();
+    assert.ok(sim.order.length > 0, `${n} balls, seed ${s}: nobody finished before the time limit`);
+  }
 });
 
 await test('match reports rebuild the same winners as the game', () => {

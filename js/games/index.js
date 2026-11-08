@@ -10,6 +10,13 @@ import { seasonOf } from './seasons.js';
 export { MAX_PLAYERS, MAX_WINNERS, LENGTHS };
 
 const BALL_COLORS = ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c'];
+// Each course picks one of these looks (index from the course itself). Seasonal themes keep theirs.
+const COURSE_LOOKS = [
+  {},
+  { bg: '#141b26', depth: '#1a2433', peg: '#7d8ba3', wall: '#46587a', bump: '#ff9f1c', ring: '#ffd23f', rot: '#a78bfa', mover: '#2ec4b6', pin: '#e8e4d8' },
+  { bg: '#1b1621', depth: '#241d2c', peg: '#8b7f99', wall: '#5b4a6e', bump: '#2ec4b6', ring: '#ffd23f', rot: '#ff5d73', mover: '#ffd23f', pin: '#f4f1e8' },
+  { bg: '#121c1b', depth: '#182624', peg: '#7c9690', wall: '#3f6460', bump: '#ff5d73', ring: '#f4f1e8', rot: '#ffd23f', mover: '#3a86ff', pin: '#e8e4d8' },
+];
 const FOOT = { race: 'The locked draw decides. The race reveals it.', battle: 'The locked draw decides. The battle reveals it.' };
 const COUNT_STEP = 0.8, GO_SECS = 0.95, SCENE_SECS = 3.4;
 const STAGE = {
@@ -365,7 +372,8 @@ class View {
 class RaceView extends View {
   setEntries(pool) {
     this.pool = pool;
-    this.sim = pool.length ? new RaceSim(pool.length, 'idle', 'quick') : null;
+    // The preview shows a fresh random course; the real race builds its own from the draw.
+    this.sim = pool.length ? new RaceSim(pool.length, `preview-${Math.random()}`, 'quick') : null;
     this.slots = pool.map((_, i) => i);
     this.cam = 0;
     this.live = false;
@@ -451,7 +459,7 @@ class RaceView extends View {
     g.save();
     g.translate(ox, -cam * s);
     g.scale(s, s);
-    const look = this.look.race;
+    const look = this.season === 'none' ? { ...this.look.race, ...COURSE_LOOKS[sim.course.palette % COURSE_LOOKS.length] } : this.look.race;
     g.fillStyle = look.bg;
     g.fillRect(0, cam - 10, WORLD_W, viewH + 20);
     // subtle depth markers so motion reads even in empty stretches
@@ -467,7 +475,8 @@ class RaceView extends View {
         else { g.fillStyle = look.peg; g.fill(); }
       } else {
         if (Math.max(o.ay, o.by) < top || Math.min(o.ay, o.by) > bot) continue;
-        g.beginPath(); g.moveTo(o.ax, o.ay); g.lineTo(o.bx, o.by); g.lineWidth = o.t * 2; g.strokeStyle = look.wall; g.stroke();
+        g.beginPath(); g.moveTo(o.ax, o.ay); g.lineTo(o.bx, o.by); g.lineWidth = o.t * 2; g.strokeStyle = o.kind === 'pad' ? look.bump : look.wall; g.stroke();
+        if (o.kind === 'pad') { g.lineWidth = 3; g.strokeStyle = look.ring; g.stroke(); }
       }
     }
     for (const m of sim.course.movers) {
@@ -478,8 +487,9 @@ class RaceView extends View {
     }
     // checkered finish
     const fy = sim.course.finishY;
-    if (fy > top && fy < bot + 40) for (let i = 0; i < 2; i++) for (let x = 370; x < WORLD_W - 370; x += 20) {
-      g.fillStyle = ((x - 370) / 20 + i) % 2 ? '#0f1013' : '#f4f4f5';
+    const { chuteL, chuteR } = sim.course;
+    if (fy > top && fy < bot + 40) for (let i = 0; i < 2; i++) for (let x = chuteL; x < chuteR; x += 20) {
+      g.fillStyle = ((x - chuteL) / 20 + i) % 2 ? '#0f1013' : '#f4f4f5';
       g.fillRect(x, fy - 20 + i * 20, 20, 20);
     }
 

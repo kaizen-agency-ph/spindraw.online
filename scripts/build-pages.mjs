@@ -692,6 +692,11 @@ const PATCHES = [
   {
     id: 'ball-race', name: 'Ball Race', icon: 'race', guide: '/ball-race-name-picker/',
     log: [
+      { v: '1.6', date: '2026-11-08', title: 'A new course every draw', notes: [
+        ['new', 'Every draw builds its own course: sections come in a new order, each with its own layout, and some are mirrored.'],
+        ['new', 'Three new obstacles: a wedge that splits the pack, a field of little windmills and springy bounce pads.'],
+        ['improved', 'Courses are built to fit the game length you pick, so every course still runs about as long as Quick, Normal or Epic should.'],
+      ] },
       { v: '1.6', date: '2026-11-05', title: 'Seasonal themes', notes: [
         ['new', 'Halloween, Christmas, New Year, Valentine’s, Easter and Summer themes you can switch on or off.'],
         ['improved', 'One Sound button now turns all game audio on or off.'],
