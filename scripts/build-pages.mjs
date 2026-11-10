@@ -557,6 +557,8 @@ function head({ title, description, path, extra = '', noindex = false, image = n
     gtag('js', new Date());
     gtag('config', 'G-Z58QLX9W8M');
   </script>
+  <!-- Contentsquare: marketing pages only. Never on the app, verify page or overlay, which show entrants' names. -->
+  <script src="https://t.contentsquare.net/uxa/b5b1532b2b7c1.js" defer></script>
   ${IMPORT_MAP}
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
