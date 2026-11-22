@@ -3,6 +3,7 @@
 // GitHub Pages has no build step, so the generated files are committed.
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { GAME_GUIDES, GAME_TABLE } from './game-pages.mjs';
 import { jsVersions, importMapTag, stampScripts } from './js-versions.mjs';
 import { POSTS, AUTHOR } from './blog-posts.mjs';
 import { dirname, join } from 'node:path';
@@ -44,186 +45,7 @@ const icon = name => `<span class="icon"><svg viewBox="0 0 24 24" fill="none" st
 
 // Guides: one page per search intent we can realistically rank for.
 const GUIDES = [
-  {
-    slug: 'slot-machine-name-picker',
-    play: 'slot',
-    nav: 'Slot machine name picker',
-    published: '2026-11-22',
-    updated: '2026-11-22',
-    title: 'Slot Machine Name Picker – Pull to Pick a Winner | SpinDraw',
-    description: 'A free slot machine name picker: paste any number of names, pull the lever and watch the reels land on the winner. Fair, verifiable and fun on a big screen.',
-    h1: 'A slot machine name picker with a jackpot every time',
-    lede: 'Paste your names and pull the lever. The symbol reels stop, the name reel slows down, creeps past one or two names, and lands on the winner. It handles lists of any size, from a classroom to a company of thousands.',
-    body: `
-<h2>How to use the slot machine</h2>
-<ol>
-  <li>Paste your names in the Entries tab, one per line. Write <em>Name x3</em> to give someone three entries.</li>
-  <li>Set <strong>How many winners?</strong> if you want more than one. Each winner gets their own pull.</li>
-  <li>Lock the list in the Draw tab so everyone sees the code before the reels move.</li>
-  <li>Press <strong>Pull the lever</strong> (or Space). Click <strong>Present</strong> for a clean view on a projector or stream.</li>
-  <li>When you’re done, share the verify link so anyone can check every winner.</li>
-</ol>
-<h2>What people see</h2>
-<ul>
-  <li>A pixel slot machine with chasing lights, a lever and a big reel of names</li>
-  <li>Two symbol reels that line up for a jackpot when the winner lands</li>
-  <li>A near miss now and then, when the reel creeps past a name before it settles</li>
-  <li>A coin shower and a jackpot jingle for the winner</li>
-</ul>
-<h2>Why a slot machine?</h2>
-<p>It’s quick, about four to eight seconds a pull, and everyone knows how it works. Unlike the races and battles, it handles lists of any length, so it suits company-wide draws, big giveaways and long class lists.</p>
-<h2>Who decides the winner?</h2>
-<p>The same locked draw that powers the wheel. SpinDraw picks the winner fairly from your list first, then the reels land on that name. Every entry has exactly its share of the chance, and the verify link proves the result came from the locked list.</p>`,
-    faq: [
-      ['How many names can the slot machine take?', 'Any number. Only the names in view are drawn, so lists of thousands spin smoothly.'],
-      ['Can it pick several winners?', 'Yes, up to 50. Each winner gets their own pull, in prize order.'],
-      ['Is the slot machine fair?', 'Yes. A fair draw from the locked list picks the winner before the reels move, so every entry has exactly its share of the chance. The verify link lets anyone check.'],
-      ['Can I use it on a stream?', 'Yes. Add the overlay as a Browser source in OBS or Streamlabs, or click Present for a clean view.'],
-    ],
-  },
-  {
-    slug: 'random-bracket-generator',
-    play: 'bracket',
-    nav: 'Random bracket generator',
-    published: '2026-11-22',
-    updated: '2026-11-22',
-    title: 'Random Bracket Generator: Knockout Name Picker | SpinDraw',
-    description: 'A free random bracket generator: paste up to 64 names and watch an elimination tournament of pixel duels crown a champion. Fair, with up to 4 winners.',
-    h1: 'A random bracket generator with pixel fighter duels',
-    lede: 'Paste up to 64 names and SpinDraw builds a random elimination bracket. Names face off one on one, round by round, until a champion is crowned, with the semi-finals and final fought as full-screen pixel duels.',
-    body: `
-<h2>How to run a bracket</h2>
-<ol>
-  <li>Paste 2 to 64 names in the Entries tab, one per line.</li>
-  <li>Set <strong>How many winners?</strong> up to 4: champion, runner-up, and the winner and loser of the third-place match.</li>
-  <li>Lock the list in the Draw tab so everyone sees the code before the bracket starts.</li>
-  <li>Press <strong>Start bracket</strong> (or Space), and click <strong>Present</strong> for a projector or stream.</li>
-  <li>Share the verify link afterwards. It shows the whole bracket, round by round.</li>
-</ol>
-<h2>What people see</h2>
-<ul>
-  <li>Early rounds played side by side, with winners lighting up and losers crossed out</li>
-  <li>Semi-finals, a third-place match and the final as full-screen duels, with hits, dodges and blocks</li>
-  <li>A champion’s scene with a crown, and places for everyone who wins a prize</li>
-  <li>Seasonal themes that dress the fighters up for Christmas, Halloween and more</li>
-</ul>
-<h2>What if my list isn’t 8, 16, 32 or 64?</h2>
-<p>Brackets need a round number of places, so some names get a bye, a free pass into round two. Byes are handed out at random, and they don’t change anyone’s chances: a fair draw picks the winners first, and the bracket reveals them.</p>
-<h2>Good for</h2>
-<p>Team events, classrooms, game nights and streams: anywhere people love to root for their own name round after round. It’s also a fair way to set a tournament seeding or a turn order.</p>`,
-    faq: [
-      ['How many names can a bracket have?', 'From 2 to 64. For bigger lists, use the wheel or the slot machine.'],
-      ['How many winners can a bracket pick?', 'Up to 4: the champion, the runner-up, and third and fourth place from the third-place match.'],
-      ['Do byes give anyone an advantage?', 'No. The winners come from a fair draw from the locked list, and the bracket only reveals them, so byes and bracket position don’t change anyone’s odds.'],
-      ['Can I use the bracket for a real tournament?', 'It’s built to pick winners fairly, not to track a tournament you play yourself. To set a random seeding for a real tournament, run the bracket or draw the whole list in order.'],
-    ],
-  },
-  {
-    slug: 'horse-race-name-picker',
-    play: 'horse',
-    nav: 'Horse race name picker',
-    title: 'Horse Race Name Picker: Virtual Horse Race Draw | SpinDraw',
-    description: 'Pick winners with a virtual horse race: every name gets a horse and jockey, lead changes play out live, and you choose how many win. Free, up to 100 names.',
-    h1: 'A horse race name picker with photo-finish suspense',
-    lede: 'A random name picker game for race fans: every name gets a pixel horse and jockey in their own racing colours. The field thunders down the track with the lead changing hands, and the first across the line wins.',
-    body: `
-<h2>How to run a horse race</h2>
-<ol>
-  <li>Paste up to 100 names in the Entries tab above, one per line.</li>
-  <li>Set <strong>How many winners?</strong> if you want more than one.</li>
-  <li>Pick a length in the Style tab: Quick (about 20 seconds), Normal (about 35) or Epic (about 60).</li>
-  <li>Click <strong>Lock entries</strong> in the Draw tab so everyone can see the code before the gates open.</li>
-  <li>Press <strong>Start race</strong> (or Space). Share your screen, or click <strong>Present</strong> for a clean view on a projector or stream.</li>
-</ol>
-<h2>What people see</h2>
-<ul>
-  <li>A horse and jockey for each person, with coat and silks based on their name</li>
-  <li>A camera that runs with the leaders past the grandstand crowd, up to a checkered finish</li>
-  <li>A live <strong>Who’s winning</strong> board, and “1st”, “2nd” and “3rd” tags as horses cross the line</li>
-  <li>A name on every horse, so everyone can find themselves in the field</li>
-</ul>
-<h2>Several winners and prizes</h2>
-<p>Set how many winners you want, and the race runs until that many have crossed the line. The first across takes the first prize on your list, the second takes the next, and so on. If a winner doesn’t respond, press R. Once everyone in that run is dealt with, a new race fills their place and they pass on their prize.</p>
-<h2>Who decides the winner?</h2>
-<p>The same locked draw that powers the wheel decides, and the race reveals it. Each horse runs on its own simulated pace, stamina and finishing kick, with nothing steering it. SpinDraw finds who finishes first and puts the drawn names on those horses. Each person’s chance is exactly their share of the entries, and the verify link lets anyone re-run the draw. It’s a game for picking names, with no betting involved.</p>`,
-    faq: [
-      ['How many horses can race?', 'Up to 100. For bigger lists, use the wheel, which handles thousands.'],
-      ['Can more than one person win?', 'Yes. Set “How many winners?” above the track, up to 50 or the size of your list. Each winner is a separate fair draw, and the verify link checks them all.'],
-      ['Do extra entries still count?', 'Yes. Everyone gets one horse, but “Name x3” still gives that person three times the chance, because the draw uses the entries.'],
-      ['Can I show it in OBS or on a projector?', 'Yes. Add the overlay as a Browser source, or click Present for a clean view.'],
-    ],
-  },
-  {
-    slug: 'ball-race-name-picker',
-    play: 'race',
-    nav: 'Ball race name picker',
-    title: 'Ball Race Name Picker: Marble Race Winner Picker | SpinDraw',
-    description: 'Pick a winner with a marble race: every name gets a ball, they drop through obstacles, and you watch who is winning live. Free, fair, up to 100 names.',
-    h1: 'A ball race name picker that everyone wants to watch',
-    lede: 'A marble race for your list of names: every name gets a ball. They drop through pegs, spinning bars and bumpers while a live board shows who’s winning, and the first across the finish line is your winner.',
-    body: `
-<h2>How to run a ball race</h2>
-<ol>
-  <li>Paste up to 100 names in the Entries tab above, one per line.</li>
-  <li>Set <strong>How many winners?</strong> if you want more than one. Pick a length in the Style tab: Quick (about 20 seconds), Normal (about 35) or Epic (about 60).</li>
-  <li>Click <strong>Lock entries</strong> in the Draw tab so everyone can see the code before anything moves.</li>
-  <li>Press <strong>Start race</strong> (or Space). Share your screen, or click <strong>Present</strong> for a clean view on a projector or stream.</li>
-  <li>When enough balls have crossed the line, the winner card appears. Press C if a winner claims their prize, or R to log a no-show. Once everyone in that run is dealt with, a new race replaces any no-shows.</li>
-</ol>
-<h2>What people see</h2>
-<ul>
-  <li>A camera that follows the leaders down a different course every time</li>
-  <li>A live <strong>Who’s winning</strong> board with the top five</li>
-  <li>A name above every ball, so everyone can follow their own</li>
-  <li>Your own slice colours from the Style tab on the balls</li>
-</ul>
-<h2>Who decides the winner?</h2>
-<p>The same locked draw that powers the wheel decides, and the race reveals it. SpinDraw runs real physics from a seed, with nothing steering any ball, finds the ball that comes first, and puts the drawn name on it. Each person’s chance of winning is exactly their share of the entries, and the verify link still lets anyone re-run the draw afterwards.</p>
-<h2>Good for</h2>
-<p>Office parties and team draws, classroom picks, family game nights, community giveaways and live streams: anywhere a random name picker game makes the moment more fun than a plain list.</p>`,
-    faq: [
-      ['How many names can race?', 'Up to 100. For bigger lists, use the wheel, which handles thousands.'],
-      ['Is the race rigged?', 'No one can steer it. The winner comes from the locked draw, the same as the wheel, and the verify link shows the result came from the locked list. The race is how the result is revealed, and the screen says so.'],
-      ['Do extra entries still count?', 'Yes. Everyone gets one ball, but “Name x3” still gives that person three times the chance, because the draw uses the entries.'],
-      ['Can I show it in OBS or on a projector?', 'Yes. Add the overlay as a Browser source, or click Present for a clean view.'],
-    ],
-  },
-  {
-    slug: 'battle-royale-name-picker',
-    play: 'battle',
-    nav: 'Battle royale name picker',
-    title: 'Battle Royale Name Picker with Pixel Fighters | SpinDraw',
-    description: 'Pick a winner with a pixel battle: up to 100 names become fighters in an arena, and the last one standing wins. Free, fair and fun to watch together.',
-    h1: 'A battle royale name picker with pixel fighters',
-    lede: 'Up to 100 names become little pixel fighters in one arena. They dodge, block and counter each other while the zone closes in, and the last ones standing are your winners: one, or as many as you choose.',
-    body: `
-<h2>How to run a battle</h2>
-<ol>
-  <li>Paste up to 100 names in the Entries tab above, one per line.</li>
-  <li>Set <strong>How many winners?</strong> if you want more than one. Pick a length in the Style tab: Quick, Normal or Epic.</li>
-  <li>Click <strong>Lock entries</strong> in the Draw tab so everyone can see the code before the fight starts.</li>
-  <li>Press <strong>Start battle</strong> (or Space). Share your screen, or click <strong>Present</strong> for a clean view on a projector or stream.</li>
-  <li>When only your chosen number of fighters is left, the winner card appears. Press C if a winner claims their prize, or R to log a no-show. Once everyone in that run is dealt with, a new battle replaces any no-shows.</li>
-</ol>
-<h2>What people see</h2>
-<ul>
-  <li>Every person gets their own look, with a body, hat and weapon based on their name</li>
-  <li>Fighters that think for themselves: they circle, dodge, block, counter and back off when they’re hurt</li>
-  <li>HP bars, damage numbers and a live kill feed</li>
-  <li>A counter of who’s still alive, plus a <strong>Most KOs</strong> board</li>
-  <li>A shrinking zone that keeps the action moving, and a zoom-in on the final two</li>
-</ul>
-<h2>Who decides the winner?</h2>
-<p>The same locked draw that powers the wheel decides, and the battle reveals it. SpinDraw runs a real simulated fight from a seed, with nobody steered, finds the last fighter standing, and gives that fighter the drawn name. Each person’s chance of winning is exactly their share of the entries, and the verify link still lets anyone re-run the draw afterwards.</p>
-<h2>Good for</h2>
-<p>Team events, classrooms, game nights, communities and live streams. It’s a lighthearted cartoon fight between tiny pixel characters, with no blood or gore.</p>`,
-    faq: [
-      ['How many fighters can there be?', 'Up to 100. For bigger lists, use the wheel, which handles thousands.'],
-      ['Do stronger fighters have better odds?', 'No. How a fighter looks comes from their name, and the winner comes from the locked draw. Looks and stats make no difference to anyone’s chances.'],
-      ['Do extra entries still count?', 'Yes. Everyone gets one fighter, but “Name x3” still gives that person three times the chance, because the draw uses the entries.'],
-      ['Can I show it in OBS or on a projector?', 'Yes. Add the overlay as a Browser source, or click Present for a clean view.'],
-    ],
-  },
+  ...GAME_GUIDES,
   {
     slug: 'office-raffle',
     nav: 'Office raffle',
@@ -452,37 +274,6 @@ const GUIDES = [
       ['Can it pull YouTube chat automatically?', 'Not yet. For now you paste the chat. Automatic YouTube and Twitch chat import is on the roadmap.'],
       ['Will duplicate names count twice?', 'Not with “One entry per person” on. Names are compared ignoring capital letters and extra spaces.'],
       ['Can I do several prizes in one stream?', 'Yes. List prizes in draw order in the Prizes tab. Winners are removed from the wheel after each draw unless you turn that off.'],
-    ],
-  },
-  {
-    slug: 'random-name-picker',
-    play: 'wheel',
-    nav: 'Random name picker',
-    title: 'Random Name Picker Wheel – Spin to Pick a Name | SpinDraw',
-    description: 'Free random name picker wheel. Paste names, spin the wheel and pick a winner for classrooms, teams, lucky draws and raffles. Weighted entries, no sign-up.',
-    h1: 'Random name picker wheel',
-    lede: 'Paste a list, spin the wheel, get a name. It’s built for live giveaways, but works just as well for picking a student, a team order or a lucky-draw winner at a party.',
-    body: `
-<h2>How to pick a random name</h2>
-<ol>
-  <li>Paste your names in the Entries tab above, one per line.</li>
-  <li>Want someone to have better odds? Write <em>Name x2</em>.</li>
-  <li>Press <strong>Spin</strong> (or Space). The pointer lands on the winner.</li>
-  <li>Keep spinning to draw more names. Winners drop off the wheel so nobody is picked twice.</li>
-</ol>
-<h2>Good uses</h2>
-<ul>
-  <li><strong>Classroom:</strong> pick who answers next, or set a presentation order by drawing until the wheel is empty.</li>
-  <li><strong>Teams and meetings:</strong> pick who goes first at stand-up or who takes the next ticket.</li>
-  <li><strong>Lucky draws and events:</strong> project the wheel on a screen with your logo in the middle and a background image.</li>
-  <li><strong>Giveaways:</strong> paste comments from social posts and filter by keyword.</li>
-</ul>
-<h2>Is it really random?</h2>
-<p>Each pick comes from a cryptographic HMAC-SHA256 of a 256-bit random seed, never from <code>Math.random()</code>. You can also lock the list first and share a verify page afterwards, so anyone can check that the result followed from the locked list.</p>`,
-    faq: [
-      ['Is the random name picker free?', 'Yes. It’s free and needs no account. If the website ever shows ads, they’ll never appear on the wheel or the stream overlay.'],
-      ['Are my names uploaded anywhere?', 'No. Names are stored only in your browser. They’re shared only if you choose to share a verify link or proof file.'],
-      ['Can I change the wheel colors?', 'Yes. In the Style tab you can choose a preset or your own colors, add a logo to the center and an image to the wheel.'],
     ],
   },
   {
@@ -1490,6 +1281,25 @@ write('sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>
 ${urls.map(([u, p, d]) => `  <url><loc>${SITE}${u}</loc>${d ? `<lastmod>${d}</lastmod>` : ''}<priority>${p}</priority></url>`).join('\n')}
 </urlset>
 `);
+// llms.txt: a plain-text map of the site for AI assistants and answer engines.
+write('llms.txt', `# SpinDraw
+
+> SpinDraw (${SITE}) is a free random name picker and raffle tool. A locked, cryptographically fair draw picks every winner (HMAC-SHA256 of a committed 256-bit seed), and the chosen game only reveals it, so every entry has exactly its share of the chance in every game. Anyone can re-check a draw with its verify link. No sign-up; names are stored only in the browser unless the host shares a verify link or proof file.
+
+## Games (each page is the working tool)
+${GUIDES.filter(g => g.play).map(g => `- [${g.nav.replace(/^./, ch => ch.toUpperCase())}](${SITE}/${g.slug}/): ${g.answer}`).join('\n')}
+
+## Guides
+${GUIDES.filter(g => !g.play).map(g => `- [${g.nav}](${SITE}/${g.slug}/): ${g.description}`).join('\n')}
+
+## Blog
+${POSTS.map(p => `- [${p.h1}](${SITE}/blog/${p.slug}/): ${p.description}`).join('\n')}
+
+## More
+- [About SpinDraw](${SITE}/about/)
+- [Patch notes](${SITE}/patch-notes/)
+- [Privacy](${SITE}/privacy.html)
+`);
 write('robots.txt', `User-agent: *
 Allow: /
 
@@ -1504,13 +1314,24 @@ for (const page of ['app.html', 'overlay.html', 'verify.html', 'privacy.html']) 
 // Playable game pages: the full app with that game selected, then the guide below. Built from
 // app.html (already stamped with script fingerprints), so the app itself is only written once.
 const APP_TEMPLATE = readFileSync(join(ROOT, 'app.html'), 'utf8');
+const plain = h => h.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+const cap = t => t.replace(/^./, ch => ch.toUpperCase());
+const prettyDate = d => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 for (const g of GUIDES.filter(x => x.play)) {
-  const path = `/${g.slug}/`, url = SITE + path, others = GUIDES.filter(o => o !== g && o.play).slice(0, 5);
+  const path = `/${g.slug}/`, url = SITE + path, others = GUIDES.filter(o => o !== g && o.play);
+  const still = `${SITE}/media/game-${g.play}.jpg`;
   const schema = [
-    { '@context': 'https://schema.org', '@type': 'WebApplication', name: g.nav.replace(/^./, ch => ch.toUpperCase()), url, description: g.description, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web browser', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, publisher: { '@type': 'Organization', name: 'SpinDraw', url: SITE + '/' } },
-    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'SpinDraw', item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: g.nav, item: url }] },
+    { '@context': 'https://schema.org', '@type': 'WebApplication', name: cap(g.nav), url, description: g.description, image: still, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web browser', browserRequirements: 'Requires JavaScript', isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, featureList: g.glance.map(([k, v]) => `${k}: ${v}`), dateModified: g.updated, ...(g.published ? { datePublished: g.published } : {}), publisher: { '@type': 'Organization', name: 'SpinDraw', url: SITE + '/' } },
+    { '@context': 'https://schema.org', '@type': 'HowTo', name: g.stepsTitle, description: g.answer, totalTime: 'PT2M', tool: { '@type': 'HowToTool', name: `SpinDraw ${g.nav}` }, step: g.steps.map((t, k) => ({ '@type': 'HowToStep', position: k + 1, text: plain(t), url: `${url}#how-to` })) },
+    { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'SpinDraw', item: SITE + '/' }, { '@type': 'ListItem', position: 2, name: cap(g.nav), item: url }] },
     faqLd(g.faq),
   ];
+  const table = `<div class="table-scroll"><table class="compare">
+  <thead><tr><th>Game</th><th>Best for</th><th>Names</th><th>Winners per run</th><th>Length</th></tr></thead>
+  <tbody>${GAME_TABLE.map(([slug, name, best, names, win, len]) => slug === g.slug
+    ? `<tr class="is-current"><td><strong>${esc(name)}</strong> (this page)</td><td>${esc(best)}</td><td>${esc(names)}</td><td>${esc(win)}</td><td>${esc(len)}</td></tr>`
+    : `<tr><td><a href="/${slug}/">${esc(name)}</a></td><td>${esc(best)}</td><td>${esc(names)}</td><td>${esc(win)}</td><td>${esc(len)}</td></tr>`).join('\n    ')}</tbody>
+</table></div>`;
   let html = APP_TEMPLATE;
   const swap = (re, to) => { if (!re.test(html)) throw new Error(`game page ${g.slug}: ${re}`); html = html.replace(re, to); };
   swap(/<title>[^<]*<\/title>/, `<title>${esc(g.title)}</title>`);
@@ -1519,19 +1340,32 @@ for (const g of GUIDES.filter(x => x.play)) {
   swap(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(g.title)}">`);
   swap(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(g.description)}">`);
   swap(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${url}">`);
+  swap(/<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${still}">`);
+  swap(/<meta property="og:image:height" content="[^"]*">/, `<meta property="og:image:height" content="900">`);
+  swap(/<meta property="og:image:alt" content="[^"]*">/, `<meta property="og:image:alt" content="${esc(`SpinDraw ${g.nav}`)}">`);
   swap(/(<link rel="stylesheet" href="\/css\/style.css(?:\?v=\w+)?">)/, `$1\n  <link rel="stylesheet" href="/css/site.css">\n  ${schema.map(ld).join('\n  ')}`);
   swap(/<body>/, `<body data-start-mode="${g.play}">`);
   swap(/\s*<h1 class="sr-only">[^<]*<\/h1>/, '');
-  swap(/<main class="app">/, `<div class="game-intro"><div class="crumbs"><a href="/">SpinDraw</a> / ${esc(g.nav)}</div><h1 class="game-intro-title">${esc(g.h1)}</h1><p class="game-intro-lede">${esc(g.lede)}</p></div>\n  <main class="app">`);
+  swap(/<main class="app">/, `<div class="game-intro"><div class="crumbs"><a href="/">SpinDraw</a> / ${esc(cap(g.nav))}</div><h1 class="game-intro-title">${esc(g.h1)}</h1><p class="game-intro-lede">${esc(g.lede)}</p></div>\n  <main class="app">`);
   swap(/<\/main>/, `</main>
   <div class="page game-guide">
-    <article class="prose">${g.body}
+    <article class="prose">
+      <aside class="answer" aria-label="Quick answer"><p class="answer-label">Quick answer</p><p>${esc(g.answer)}</p></aside>
+      <p class="small">Last updated <time datetime="${g.updated}">${prettyDate(g.updated)}</time> by <a href="/about/">Vincent Carl Benlot</a></p>
+      <h2>${esc(cap(g.nav))} at a glance</h2>
+      <div class="table-scroll"><table class="compare glance"><tbody>${g.glance.map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</tbody></table></div>
+      <h2 id="how-to">${esc(g.stepsTitle)}</h2>
+      <ol>${g.steps.map(t => `\n        <li>${t}</li>`).join('')}
+      </ol>${g.body}
+      <h2>Which SpinDraw game should you use?</h2>
+      <p>Every game uses the same locked fair draw, so the odds are identical. Pick the one that suits your list and your crowd.</p>
+      ${table}
       <h2>Questions</h2>
       ${faqHtml(g.faq)}
     </article>
     <section class="section" style="margin-top:48px">
       <div class="section-head"><h2>More ways to pick a winner</h2></div>
-      <div class="grid">${others.map(o => `<a class="card" href="/${o.slug}/"><h3>${esc(o.nav.replace(/^./, ch => ch.toUpperCase()))}</h3><p>${esc(o.description)}</p><span class="go">Play →</span></a>`).join('')}</div>
+      <div class="grid">${others.map(o => `<a class="card" href="/${o.slug}/"><h3>${esc(cap(o.nav))}</h3><p>${esc(o.description)}</p><span class="go">Play →</span></a>`).join('')}</div>
     </section>
   </div>${footer.replace(/\s*<script type="module" src="[^"]*theme\.js[^"]*"><\/script>/, '')}`);
   write(`${g.slug}/index.html`, html);

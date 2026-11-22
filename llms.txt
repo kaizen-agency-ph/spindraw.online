@@ -1,0 +1,37 @@
+# SpinDraw
+
+> SpinDraw (https://spindraw.online) is a free random name picker and raffle tool. A locked, cryptographically fair draw picks every winner (HMAC-SHA256 of a committed 256-bit seed), and the chosen game only reveals it, so every entry has exactly its share of the chance in every game. Anyone can re-check a draw with its verify link. No sign-up; names are stored only in the browser unless the host shares a verify link or proof file.
+
+## Games (each page is the working tool)
+- [Random name picker wheel](https://spindraw.online/random-name-picker/): A random name picker wheel is a spinning wheel with one slice per name. You paste your list, spin, and the pointer lands on a random winner. SpinDraw’s wheel is free, needs no sign-up, handles thousands of names, lets you give someone extra entries with “Name x3”, and can give you a link that proves the pick was fair.
+- [Marble race name picker](https://spindraw.online/ball-race-name-picker/): A marble race name picker turns a list of names into a race: each name gets a marble, the marbles roll down an obstacle course, and the first to finish wins. SpinDraw’s marble race is free, takes up to 100 names, can rank up to 50 finishers in order, and uses a locked fair draw, so every entry has exactly its share of the chance.
+- [Horse race name picker](https://spindraw.online/horse-race-name-picker/): A horse race name picker turns your list into a virtual horse race: each name gets a horse, they race to the finish, and the first across the line wins. SpinDraw’s horse race is free, takes up to 100 names, can rank up to 50 finishers in order for a draft order or prize list, and uses a locked fair draw so every entry has exactly its share of the chance.
+- [Battle royale name picker](https://spindraw.online/battle-royale-name-picker/): A battle royale name picker turns each name into a fighter in one arena, and the last fighter standing wins. SpinDraw’s pixel battle is free, takes up to 100 names, can pick up to 50 winners from the last ones standing, and uses a locked fair draw, so a fighter’s looks or stats never change anyone’s chances.
+- [Slot machine name picker](https://spindraw.online/slot-machine-name-picker/): A slot machine name picker, sometimes called a fruit machine name picker, puts your names on a spinning reel and stops on a random winner when you pull the lever. SpinDraw’s slot machine is free, works with lists of any size, picks up to 50 winners with one pull each, and uses a locked fair draw with a verify link anyone can check.
+- [Random bracket generator](https://spindraw.online/random-bracket-generator/): A random bracket generator puts a list of names into a single-elimination tournament with random matchups. SpinDraw’s bracket is free, takes 2 to 64 names, hands out byes automatically, and plays every match out on screen to pick a champion, a runner-up and a third-place match. A locked fair draw picks the winners, so bracket position never changes anyone’s odds.
+
+## Guides
+- [Office raffle](https://spindraw.online/office-raffle/): Run your holiday party raffle, door prizes or team giveaway on the big screen or in a video call. Free, no sign-up, with proof the draw was fair.
+- [Secret Santa & gift exchange](https://spindraw.online/secret-santa-name-picker/): Draw names for Secret Santa, Kris Kringle, Wichteln or Amigo Secreto. A random gift chain where nobody gets themselves. Free and fair, no sign-up.
+- [Classroom name picker](https://spindraw.online/classroom-name-picker/): A free random name picker for teachers: spin on the projector or in an online class, give every student a turn, and keep class lists on your computer.
+- [Facebook Live raffle](https://spindraw.online/facebook-live-raffle/): Run a Facebook Live raffle from your comments: paste them in, filter by keyword, remove duplicates and spin a free raffle wheel on stream. No Facebook login.
+- [TikTok LIVE giveaway](https://spindraw.online/tiktok-live-giveaway-wheel/): A free giveaway wheel made for TikTok LIVE: vertical 9:16 overlay, comment and Google Form entries, claim timer and a proof link your viewers can check.
+- [OBS spin wheel overlay](https://spindraw.online/obs-spin-wheel/): Add a free spin-the-wheel overlay to OBS or Streamlabs as a browser source. Transparent background, 16:9 or 9:16, synced to a control panel. No sign-up.
+- [YouTube Live giveaway](https://spindraw.online/youtube-live-giveaway/): Pick a random winner from YouTube Live chat or comments. Paste chat lines, count one entry per viewer, give members extra entries and spin on stream.
+- [Name picker alternatives compared](https://spindraw.online/random-name-picker-alternatives/): Wheel of Names, Picker Wheel, Roulette Rush, Namebrawl, Uplup and more compared: price, limits, games, fair odds, and which one suits your draw.
+- [Picker Wheel alternative](https://spindraw.online/picker-wheel-alternative/): Comparing Picker Wheel and SpinDraw: wheel modes, ads, saved files, name race games and verifiable draws, plus when you should stay with Picker Wheel.
+- [Wheel of Names alternative](https://spindraw.online/wheel-of-names-alternative/): A Wheel of Names alternative for raffles people trust: verifiable draws, paste names or comments, several prizes, claim timers and a stream overlay. Free.
+
+## Blog
+- [Are name picker games fair? Marble races, battles and wheels explained](https://spindraw.online/blog/are-name-picker-games-fair/): Marble races and battle royale name pickers are fun, but many don’t give every entry the same odds. How to tell, and how to run a fair game draw.
+- [New Year raffle ideas for your year-end party and lucky draw](https://spindraw.online/blog/new-year-raffle-ideas/): New Year raffle and lucky draw ideas for year-end parties: prize ideas, fun draw formats, a midnight grand prize, and how to keep the draw fair.
+- [Office Christmas raffle ideas people actually look forward to](https://spindraw.online/blog/office-christmas-raffle-ideas/): Office Christmas raffle ideas that work: prize ideas at every budget, five ways to run the draw, and how to keep it fair for remote and hybrid teams.
+- [Secret Santa rules: a simple guide for work, family and friends](https://spindraw.online/blog/secret-santa-rules/): Secret Santa rules that keep everyone happy: setting a budget, drawing names fairly, wishlists, deadlines, office etiquette and a fun reveal.
+- [How to pick a random winner for a giveaway, and prove it was fair](https://spindraw.online/blog/how-to-pick-a-random-winner-for-a-giveaway/): How to pick a random giveaway winner step by step: collect entries from comments, remove duplicates, draw live and share proof that nobody rigged it.
+- [Fun ways to pick a winner for raffles, classes and parties](https://spindraw.online/blog/fun-ways-to-pick-a-winner/): Fun ways to pick a winner for raffles, giveaways, classes and parties: a wheel, slot machine, races, pixel battle, bracket and classic offline ideas.
+- [Baby shower raffle ideas, from the diaper raffle to the draw](https://spindraw.online/blog/baby-shower-raffle-ideas/): Baby shower raffle ideas, starting with the diaper raffle: how it works, what to write on the invitation, prize ideas, and how to draw the winners.
+
+## More
+- [About SpinDraw](https://spindraw.online/about/)
+- [Patch notes](https://spindraw.online/patch-notes/)
+- [Privacy](https://spindraw.online/privacy.html)
