@@ -5,7 +5,7 @@ import * as fair from './fair.js';
 import { parseText, buildEntries, csvToItems, sheetCsvUrl, toCSV } from './intake.js';
 import { Channel } from './sync.js';
 import { confetti, sound, audioBlocked } from './fx.js';
-import { createGame, MAX_PLAYERS, MAX_WINNERS } from './games/index.js';
+import { createGame, MAX_PLAYERS, MAX_WINNERS, BRACKET_MAX, BRACKET_WINNERS } from './games/index.js';
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -42,11 +42,14 @@ function load() {
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
 
 const S = load();
+// A game's own page opens on that game.
+if (['wheel', 'race', 'horse', 'battle', 'slot', 'bracket'].includes(document.body.dataset.startMode)) S.mode = document.body.dataset.startMode;
+
 // Links from the blog can open a game and a theme, like /app.html?mode=horse&theme=christmas.
 // Only known values are accepted, and the address is tidied so a reload keeps the user's own choice.
 {
   const q = new URLSearchParams(location.search), m = q.get('mode'), t = q.get('theme');
-  if (['wheel', 'race', 'horse', 'battle'].includes(m)) S.mode = m;
+  if (['wheel', 'race', 'horse', 'battle', 'slot', 'bracket'].includes(m)) S.mode = m;
   if (SEASON_IDS.includes(t)) S.theme = { ...S.theme, season: t };
   if (q.has('mode') || q.has('theme')) { save(); history.replaceState(null, '', location.pathname + location.hash); }
 }
@@ -61,8 +64,18 @@ try { IMG = JSON.parse(localStorage.getItem(IMG_KEY)) || {}; } catch {}
 let imgVersion = 0;
 // Ball Race / Pixel Battle view, created when one of those modes is selected.
 let game = null;
-const MODES = { wheel: { label: 'Wheel', start: 'Spin' }, race: { label: 'Ball Race', start: 'Start race' }, horse: { label: 'Horse Race', start: 'Start race' }, battle: { label: 'Pixel Battle', start: 'Start battle' } };
-const tooMany = () => S.mode !== 'wheel' && wheelPool().length > MAX_PLAYERS;
+// max: most names a mode can show (Infinity = any list). winners: most winners in one run.
+const MODES = {
+  wheel: { label: 'Wheel', start: 'Spin', max: Infinity, winners: 1 },
+  race: { label: 'Ball Race', start: 'Start race', max: MAX_PLAYERS, winners: MAX_WINNERS },
+  horse: { label: 'Horse Race', start: 'Start race', max: MAX_PLAYERS, winners: MAX_WINNERS },
+  battle: { label: 'Pixel Battle', start: 'Start battle', max: MAX_PLAYERS, winners: MAX_WINNERS },
+  slot: { label: 'Slot Machine', start: 'Pull the lever', max: Infinity, winners: MAX_WINNERS },
+  bracket: { label: 'Bracket', start: 'Start bracket', max: BRACKET_MAX, winners: BRACKET_WINNERS },
+};
+if (!MODES[S.mode]) S.mode = 'wheel';
+const modeMax = () => MODES[S.mode].max;;
+const tooMany = () => wheelPool().length > modeMax();
 function syncMode() {
   $('.wheel-box').hidden = S.mode !== 'wheel';
   $('#gameBox').hidden = S.mode === 'wheel';
@@ -93,7 +106,7 @@ function prizeAt(n) {
 // A no-show's prize goes to whoever replaces them, ahead of the next one on the list.
 const nextPrize = () => S.owedPrizes[0] ?? prizeAt(wonCount());
 // Several winners in one run need Remove winners on, so nobody can win twice in a run.
-const winnersWanted = () => (S.mode === 'wheel' || !S.removeWinners ? 1 : Math.max(1, Math.min(MAX_WINNERS, S.winnersPerRun || 1)));
+const winnersWanted = () => (S.mode === 'wheel' || !S.removeWinners ? 1 : Math.max(1, Math.min(MODES[S.mode].winners, S.winnersPerRun || 1)));
 const nameOf = i => S.entries[i]?.name ?? '?';
 const lastWin = () => [...S.draws].reverse().find(d => d.status !== 'noshow');
 
@@ -197,7 +210,7 @@ async function spin() {
   if (!(await lock())) return;
   const p = pool();
   if (!p.length) return toast('Nobody left in the wheel');
-  if (tooMany()) return toast(`${MODES[S.mode].label} fits up to ${MAX_PLAYERS} people. Use the wheel for bigger lists.`);
+  if (tooMany()) return toast(`${MODES[S.mode].label} fits up to ${modeMax()} people. Use the wheel or the slot machine for bigger lists.`);
   sound.unlock();
   spinning = true;
   render();
@@ -296,7 +309,7 @@ async function reveal() {
     addLog(`Raffle finished. Seed revealed: ${S.locked.seed}`);
   }
   S.linkMade = Date.now();
-  S.verifyUrl = new URL(`verify.html#d=${await fair.encodePayload(proofPayload())}`, location.href).href;
+  S.verifyUrl = new URL(`/verify.html#d=${await fair.encodePayload(proofPayload())}`, location.origin).href;
   update();
 }
 
@@ -378,7 +391,7 @@ function downloadCard() {
 
 // ---------- overlay ----------
 function overlayUrl() {
-  const u = new URL('overlay.html', location.href);
+  const u = new URL('/overlay.html', location.origin);
   u.searchParams.set('room', S.room);
   if (S.ovLayout !== 'wide') u.searchParams.set('layout', S.ovLayout);
   if (S.ovBg !== 'transparent') u.searchParams.set('bg', S.ovBg);
@@ -481,16 +494,18 @@ function render() {
   $('#spinBtn').firstChild.textContent = MODES[S.mode].start + (runCount > 1 ? ` · ${runCount} winners` : '');
   $('#winnersSet').hidden = S.mode === 'wheel';
   $('#winnersPerRun').disabled = spinning || !S.removeWinners;
-  $('#winnersPerRun').max = String(Math.min(MAX_WINNERS, Math.max(pl.length, 1)));
+  $('#winnersPerRun').max = String(Math.min(MODES[S.mode].winners, Math.max(pl.length, 1)));
   if (document.activeElement !== $('#winnersPerRun')) $('#winnersPerRun').value = S.removeWinners ? S.winnersPerRun : 1;
   const hint = !S.removeWinners ? 'Turn on “Remove winners” in the Prizes tab to pick several winners.'
     : winnersWanted() < 2 ? '' : S.mode === 'battle' ? 'The last fighters standing win. The one with the most KOs takes the first prize on your list.'
+    : S.mode === 'slot' ? 'One pull per winner. The first pull takes the first prize on your list, the next takes the next, and so on.'
+    : S.mode === 'bracket' ? `The champion takes the first prize on your list, then the runner-up, then the third-place match. Up to ${BRACKET_WINNERS} winners.`
     : 'First across the line takes the first prize on your list, second takes the next, and so on.';
   $('#winnersHint').textContent = hint;
   $('#winnersHint').hidden = S.mode === 'wheel' || !hint;
   $('#modeNote').hidden = !tooMany();
-  $('#modeNote').textContent = `${MODES[S.mode].label} fits up to ${MAX_PLAYERS} people and this list has ${wheelPool().length}. Switch to the Wheel, or trim the list.`;
-  $$('#modeSwitch button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)); b.disabled = spinning; });
+  $('#modeNote').textContent = `${MODES[S.mode].label} fits up to ${modeMax()} people and this list has ${wheelPool().length}. Switch to the Wheel, or trim the list.`;
+  $$('#modeSwitch [data-mode]').forEach(b => { b.toggleAttribute('aria-current', b.dataset.mode === S.mode); if (b.dataset.mode === S.mode) b.setAttribute('aria-current', 'page'); b.setAttribute('aria-disabled', String(spinning)); });
   renderSeason();
   $('#gameLength').value = S.gameLength;
   $('#claimBtn').disabled = spinning || !p;
@@ -626,13 +641,15 @@ for (const id of SEASON_IDS) {
   b.addEventListener('click', () => { if (!spinning) setTheme({ season: id === S.theme.season ? 'none' : id }); });
   $('#seasonSwitch').append(b);
 }
-$$('#modeSwitch button').forEach(b => b.addEventListener('click', () => {
-  if (spinning || S.mode === b.dataset.mode) return;
+// Each game has its own page. Switching saves the choice and follows the link; everything
+// else (names, prizes, theme, a locked raffle) is in the browser, so it carries over.
+$$('#modeSwitch [data-mode]').forEach(b => b.addEventListener('click', e => {
+  if (spinning) { e.preventDefault(); return; }
+  if (S.mode === b.dataset.mode && location.pathname === b.getAttribute('href')) { e.preventDefault(); return; }
   S.mode = b.dataset.mode;
-  syncMode();
-  update();
+  save();
 }));
-$('#winnersPerRun').addEventListener('input', e => { S.winnersPerRun = Math.max(1, Math.min(MAX_WINNERS, parseInt(e.target.value, 10) || 1)); save(); render(); broadcast(); });
+$('#winnersPerRun').addEventListener('input', e => { S.winnersPerRun = Math.max(1, Math.min(MODES[S.mode].winners, parseInt(e.target.value, 10) || 1)); save(); render(); broadcast(); });
 $('#winnersPerRun').addEventListener('change', e => { e.target.value = S.winnersPerRun; });
 $('#gameLength').addEventListener('change', e => { S.gameLength = e.target.value; save(); });
 $('#spinSeconds').addEventListener('input', e => { S.spinSeconds = +e.target.value; save(); render(); });

@@ -6,6 +6,135 @@ export const AUTHOR = { name: 'Vincent Carl Benlot', url: '/about/' };
 
 export const POSTS = [
   {
+    slug: 'are-name-picker-games-fair',
+    title: 'Are Name Picker Games Fair? Marble Races, Battles and Wheels',
+    description: 'Marble races and battle royale name pickers are fun, but many don’t give every entry the same odds. How to tell, and how to run a fair game draw.',
+    h1: 'Are name picker games fair? Marble races, battles and wheels explained',
+    date: '2026-11-22',
+    updated: '2026-11-22',
+    cover: '/media/blog/covers/are-name-picker-games-fair.jpg',
+    coverAlt: 'A flat illustration of a balance scale holding marbles on one side and a pixel knight and toy horse on the other, in front of a prize wheel and a shield with a check mark',
+    shot: '/media/blog/fun-ways-to-pick-a-winner.jpg',
+    shotAlt: 'Four ways to pick a winner in SpinDraw: a spinning name wheel, a ball race, a horse race and a pixel battle',
+    shotCaption: 'In SpinDraw, the wheel, Ball Race, Horse Race and Pixel Battle all reveal the same fair, locked draw.',
+    answer: 'Not always. Many marble race and battle royale pickers let the physics or the fight decide the winner, so the course, the start positions or a fighter’s abilities can tilt the odds. A game picker is fair when every entry has exactly the same chance, which means the winner has to come from a fair random draw, with the race or battle only revealing it.',
+    body: `
+<h2>Why a game can be less fair than a wheel</h2>
+<p>A spinning wheel is easy to reason about: every slice is the same size, so every name has the same chance. Races and battles are different. When the winner is simply whoever finishes first or survives longest, the result depends on everything that happens along the way. Little things add up:</p>
+<ul>
+  <li><strong>Start positions.</strong> A marble that starts in the middle may get a cleaner line down the course than one stuck on the edge.</li>
+  <li><strong>The course itself.</strong> Some layouts favour certain lanes, or let a pack block the balls behind it.</li>
+  <li><strong>Abilities and classes.</strong> In battle games, a tougher fighter type or a lucky ability makes some names more likely to win.</li>
+  <li><strong>Extra entries.</strong> Giving someone five marbles roughly gives them more chances, but only if every marble has the same chance to begin with.</li>
+</ul>
+<p>None of that is a problem when you’re picking who buys the coffee. It matters a lot more when there’s a prize, a paying crowd or a stream full of people watching.</p>
+
+<h2>What popular game pickers say about their own odds</h2>
+<p>To their credit, some tools say this openly. Roulette Rush, a marble race picker, says on its own site that <a href="https://rouletterush.app/" rel="noopener">equal entries don’t guarantee equal winning chances</a>, and that its results aren’t audited random draws. Namebrawl, a pixel battle picker, says its battles aren’t <a href="https://namebrawl.com/" rel="noopener">an equal-probability draw</a>, because a fighter’s class and abilities affect the outcome. Both are fun, and both are upfront about it, so read the fine print before you use any game for a real raffle.</p>
+
+<h2>How to make a game draw fair</h2>
+<p>The fix is to separate picking the winner from showing the winner. First, a fair random draw picks the winner from the full list, with each entry getting exactly its share of the odds. Then the race or battle plays out and reveals that winner. The game adds the suspense, and the draw keeps it fair.</p>
+<p>That’s how SpinDraw works. When you start a Ball Race, Horse Race or Pixel Battle, a fair draw from your locked list picks the winner first. The game then runs a real, unsteered simulation, and the winner’s name goes on whichever ball, horse or fighter comes out on top, while everyone else is shuffled over the rest. Every entry has exactly the same chance as it would on the wheel, and extra entries like <em>Maria x3</em> count exactly three times.</p>
+<p>It’s a bit like a scratchcard: the result is decided when the card is printed, and scratching it is the fun part. Nobody watching can tell in advance who’s going to win, and nobody can steer it.</p>
+
+<h2>Fair is good, provable is better</h2>
+<p>Even a fair draw leaves one question: how do people know you didn’t run it again until a friend won? SpinDraw locks the list and a secret seed behind a code shown on screen before anything moves. Afterwards, a verify link lets anyone re-run every draw and check the winners came from that exact list. On the verify page you can also see the match itself rebuilt, from the finishing order of a race to every knockout in a battle. For extra trust, ask someone in the room or in chat for a random word after you lock the list, and mix it in.</p>
+
+<h2>Quick checklist before you use a game for a giveaway</h2>
+<ol>
+  <li>Does the tool say every entry has the same chance? Look for it in the FAQ.</li>
+  <li>Do extra entries count exactly, or just add more marbles or fighters?</li>
+  <li>Is the list locked before the game starts?</li>
+  <li>Can anyone check the result afterwards, not just watch a recording?</li>
+  <li>Can it pick several winners if you have several prizes?</li>
+</ol>
+<p>If the answer to the first question is no, use the game for fun and a fair draw for the prize. Our <a href="/random-name-picker-alternatives/">comparison of name picker alternatives</a> covers how each popular tool handles this, and <a href="/blog/how-to-pick-a-random-winner-for-a-giveaway/">how to pick a random winner for a giveaway</a> walks through the whole process.</p>`,
+    faq: [
+      ['Are marble race name pickers fair?', 'Some aren’t. When the first marble across the line simply wins, start positions and the course can tilt the odds, and some tools say so themselves. A marble race is only fully fair when a random draw picks the winner and the race reveals it.'],
+      ['Do battle royale name pickers give everyone the same chance?', 'Not always. If fighters have different classes or abilities, some names are more likely to win. Look for a picker where a fair draw decides and the battle only reveals the result.'],
+      ['If the winner is drawn first, is the race fake?', 'The race is a real simulation that nobody steers. It just isn’t what picks the winner: the fair draw does, and the winner’s name goes on whoever comes out on top. Think of it like scratching a scratchcard.'],
+      ['How can people check a game draw was fair?', 'Use a picker that locks the list before the draw and gives you a verify link afterwards. Anyone can then re-run the draw and confirm the winner came from the locked list.'],
+    ],
+    cta: {
+      heading: 'Run a game draw that’s actually fair',
+      text: 'Race balls or horses, or start a pixel battle. Every entry gets exactly its share of the chance, and anyone can check the result.',
+      primary: { label: 'Start a fair ball race', href: '/app.html?mode=race' },
+      secondary: { label: 'Try the pixel battle', href: '/app.html?mode=battle' },
+    },
+  },
+  {
+    slug: 'new-year-raffle-ideas',
+    title: 'New Year Raffle Ideas: Lucky Draw Prizes and Formats for 2027',
+    description: 'New Year raffle and lucky draw ideas for year-end parties: prize ideas, fun draw formats, a midnight grand prize, and how to keep the draw fair.',
+    h1: 'New Year raffle ideas for your year-end party and lucky draw',
+    date: '2026-11-22',
+    updated: '2026-11-22',
+    cover: '/media/blog/covers/new-year-raffle-ideas.jpg',
+    coverAlt: 'A flat illustration of a New Year raffle: a ticket drum full of coloured tickets, wrapped prizes, balloons, a party hat, fireworks and a clock near midnight',
+    shot: '/media/blog/new-year-raffle-ideas.jpg',
+    shotAlt: 'A New Year-themed horse race in SpinDraw: gold and silver horses with party-hat riders, confetti and fireworks over the stands',
+    shotCaption: 'With the New Year theme on, the Horse Race gets gold and silver horses, party hats, confetti and fireworks.',
+    answer: 'A good New Year raffle has free entry for everyone, lots of small prizes through the night and one big prize near midnight, with the draw shown on a big screen or video call. Below are prize ideas, five draw formats and a simple plan for the night.',
+    body: `
+<h2>What makes a good New Year lucky draw?</h2>
+<p>A year-end lucky draw is often the most talked-about part of the party, especially at company events. The ones that go well tend to share a few things:</p>
+<ul>
+  <li><strong>Everyone is in.</strong> One free entry each, including people joining from home.</li>
+  <li><strong>The prizes are spread out.</strong> Many small prizes keep people watching, and one big one gives the night a finale.</li>
+  <li><strong>The draws happen in rounds.</strong> A few prizes every hour beats forty in a row while dessert goes cold.</li>
+  <li><strong>Everyone can see the draw.</strong> On a big screen or a shared screen, so nobody wonders who arranged it.</li>
+</ul>
+
+<h2>New Year raffle prize ideas</h2>
+<div class="table-scroll"><table class="compare">
+  <thead><tr><th>Small prizes</th><th>Mid-range prizes</th><th>Grand prize</th></tr></thead>
+  <tbody>
+    <tr><td>A calendar or planner for the new year</td><td>Wireless earbuds or a smartwatch</td><td>A new phone or tablet</td></tr>
+    <tr><td>Coffee shop or food delivery vouchers</td><td>A hotel staycation voucher</td><td>A weekend trip for two</td></tr>
+    <tr><td>A desk plant or a good mug</td><td>A gym or fitness class pass, for the resolutions</td><td>Cash or a large gift card</td></tr>
+    <tr><td>Movie tickets</td><td>A kitchen gadget like an air fryer</td><td>Extra days of annual leave</td></tr>
+    <tr><td>An extra hour of leave</td><td>A spa voucher</td><td>A charity donation in the winner’s name, matched by the company</td></tr>
+  </tbody>
+</table></div>
+<p>Resolution-themed prizes go down well at this time of year: running shoes, a cookbook, a language app subscription or a journal.</p>
+
+<h2>Five fun ways to run the draw</h2>
+<ol>
+  <li><strong>Hourly draws, grand prize at midnight.</strong> Draw a few small prizes every hour, then save the big one for the countdown.</li>
+  <li><strong>Twelve prizes for twelve months.</strong> Name each prize after a month of the coming year and draw them in order.</li>
+  <li><strong>A New Year horse race.</strong> Every name gets a horse, and with the New Year theme on, the field turns gold and silver with party-hat riders and fireworks. You can let the first three across the line win at once. See the <a href="/horse-race-name-picker/">horse race picker</a>.</li>
+  <li><strong>A last-one-standing battle.</strong> Fighters in party hats, top hats and tiaras battle it out, and the last few standing win.</li>
+  <li><strong>The classic wheel.</strong> Quick and familiar, and it handles a company of any size. Our guide to the <a href="/random-name-picker/">random name picker wheel</a> shows how.</li>
+</ol>
+
+<h2>How to keep a year-end lucky draw fair</h2>
+<p>Year-end draws often come with big prizes, so expect someone to ask whether it was fixed. Lock the list before the first draw so nobody can be added or removed, ask a guest rather than the organiser for a random word to mix in, and share a verify link afterwards so anyone can check every winner. Our guide on <a href="/blog/how-to-pick-a-random-winner-for-a-giveaway/">picking a random winner and proving it was fair</a> covers the details, and the <a href="/office-raffle/">office raffle guide</a> covers running it for a team.</p>
+
+<h2>Check the rules if people pay to enter</h2>
+<p>A free lucky draw is usually simple. If guests buy tickets, many countries treat it as a lottery with rules attached. In the UK, the Gambling Commission publishes <a href="https://www.gamblingcommission.gov.uk/news/article/advice-on-running-lotteries-and-raffles-during-the-festive-season" rel="noopener">advice on running raffles during the festive season</a>. Check the rules where you are. This isn’t legal advice.</p>
+
+<h2>A simple plan for the night</h2>
+<ol>
+  <li>A week before: collect names and agree the prizes, smallest to biggest.</li>
+  <li>On the day: paste the names into SpinDraw, add the prizes in draw order and turn on the New Year theme.</li>
+  <li>At the party: lock the list, ask a guest for a random word, then draw a round every hour.</li>
+  <li>Just before midnight: draw the grand prize, then post the winners and the verify link in the group chat.</li>
+</ol>
+<p>Running a Christmas party too? See our <a href="/blog/office-christmas-raffle-ideas/">office Christmas raffle ideas</a>.</p>`,
+    faq: [
+      ['What is a good grand prize for a New Year raffle?', 'Something people can enjoy in the new year: a trip, a new phone, a large gift card or extra days of leave. Pair it with plenty of smaller prizes so more people win something.'],
+      ['How do you run a lucky draw at a year-end party?', 'Give everyone one free entry, draw small prizes in rounds through the night, and save the grand prize for the countdown. Show the draw on a big screen so everyone can watch.'],
+      ['How can several people win at once?', 'In SpinDraw’s Ball Race, Horse Race and Pixel Battle, set “How many winners?” and the first ones across the line, or the last ones standing, all win in one round.'],
+      ['Do I need a permit for a New Year raffle?', 'Usually not if entry is free. If people pay for tickets, many countries treat it as a lottery with rules or permits. Check the rules where you are.'],
+    ],
+    cta: {
+      heading: 'Run your New Year lucky draw',
+      text: 'Paste your guest list, turn on the New Year theme and let gold horses race for the prizes. Free, and no sign-up.',
+      primary: { label: 'Start a New Year horse race', href: '/app.html?mode=horse&theme=newyear' },
+      secondary: { label: 'Spin a New Year wheel', href: '/app.html?mode=wheel&theme=newyear' },
+    },
+  },
+  {
     slug: 'office-christmas-raffle-ideas',
     title: 'Office Christmas Raffle Ideas: Prizes, Formats and a Fair Draw',
     description: 'Office Christmas raffle ideas that work: prize ideas at every budget, five ways to run the draw, and how to keep it fair for remote and hybrid teams.',
@@ -195,17 +324,17 @@ export const POSTS = [
   },
   {
     slug: 'fun-ways-to-pick-a-winner',
-    title: 'Fun Ways to Pick a Winner: 8 Ideas for Raffles and Parties',
-    description: 'Fun ways to pick a winner for raffles, giveaways, classes and parties: a spinning wheel, ball race, horse race, pixel battle and classic offline ideas.',
+    title: 'Fun Ways to Pick a Winner: 10 Ideas for Raffles and Parties',
+    description: 'Fun ways to pick a winner for raffles, giveaways, classes and parties: a wheel, slot machine, races, pixel battle, bracket and classic offline ideas.',
     h1: 'Fun ways to pick a winner for raffles, classes and parties',
     date: '2026-11-07',
-    updated: '2026-11-07',
+    updated: '2026-11-22',
     cover: '/media/blog/covers/fun-ways-to-pick-a-winner.jpg',
     coverAlt: 'A flat illustration of ways to pick a winner: a prize wheel, marbles rolling down a ramp, a toy racehorse, a pixel knight, dice and a hat full of name slips',
     shot: '/media/blog/fun-ways-to-pick-a-winner.jpg',
     shotAlt: 'Four ways to pick a winner in SpinDraw: a spinning name wheel, a ball race, a horse race and a pixel battle',
-    shotCaption: 'Four ways to reveal the same fair draw in SpinDraw: the wheel, Ball Race, Horse Race and Pixel Battle.',
-    answer: 'The most fun ways to pick a winner turn the draw into something people watch: a spinning wheel, a ball race, a horse race or a last-one-standing battle on screen, or classics like names in a hat and raffle tickets. Pick based on your group size, whether you have a screen, and whether people need proof the draw was fair.',
+    shotCaption: 'Four of the six ways to reveal the same fair draw in SpinDraw: the wheel, Ball Race, Horse Race and Pixel Battle.',
+    answer: 'The most fun ways to pick a winner turn the draw into something people watch: a spinning wheel, a slot machine, a race, a last-one-standing battle or a knockout bracket on screen, or classics like names in a hat and raffle tickets. Pick based on your group size, whether you have a screen, and whether people need proof the draw was fair.',
     body: `
 <h2>On-screen ways to pick a winner</h2>
 <p>These all work on a projector, a TV or a shared screen on a video call. In SpinDraw they all use the same fair draw behind the scenes. The game only changes how the winner is revealed.</p>
@@ -217,6 +346,10 @@ export const POSTS = [
 <p>Each person gets a pixel horse and jockey, and the lead changes as they gallop to the finish. It’s a crowd-pleaser at office parties. With the Christmas theme on, the horses turn into reindeer.</p>
 <h3>4. Pixel battle</h3>
 <p>Names become little pixel fighters who dodge, block and knock each other out while a circle closes in. The last one standing wins. Expect a lot of noise from whoever’s watching.</p>
+<h3>5. Slot machine</h3>
+<p>Pull the lever and the reels spin. The name reel slows down, creeps past a name or two, and lands on the winner while the sevens line up. It takes a few seconds per pull and handles lists of any size.</p>
+<h3>6. Elimination bracket</h3>
+<p>Up to 64 names face off one on one, round by round, and the semi-finals and final are fought as full-screen pixel duels. It picks a champion, a runner-up, and third and fourth place, and people root for their name through every round.</p>
 <h3>Which on-screen picker should you use?</h3>
 <div class="table-scroll"><table class="compare">
   <thead><tr><th>Method</th><th>Best for</th><th>Group size</th><th>How long</th></tr></thead>
@@ -225,37 +358,39 @@ export const POSTS = [
     <tr><td>Ball race</td><td>Giveaways and streams</td><td>Up to 100</td><td>About 20 to 60 seconds</td></tr>
     <tr><td>Horse race</td><td>Office parties and events</td><td>Up to 100</td><td>About 20 to 60 seconds</td></tr>
     <tr><td>Pixel battle</td><td>Groups who like chaos</td><td>Up to 100</td><td>About 20 to 60 seconds</td></tr>
+    <tr><td>Slot machine</td><td>Big lists with a bit of suspense</td><td>Thousands</td><td>About 4 to 8 seconds a pull</td></tr>
+    <tr><td>Elimination bracket</td><td>Teams, classes and game nights</td><td>Up to 64</td><td>About 20 to 60 seconds</td></tr>
   </tbody>
 </table></div>
-<p>The three games can also pick several winners at once, up to 50, such as the first three across the line or the last five standing. You can read more about each in our guides to the <a href="/ball-race-name-picker/">ball race</a>, the <a href="/horse-race-name-picker/">horse race</a> and the <a href="/battle-royale-name-picker/">battle royale picker</a>.</p>
+<p>The races, the battle and the slot machine can also pick several winners at once, up to 50, such as the first three across the line or the last five standing. The bracket picks up to four. Each game has its own page where you can play it straight away: the <a href="/ball-race-name-picker/">ball race</a>, the <a href="/horse-race-name-picker/">horse race</a>, the <a href="/battle-royale-name-picker/">battle royale picker</a>, the <a href="/slot-machine-name-picker/">slot machine</a> and the <a href="/random-bracket-generator/">bracket generator</a>.</p>
 
 <h2>Classic offline ways to pick a winner</h2>
-<h3>5. Names in a hat</h3>
+<h3>7. Names in a hat</h3>
 <p>Write every name on the same size paper, fold them the same way and give the hat a good shake. It’s simple and fun in a room, but it doesn’t work for anyone on a call, and nobody can check it afterwards.</p>
-<h3>6. Raffle tickets</h3>
+<h3>8. Raffle tickets</h3>
 <p>Hand out numbered tickets from a double roll and draw the matching half from a bowl. It’s great for events with walk-in guests. If people pay for tickets, check your local rules first, because paid <a href="https://en.wikipedia.org/wiki/Raffle" rel="noopener">raffles</a> often need a licence.</p>
-<h3>7. Playing cards</h3>
+<h3>9. Playing cards</h3>
 <p>For small groups, deal one card each and draw a matching card from a second deck. Whoever holds the match wins.</p>
-<h3>8. Dice</h3>
+<h3>10. Dice</h3>
 <p>Fine for six people or fewer. Give each person a number and roll. Roll again on a tie.</p>
 
 <h2>How to choose the right method</h2>
 <ul>
-  <li><strong>Over 100 people?</strong> Use the wheel, which handles lists of any size.</li>
+  <li><strong>Over 100 people?</strong> Use the wheel or the slot machine, which handle lists of any size.</li>
   <li><strong>Remote or hybrid group?</strong> Pick something on screen so everyone sees the same draw.</li>
   <li><strong>Prize worth arguing about?</strong> Choose a method people can check afterwards, not just one they watched.</li>
-  <li><strong>Just want a laugh?</strong> Go for a race or a battle. Watching a friend’s horse lose the lead never gets old.</li>
+  <li><strong>Just want a laugh?</strong> Go for a race, a battle or a bracket. Watching a friend’s horse lose the lead never gets old.</li>
 </ul>
 <p>Whatever you pick, a quiz or a game of skill isn’t a random draw. If the prize should be down to luck, use one of the methods above.</p>`,
     faq: [
       ['What is the most fun way to pick a winner?', 'A draw people can watch build up, like a ball race or horse race where the lead changes, is usually more fun than an instant result. A spinning wheel is the quickest option that still has some suspense.'],
       ['What is the fairest way to pick a winner?', 'Use a random draw that everyone can watch and that can be checked afterwards. Locking the list before the draw and sharing a verify link is fairer than a screenshot, because it shows the result came from the list.'],
-      ['How do you pick a winner from a large group?', 'For more than 100 names, use a spinning wheel, which handles thousands of entries. The race and battle games suit groups of up to 100.'],
-      ['Can I pick more than one winner at once?', 'Yes. In SpinDraw’s ball race, horse race and pixel battle, you can set how many winners you want, up to 50.'],
+      ['How do you pick a winner from a large group?', 'For more than 100 names, use a spinning wheel or a slot machine, which handle thousands of entries. The race and battle games suit groups of up to 100, and the bracket up to 64.'],
+      ['Can I pick more than one winner at once?', 'Yes. In SpinDraw’s ball race, horse race, pixel battle and slot machine, you can set how many winners you want, up to 50. The bracket picks up to four.'],
     ],
     cta: {
-      heading: 'Try all four ways to pick a winner',
-      text: 'Spin the wheel, race balls or horses, or start a pixel battle. Same fair draw, four ways to reveal it.',
+      heading: 'Try all six ways to pick a winner',
+      text: 'Spin the wheel, pull a slot machine, race balls or horses, start a pixel battle or run a bracket. Same fair draw, six ways to reveal it.',
       primary: { label: 'Start a pixel battle', href: '/app.html?mode=battle' },
       secondary: { label: 'Try the horse race', href: '/app.html?mode=horse' },
     },

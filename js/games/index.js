@@ -4,10 +4,11 @@ import { makeRng, assignSlots, MAX_PLAYERS, MAX_WINNERS, LENGTHS } from './rng.j
 import { RaceSim, preRunRace, WORLD_W } from './race-sim.js';
 import { BattleSim, preRunBattle, BATTLE_DT, DODGE_TIME } from './battle-sim.js';
 import { HorseSim, preRunHorse } from './horse-sim.js';
+import { BracketSim, preRunBracket, BRACKET_MAX, BRACKET_WINNERS } from './bracket-sim.js';
 import { framesFor, paintArena, horseFrames } from './sprites.js';
 import { seasonOf } from './seasons.js';
 
-export { MAX_PLAYERS, MAX_WINNERS, LENGTHS };
+export { MAX_PLAYERS, MAX_WINNERS, LENGTHS, BRACKET_MAX, BRACKET_WINNERS };
 
 const BALL_COLORS = ['#ffd23f', '#ff5d73', '#2ec4b6', '#3a86ff', '#ff9f1c'];
 // Each course picks one of these looks (index from the course itself). Seasonal themes keep theirs.
@@ -17,19 +18,22 @@ const COURSE_LOOKS = [
   { bg: '#1b1621', depth: '#241d2c', peg: '#8b7f99', wall: '#5b4a6e', bump: '#2ec4b6', ring: '#ffd23f', rot: '#ff5d73', mover: '#ffd23f', pin: '#f4f1e8' },
   { bg: '#121c1b', depth: '#182624', peg: '#7c9690', wall: '#3f6460', bump: '#ff5d73', ring: '#f4f1e8', rot: '#ffd23f', mover: '#3a86ff', pin: '#e8e4d8' },
 ];
-const FOOT = { race: 'The locked draw decides. The race reveals it.', battle: 'The locked draw decides. The battle reveals it.' };
+const FOOT = { race: 'The locked draw decides. The race reveals it.', battle: 'The locked draw decides. The battle reveals it.', slot: 'The locked draw decides. The reels reveal it.', bracket: 'The locked draw decides. The bracket reveals it.' };
 const COUNT_STEP = 0.8, GO_SECS = 0.95, SCENE_SECS = 3.4;
 const STAGE = {
   race: { go: 'LET’S ROLL!', color: '#ffd23f' },
   horse: { go: 'AND THEY’RE OFF!', color: '#ffe9a0' },
   battle: { go: 'LET’S BATTLE!', color: '#ff5d73' },
+  slot: { go: 'JACKPOT!', color: '#ffd23f' },
+  bracket: { go: 'FIGHT!', color: '#ff5d73' },
 };
 const ordinal = n => { const t = n % 100; return n + (t > 10 && t < 14 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'); };
 
 function plate(g, x, y, w, h, r, fill = 'rgba(15,16,19,.86)') {
+  if (!(w > 0 && h > 0)) return; // a canvas still sizing up can ask for empty boxes
   g.fillStyle = fill;
   g.beginPath();
-  g.roundRect(x, y, w, h, r);
+  g.roundRect(x, y, w, h, Math.max(0, Math.min(r, w / 2, h / 2)));
   g.fill();
 }
 
@@ -321,7 +325,7 @@ class View {
     g.fillStyle = this.stageColor;
     g.fillText(title, 0, 0);
     g.restore();
-    this.footer(this.mode === 'battle' ? FOOT.battle : FOOT.race);
+    this.footer(FOOT[this.mode] ?? FOOT.race);
   }
 
   // Who's-winning board shared by the two races. `left` > 0 gives it its own column.
@@ -1088,9 +1092,405 @@ class HorseView extends View {
   }
 }
 
+// ---------- Slot Machine ----------
+// No simulation: the reels are pure animation from the draw's seed, so the app and the overlay
+// spin identically, and the name reel always stops on the drawn winner.
+const SLOT_SECS = { quick: 4.2, normal: 6, epic: 8.5 };
+const SYMBOLS = ['seven', 'cherry', 'bell', 'star', 'bar', 'gem'];
+
+function drawSymbol(g, kind, x, y, s) {
+  g.save();
+  g.translate(x, y);
+  if (kind === 'seven') {
+    g.font = `900 ${s * 0.95}px 'Geist', system-ui, sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineWidth = s * 0.1; g.strokeStyle = '#0f1013'; g.strokeText('7', 0, s * 0.04);
+    g.fillStyle = '#e63946'; g.fillText('7', 0, s * 0.04);
+  } else if (kind === 'cherry') {
+    g.strokeStyle = '#2f9e44'; g.lineWidth = s * 0.07;
+    g.beginPath(); g.moveTo(-s * 0.18, s * 0.05); g.quadraticCurveTo(-s * 0.05, -s * 0.35, s * 0.15, -s * 0.38); g.moveTo(s * 0.18, s * 0.1); g.quadraticCurveTo(s * 0.2, -s * 0.2, s * 0.15, -s * 0.38); g.stroke();
+    g.fillStyle = '#d7263d';
+    for (const [cx, cy] of [[-s * 0.2, s * 0.15], [s * 0.18, s * 0.2]]) { g.beginPath(); g.arc(cx, cy, s * 0.19, 0, 6.2832); g.fill(); }
+  } else if (kind === 'bell') {
+    g.fillStyle = '#ffd23f'; g.strokeStyle = '#b98900'; g.lineWidth = s * 0.05;
+    g.beginPath(); g.moveTo(-s * 0.32, s * 0.22); g.quadraticCurveTo(-s * 0.3, -s * 0.38, 0, -s * 0.38); g.quadraticCurveTo(s * 0.3, -s * 0.38, s * 0.32, s * 0.22); g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.arc(0, s * 0.28, s * 0.08, 0, 6.2832); g.fill();
+  } else if (kind === 'star') {
+    g.fillStyle = '#ffd23f'; g.beginPath();
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? s * 0.18 : s * 0.4; g.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    g.closePath(); g.fill();
+  } else if (kind === 'bar') {
+    g.fillStyle = '#0f1013'; g.fillRect(-s * 0.36, -s * 0.16, s * 0.72, s * 0.32);
+    g.font = `800 ${s * 0.24}px 'Geist', system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#f4f1e8'; g.fillText('BAR', 0, s * 0.01);
+  } else {
+    g.fillStyle = '#3a86ff'; g.beginPath(); g.moveTo(0, -s * 0.36); g.lineTo(s * 0.3, -s * 0.08); g.lineTo(0, s * 0.36); g.lineTo(-s * 0.3, -s * 0.08); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.45)'; g.beginPath(); g.moveTo(0, -s * 0.36); g.lineTo(s * 0.12, -s * 0.08); g.lineTo(-s * 0.12, -s * 0.08); g.closePath(); g.fill();
+  }
+  g.restore();
+}
+
+class SlotView extends View {
+  setEntries(pool) {
+    this.pool = pool;
+    this.slots = pool.map((_, i) => i);
+    this.strip = this.makeStrip(makeRng('slot-idle'));
+    this.pos = 0; this.side = [0, 0]; this.lever = 0;
+    this.won = []; this.live = false; this.scene = null;
+    if (!this.playing) this.draw();
+  }
+
+  // The reel order: every name once in a seeded order, repeated so short lists still fill a reel.
+  makeStrip(rng) {
+    const ids = this.pool.map((_, i) => i);
+    for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+    let strip = ids.slice();
+    while (strip.length && strip.length < 9) strip = strip.concat(ids);
+    return strip;
+  }
+
+  async play({ seed, winnerIdxs, length, onLeader, sound }) {
+    this.strip = this.makeStrip(makeRng(`${seed}|strip`));
+    this.won = []; this.live = true; this.scene = null;
+    const count = winnerIdxs.length, base = SLOT_SECS[length] ?? SLOT_SECS.normal;
+    const per = count === 1 ? base : Math.max(1.6, Math.min(base * 0.7, 30 / count));
+    const L = this.strip.length;
+    sound?.startMusic?.(this.mode);
+    onLeader?.('Pull!');
+    for (let j = 0; j < count && !this.dead; j++) {
+      const rng = makeRng(`${seed}|pull${j}`), target = this.strip.indexOf(winnerIdxs[j]);
+      const from = this.pos, loops = (count === 1 ? 3 : 1) + Math.floor(rng() * 2);
+      const dist = loops * L + ((target - (from % L)) % L + L) % L, nearMiss = rng() < 0.65 ? 0.55 + rng() * 0.3 : 0;
+      const sides = [[this.side[0], 2 + Math.floor(rng() * 3)], [this.side[1], 3 + Math.floor(rng() * 3)]];
+      let lastName = Math.floor(from);
+      if (j === count - 1 && count === 1) sound?.tension?.();
+      await this.run(per + 0.35, (t) => {
+        const u = Math.min(1, t / per);
+        this.lever = Math.max(0, 1 - Math.abs(t - 0.18) / 0.18);
+        // Name reel: fast, then a long ease out; with a near miss it crawls just past and settles back.
+        let e = 1 - (1 - u) ** 4;
+        if (nearMiss) { const back = Math.max(0, (u - 0.86) / 0.14); e = Math.min(1, 1 - (1 - Math.min(1, u / 0.86)) ** 4) * (1 + nearMiss / dist) - (nearMiss / dist) * (back * back * (3 - 2 * back)); }
+        this.pos = from + dist * e;
+        sides.forEach(([s0, turns], k) => {
+          const stop = per * (0.5 + 0.18 * k), w = Math.min(1, t / stop), land = ((0 - (s0 % SYMBOLS.length)) % SYMBOLS.length + SYMBOLS.length) % SYMBOLS.length;
+          this.side[k] = s0 + (turns * SYMBOLS.length + land) * (1 - (1 - w) ** 3);
+        });
+        const cur = Math.floor(this.pos + 0.5);
+        if (cur !== lastName) { lastName = cur; sound?.tick(); }
+        this.draw();
+      });
+      this.pos = from + dist; this.side = this.side.map(Math.round);
+      this.won.push(winnerIdxs[j]);
+      onLeader?.(this.name(winnerIdxs[j]));
+    }
+    if (!this.dead) await this.celebrate(sound, winnerIdxs);
+  }
+
+  drawField() { this.draw(); }
+  sceneTitle(n) { return n > 1 ? `${n} JACKPOTS!` : 'JACKPOT!'; }
+
+  sceneBack(t) {
+    const { g, canvas: c } = this, r = Math.max(6, Math.min(c.width, c.height) * 0.022);
+    for (let i = 0; i < 30; i++) {
+      const period = 1.4 + (i % 5) * 0.2, u = ((t + i * 0.23) % period) / period, x = (i + 0.5) / 30 * c.width + Math.sin(t * 2 + i) * r;
+      g.fillStyle = '#ffd23f'; g.beginPath(); g.ellipse(x, u * c.height, r * Math.abs(Math.cos(t * 4 + i)) + 1, r, 0, 0, 6.2832); g.fill();
+    }
+  }
+
+  sceneActor(slot, x, y, size, t) {
+    const { g } = this, r = size * 0.42, spin = Math.abs(Math.cos(t * 3));
+    g.save(); g.translate(x, y - r - Math.abs(Math.sin(t * 5)) * size * 0.1);
+    g.scale(0.35 + 0.65 * spin, 1);
+    g.fillStyle = '#ffd23f'; g.beginPath(); g.arc(0, 0, r, 0, 6.2832); g.fill();
+    g.lineWidth = r * 0.12; g.strokeStyle = '#b98900'; g.stroke();
+    g.font = `800 ${r * 0.7}px 'Geist', system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#7a5a00'; g.fillText(initials(this.name(slot)), 0, r * 0.04);
+    g.restore();
+  }
+
+  draw() {
+    const { g, canvas: c } = this;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.fillStyle = '#0d0e12'; g.fillRect(0, 0, c.width, c.height);
+    if (!this.pool.length) return this.empty('Add names to spin');
+    const t = performance.now() / 1000, seasonal = this.season !== 'none';
+    const body = seasonal ? this.look.colors[0] : '#d7263d', trim = seasonal ? this.look.accent : '#ffd23f';
+    const glow = g.createRadialGradient(c.width / 2, c.height * 0.45, 0, c.width / 2, c.height * 0.45, Math.max(c.width, c.height) * 0.7);
+    glow.addColorStop(0, '#24202b'); glow.addColorStop(1, '#0d0e12');
+    g.fillStyle = glow; g.fillRect(0, 0, c.width, c.height);
+    this.drawWeather(t);
+
+    // Cabinet
+    const W = Math.min(c.width * 0.8, c.height * 1.25), H = Math.min(c.height * 0.84, W * 0.78);
+    const x0 = (c.width - W) / 2 - W * 0.03, y0 = (c.height - H) / 2 - c.height * 0.02, R = W * 0.04;
+    plate(g, x0, y0, W, H, R, body);
+    plate(g, x0 + W * 0.02, y0 + W * 0.02, W * 0.96, H - W * 0.04, R * 0.8, 'rgba(0,0,0,.18)');
+    // Marquee with chasing bulbs
+    const mh = H * 0.2;
+    plate(g, x0 + W * 0.06, y0 + H * 0.05, W * 0.88, mh, R * 0.6, '#0f1013');
+    const bulbs = 18, br = Math.max(2, W * 0.009);
+    for (let i = 0; i < bulbs; i++) {
+      const on = (Math.floor(t * 6) + i) % 3 === 0 || (this.won.length && !this.playing);
+      g.fillStyle = on ? trim : 'rgba(255,255,255,.18)';
+      const bx = x0 + W * 0.08 + (i + 0.5) / bulbs * W * 0.84;
+      for (const by of [y0 + H * 0.05 + br * 2.2, y0 + H * 0.05 + mh - br * 2.2]) { g.beginPath(); g.arc(bx, by, br, 0, 6.2832); g.fill(); }
+    }
+    let mf = mh * 0.42;
+    g.font = `900 ${mf}px 'Geist', system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineWidth = mf * 0.12; g.strokeStyle = '#0f1013';
+    g.fillStyle = trim; g.fillText('JACKPOT', x0 + W / 2, y0 + H * 0.05 + mh / 2 + mf * 0.04);
+
+    // Reel window: symbol reel, name reel, symbol reel
+    const wy = y0 + H * 0.31, wh = H * 0.46, wx = x0 + W * 0.06, ww = W * 0.88;
+    plate(g, wx - W * 0.012, wy - W * 0.012, ww + W * 0.024, wh + W * 0.024, R * 0.5, trim);
+    const sideW = ww * 0.19, gap = ww * 0.015, nameW = ww - sideW * 2 - gap * 2, rowH = wh / 3;
+    const reels = [[wx, sideW, 'side', 0], [wx + sideW + gap, nameW, 'name'], [wx + sideW * 2 + gap * 2 + nameW - sideW, sideW, 'side', 1]];
+    reels[2][0] = wx + ww - sideW;
+    for (const [rx, rw, kind, k] of reels) {
+      plate(g, rx, wy, rw, wh, R * 0.3, '#f8f6ef');
+      g.save(); g.beginPath(); g.rect(rx, wy, rw, wh); g.clip();
+      const p = kind === 'name' ? this.pos : this.side[k], base = Math.floor(p), frac = p - base;
+      for (let row = -2; row <= 2; row++) {
+        const cy = wy + wh / 2 + (row - frac) * rowH;
+        if (kind === 'name') {
+          const L = this.strip.length, slot = this.strip[(((base + row) % L) + L) % L];
+          const nf = Math.min(rowH * 0.34, nameW * 0.075);
+          g.font = `700 ${nf}px 'Geist', system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+          g.fillStyle = this.won.includes(slot) && this.playing ? '#a1a1aa' : '#0f1013';
+          g.fillText(fit(g, this.name(slot), nameW * 0.9), rx + rw / 2, cy);
+        } else {
+          const n = SYMBOLS.length, sym = SYMBOLS[(((base + row) % n) + n) % n];
+          drawSymbol(g, sym, rx + rw / 2, cy, Math.min(rowH * 0.8, rw * 0.8));
+        }
+      }
+      // shading so it reads as a drum
+      const sh = g.createLinearGradient(0, wy, 0, wy + wh);
+      sh.addColorStop(0, 'rgba(0,0,0,.45)'); sh.addColorStop(0.3, 'rgba(0,0,0,0)'); sh.addColorStop(0.7, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,.45)');
+      g.fillStyle = sh; g.fillRect(rx, wy, rw, wh);
+      g.restore();
+    }
+    // Pay line
+    g.fillStyle = trim;
+    g.fillRect(wx - W * 0.03, wy + wh / 2 - 1.5 * this.px, W * 0.018, 3 * this.px);
+    g.fillRect(wx + ww + W * 0.012, wy + wh / 2 - 1.5 * this.px, W * 0.018, 3 * this.px);
+    g.strokeStyle = 'rgba(230,57,70,.85)'; g.lineWidth = 2.5 * this.px;
+    g.strokeRect(wx, wy + wh / 2 - rowH / 2, ww, rowH);
+
+    // Lever
+    const lx = x0 + W + W * 0.035, ly = y0 + H * 0.42, pull = this.lever;
+    g.fillStyle = '#5b6170'; g.fillRect(lx - W * 0.012, ly - H * 0.04, W * 0.03, H * 0.12);
+    g.strokeStyle = '#c9ccd1'; g.lineWidth = W * 0.014; g.lineCap = 'round';
+    const tipY = ly - H * 0.3 + pull * H * 0.42;
+    g.beginPath(); g.moveTo(lx + W * 0.003, ly); g.lineTo(lx + W * 0.003, tipY); g.stroke();
+    g.fillStyle = '#e63946'; g.beginPath(); g.arc(lx + W * 0.003, tipY, W * 0.032, 0, 6.2832); g.fill();
+
+    // Tray: winners so far, or a prompt
+    const ty = y0 + H * 0.83, tf = Math.max(11 * this.px, H * 0.045);
+    plate(g, x0 + W * 0.06, ty, W * 0.88, H * 0.12, R * 0.4, '#0f1013');
+    g.font = `600 ${tf}px 'Geist', system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = '#f4f4f5';
+    const tray = this.won.length ? (this.won.length > 1 ? `Winners: ${this.won.map(s => this.name(s)).join(', ')}` : `Winner: ${this.name(this.won[0])}`)
+      : this.live ? 'Good luck!' : `${this.pool.length} name${this.pool.length === 1 ? '' : 's'} on the reel`;
+    g.fillText(fit(g, tray, W * 0.84), x0 + W / 2, ty + H * 0.06);
+    this.footer(FOOT.slot);
+  }
+
+  empty(text) {
+    const { g, canvas: c } = this;
+    g.fillStyle = '#a1a1aa'; g.font = `600 ${c.width * 0.025}px 'Geist', system-ui, sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, c.width / 2, c.height / 2);
+  }
+}
+
+// ---------- Elimination Bracket ----------
+const roundName = (size, r, rounds) => {
+  const left = size >> r;
+  return r === rounds - 1 ? 'FINAL' : left === 4 ? 'SEMI-FINALS' : left === 8 ? 'QUARTER-FINALS' : `ROUND OF ${left}`;
+};
+
+class BracketView extends View {
+  setEntries(pool) {
+    this.pool = pool;
+    this.sim = pool.length >= 2 ? new BracketSim(Math.min(pool.length, BRACKET_MAX), 'idle', 'quick', 1) : null;
+    this.slots = pool.map((_, i) => i);
+    this.t = 0; this.live = false; this.scene = null;
+    if (!this.playing) this.draw();
+  }
+
+  async play({ seed, winnerIdxs, length, onLeader, sound }) {
+    const n = this.pool.length, count = winnerIdxs.length, pre = preRunBracket(n, seed, length, count);
+    this.sim = new BracketSim(n, seed, length, count);
+    this.slots = assignSlots(n, winnerIdxs, pre.winSlots, makeRng(`${seed}|slots`));
+    this.t = 0; this.live = true; this.scene = null;
+    onLeader?.(`${n} in the bracket`);
+    await this.countdown(sound);
+    if (this.dead) return;
+    let lastStep = -1, hits = 0;
+    await this.run(pre.finishAt + 1.4, (t, dt) => {
+      this.t = t;
+      const i = this.stepIndex(t), step = this.sim.steps[i];
+      if (i !== lastStep) {
+        lastStep = i; hits = 0;
+        if (step.kind === 'duel') onLeader?.(`${this.duelTitle(step.match)}: ${this.name(step.match.a)} vs ${this.name(step.match.b)}`);
+        else onLeader?.(roundName(this.sim.size, step.round, this.sim.roundCount).toLowerCase().replace(/^./, ch => ch.toUpperCase()));
+        if (step.kind === 'duel' && !step.match.third && step.match.round === this.sim.roundCount - 1) sound?.tension?.();
+      }
+      if (step.kind === 'duel') {
+        const done = this.scriptAt(step, t).done;
+        for (; hits < done; hits++) sound?.tick();
+        if (t >= step.end - 0.05 && hits >= step.match.script.length) onLeader?.(`${this.name(step.match.winner)} wins the ${this.duelTitle(step.match).toLowerCase()}`);
+      }
+      this.draw(dt);
+    });
+    if (!this.dead) await this.celebrate(sound, pre.winSlots);
+  }
+
+  stepIndex(t) {
+    const s = this.sim.steps;
+    for (let i = 0; i < s.length; i++) if (t < s[i].end) return i;
+    return s.length - 1;
+  }
+
+  duelTitle(m) {
+    if (m.third) return 'Third-place match';
+    return m.round === this.sim.roundCount - 1 ? 'Final' : m.round === this.sim.roundCount - 2 ? 'Semi-final' : 'Match';
+  }
+
+  // How far through a duel's script we are: moves happen between 15% and 85% of the slot.
+  scriptAt(step, t) {
+    const s = step.match.script, u = (t - step.start) / (step.end - step.start), a = 0.15, b = 0.85;
+    const per = (b - a) / Math.max(1, s.length), k = Math.floor((u - a) / per);
+    return { done: Math.max(0, Math.min(s.length, k + 1)), cur: k >= 0 && k < s.length ? k : -1, phase: ((u - a) / per) - k, u };
+  }
+
+  drawField() { this.draw(); }
+  sceneTitle(n) { return n > 1 ? `TOP ${n}!` : 'CHAMPION!'; }
+  sceneNote(slot) { return ['Champion', 'Runner-up', 'Third place', 'Fourth place'][this.sim.winSlots.indexOf(slot)] ?? ''; }
+  sceneBack(t) { BattleView.prototype.sceneBack.call(this, t); }
+  sceneActor(slot, x, y, size, t, place) { BattleView.prototype.sceneActor.call(this, slot, x, y, size, t, place); }
+
+  draw() {
+    const { g, canvas: c, sim } = this;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.imageSmoothingEnabled = false;
+    const ground = this.look.arena.ground;
+    g.fillStyle = '#0d0e12'; g.fillRect(0, 0, c.width, c.height);
+    if (!sim) {
+      g.fillStyle = '#a1a1aa'; g.font = `600 ${c.width * 0.025}px 'Geist', system-ui, sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('Add at least 2 names for a bracket', c.width / 2, c.height / 2);
+      return;
+    }
+    const step = this.live ? sim.steps[this.stepIndex(this.t)] : { kind: 'round', round: 0, start: 0, end: 1, idle: true };
+    if (step.kind === 'duel') this.drawDuel(step, ground); else this.drawRound(step, ground);
+    if (this.live && this.t >= sim.finishAt) {
+      // Hold on the final result until the winner's scene takes over.
+    }
+    this.footer(FOOT.bracket);
+  }
+
+  header(text, sub) {
+    const { g, canvas: c } = this, f = Math.max(16 * this.px, Math.min(c.width, c.height * 1.6) * 0.03);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = `800 ${f}px 'Geist', system-ui, sans-serif`;
+    g.lineJoin = 'round'; g.lineWidth = f * 0.16; g.strokeStyle = '#0d0e12';
+    g.strokeText(text, c.width / 2, f * 1.1);
+    g.fillStyle = this.stageColor; g.fillText(text, c.width / 2, f * 1.1);
+    if (sub) { g.font = `600 ${f * 0.48}px 'Geist Mono', monospace`; g.fillStyle = '#d4d4d8'; g.fillText(sub, c.width / 2, f * 2.05); }
+    return f * 2.6;
+  }
+
+  drawRound(step, ground) {
+    const { g, canvas: c, sim } = this, r = step.round, matches = sim.rounds[r];
+    const t = performance.now() / 1000;
+    g.fillStyle = ground[1]; g.fillRect(0, 0, c.width, c.height);
+    for (let y = 0; y < c.height; y += 24 * this.px) { g.fillStyle = ground[0]; g.fillRect(0, y, c.width, 12 * this.px); }
+    g.fillStyle = 'rgba(13,14,18,.55)'; g.fillRect(0, 0, c.width, c.height);
+    this.drawWeather(t);
+    const top = this.header(step.idle ? `${sim.n} READY` : roundName(sim.size, r, sim.roundCount), step.idle ? `Bracket of ${sim.size}${sim.size > sim.n ? ` · ${sim.size - sim.n} bye${sim.size - sim.n === 1 ? '' : 's'}` : ''}` : `Round ${r + 1} of ${sim.roundCount}`);
+    const n = matches.length, aspect = c.width / Math.max(1, c.height - top - 40 * this.px);
+    const cols = Math.max(1, Math.min(n, Math.round(Math.sqrt(n * aspect * 0.55)))), rows = Math.ceil(n / cols);
+    const pad = 8 * this.px, gw = (c.width - pad * 2) / cols, gh = (c.height - top - 34 * this.px) / rows;
+    const u = step.idle ? 0 : (this.t - step.start) / (step.end - step.start), decided = u > 0.72;
+    const f = Math.max(9 * this.px, Math.min(gh * 0.17, gw * 0.085));
+    matches.forEach((m, i) => {
+      const x = pad + (i % cols) * gw, y = top + Math.floor(i / cols) * gh, w = gw - pad, h = gh - pad;
+      plate(g, x, y, w, h, Math.min(w, h) * 0.08, 'rgba(15,16,19,.82)');
+      const sprite = Math.min(h * 0.42, w * 0.16);
+      [[m.a, 0], [m.b, 1]].forEach(([slot, k]) => {
+        const ry = y + h * (k ? 0.72 : 0.28);
+        if (slot < 0) { g.font = `500 ${f * 0.9}px 'Geist', system-ui, sans-serif`; g.textAlign = 'left'; g.fillStyle = '#71717a'; g.fillText('bye', x + w * 0.08 + sprite * 1.2, ry); return; }
+        const lost = decided && !m.bye && m.loser === slot, wonIt = decided && m.winner === slot;
+        const fr = framesFor(this.name(slot), this.season), swing = !decided && !step.idle && Math.floor(t * 4 + i + k) % 3 === 0;
+        g.globalAlpha = lost ? 0.35 : 1;
+        g.drawImage(lost ? fr.dead : swing ? fr.attack : fr.idle, x + w * 0.05, ry - sprite * 0.6, sprite, sprite);
+        g.font = `${wonIt ? 700 : 600} ${f}px 'Geist', system-ui, sans-serif`; g.textAlign = 'left'; g.textBaseline = 'middle';
+        g.fillStyle = wonIt ? '#ffd23f' : '#f4f4f5';
+        const label = fit(g, this.name(slot), w - sprite * 1.4 - w * 0.12);
+        g.fillText(label, x + w * 0.08 + sprite * 1.2, ry);
+        if (lost) { const lw = g.measureText(label).width; g.fillStyle = '#ff5d73'; g.fillRect(x + w * 0.08 + sprite * 1.2, ry, lw, Math.max(1, this.px)); }
+        g.globalAlpha = 1;
+      });
+      g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(x + w * 0.05, y + h / 2, w * 0.9, Math.max(1, this.px));
+    });
+  }
+
+  drawDuel(step, ground) {
+    const { g, canvas: c } = this, m = step.match, t = performance.now() / 1000;
+    g.fillStyle = ground[0]; g.fillRect(0, 0, c.width, c.height);
+    const floorY = c.height * 0.72;
+    g.fillStyle = ground[1]; g.fillRect(0, floorY, c.width, c.height - floorY);
+    g.fillStyle = 'rgba(13,14,18,.35)'; g.fillRect(0, 0, c.width, floorY);
+    const spot = g.createRadialGradient(c.width / 2, floorY, 0, c.width / 2, floorY, c.width * 0.45);
+    spot.addColorStop(0, 'rgba(255,255,255,.16)'); spot.addColorStop(1, 'rgba(0,0,0,.35)');
+    g.fillStyle = spot; g.fillRect(0, 0, c.width, c.height);
+    this.drawWeather(t);
+    const top = this.header(this.duelTitle(m).toUpperCase(), m.third ? 'For third and fourth place' : `Round ${m.round + 1} of ${this.sim.roundCount}`);
+    const s = this.scriptAt(step, this.t), size = Math.min(c.height * 0.38, c.width * 0.22);
+    const hp = { w: 3, l: 3 };
+    for (let i = 0; i < s.done; i++) { const e = m.script[i]; if (e.move === 'hit') { if (e.by === 'w') hp.l--; else hp.w--; } }
+    const over = s.done >= m.script.length && s.u > 0.88;
+    const sides = [[m.a, -1], [m.b, 1]];
+    for (const [slot, dir] of sides) {
+      const isW = slot === m.winner, who = isW ? 'w' : 'l';
+      const ev = s.cur >= 0 ? m.script[s.cur] : null, ph = Math.max(0, Math.min(1, s.phase));
+      let dx = 0, dy = 0, img = 'idle', flash = false, rot = 0;
+      if (ev && ev.by === who) { dx = -dir * Math.sin(ph * Math.PI) * c.width * 0.09; img = ph > 0.35 && ph < 0.7 ? 'attack' : 'idle'; }
+      if (ev && ev.by !== who) {
+        if (ev.move === 'hit' && ph > 0.45 && ph < 0.75) { flash = true; dx = dir * c.width * 0.02; }
+        if (ev.move === 'dodge' && ph > 0.3 && ph < 0.8) { dx = dir * c.width * 0.05; dy = -Math.sin((ph - 0.3) / 0.5 * Math.PI) * size * 0.25; rot = dir * Math.sin((ph - 0.3) / 0.5 * Math.PI) * 0.3; }
+      }
+      if (over && !isW) img = 'dead';
+      const bob = over && isW ? Math.abs(Math.sin(t * 7)) * size * 0.08 : 0;
+      const x = c.width / 2 + dir * c.width * 0.18 + dx, y = floorY - dy - bob;
+      g.save(); g.translate(x, y); g.scale(-dir, 1); g.rotate(rot);
+      if (flash) g.filter = 'brightness(2.4)';
+      const fr = framesFor(this.name(slot), this.season);
+      g.drawImage(fr[img], -size / 2, -size, size, size);
+      g.restore();
+      if (ev && ev.by !== who && (ev.move === 'block' || ev.move === 'dodge') && ph > 0.4 && ph < 0.95) {
+        const f = size * 0.16; g.font = `800 ${f}px 'Geist Mono', monospace`; g.textAlign = 'center';
+        g.fillStyle = ev.move === 'block' ? '#c7d2fe' : '#7dd3fc'; g.fillText(ev.move.toUpperCase(), x, y - size * 1.1);
+      }
+      // name plate and hearts
+      const f = Math.max(12 * this.px, size * 0.14), lives = Math.max(0, isW ? hp.w : hp.l);
+      g.font = `700 ${f}px 'Geist', system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      const label = fit(g, this.name(slot), c.width * 0.36), w = g.measureText(label).width + f;
+      const ny = floorY + f * 1.4;
+      plate(g, x - w / 2, ny - f * 0.75, w, f * 1.5, f * 0.3, over && isW ? '#ffd23f' : 'rgba(15,16,19,.85)');
+      g.fillStyle = over && isW ? '#14151a' : '#f4f4f5'; g.fillText(label, x, ny);
+      for (let k = 0; k < 3; k++) { g.fillStyle = k < lives ? '#ff5d73' : 'rgba(255,255,255,.2)'; g.fillRect(x + (k - 1) * f * 0.9 - f * 0.3, ny + f * 1.05, f * 0.6, f * 0.5); }
+    }
+    g.font = `900 ${size * 0.3}px 'Geist', system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillStyle = 'rgba(255,255,255,.85)'; if (!over) g.fillText('VS', c.width / 2, floorY - size * 0.5);
+  }
+}
+
+const VIEWS = { race: RaceView, horse: HorseView, battle: BattleView, slot: SlotView, bracket: BracketView };
+export const GAME_MODES = Object.keys(VIEWS);
+
 export function createGame(mode, canvas, theme) {
-  const View = mode === 'battle' ? BattleView : mode === 'horse' ? HorseView : RaceView;
-  const view = new View(canvas, theme);
-  view.mode = mode === 'battle' || mode === 'horse' ? mode : 'race';
+  const key = VIEWS[mode] ? mode : 'race';
+  const view = new VIEWS[key](canvas, theme);
+  view.mode = key;
   return view;
 }

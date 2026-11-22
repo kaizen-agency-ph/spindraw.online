@@ -218,8 +218,11 @@ const JINGLES = {
   battle: { lead: 0.25, step: 0.12, notes: [['A5', 0, 1], ['C6', 1, 1], ['E6', 2, 1], ['F6', 3, 2], ['G6', 5, 2], ['C7', 7, 7]], bass: [['A2', 0, 3], ['F2', 3, 2], ['G2', 5, 2], ['C3', 7, 7]] },
 };
 
+// The newer games borrow a track and a jingle from an older one.
+const ALIAS = { slot: 'race', bracket: 'battle' };
+
 export function scheduleJingle(ctx, dest, mode, at) {
-  const j = JINGLES[mode];
+  const j = JINGLES[mode] ?? JINGLES[ALIAS[mode]];
   if (!j) return at;
   let end = at;
   for (const [n, s, len] of j.notes) {
@@ -262,7 +265,7 @@ export function createMusicPlayer(getContext, volume = 0.55) {
     get playing() { return !!run; },
     start(mode) {
       this.stop();
-      const song = SONGS[mode];
+      const song = SONGS[mode] ?? SONGS[ALIAS[mode]];
       if (!song) return;
       const ctx = getContext(), master = ctx.createGain();
       master.gain.value = volume;

@@ -4,6 +4,7 @@ import { makeRng, assignSlots } from './rng.js';
 import { RaceSim } from './race-sim.js';
 import { HorseSim } from './horse-sim.js';
 import { BattleSim } from './battle-sim.js';
+import { BracketSim } from './bracket-sim.js';
 
 function raceReport(Sim, { seed, length, count, pool, winnerIdxs }) {
   const n = pool.length, want = Math.min(count, n), sim = new Sim(n, seed, length);
@@ -53,7 +54,18 @@ function battleReport({ seed, length, count, pool, winnerIdxs }) {
   };
 }
 
+function bracketReport({ seed, length, count, pool, winnerIdxs }) {
+  const n = pool.length, sim = new BracketSim(n, seed, length, count);
+  const slots = assignSlots(n, winnerIdxs, sim.winSlots, makeRng(`${seed}|slots`));
+  const name = slot => (slot >= 0 ? pool[slots[slot]].name : null);
+  const side = m => ({ winner: name(m.winner), loser: name(m.loser), bye: m.bye });
+  const rounds = sim.rounds.map((ms, r) => ({ round: r, matches: ms.map(side) }));
+  if (sim.third) rounds.push({ round: 'third', matches: [side(sim.third)] });
+  return { kind: 'bracket', players: n, size: sim.size, duration: sim.finishAt, winSlots: sim.winSlots, rounds, standings: sim.winSlots.map(s => name(s)) };
+}
+
 export function matchReport(match) {
+  if (match.mode === 'bracket') return bracketReport(match);
   if (match.mode === 'battle') return battleReport(match);
   return raceReport(match.mode === 'horse' ? HorseSim : RaceSim, match);
 }

@@ -8,6 +8,7 @@ import { makeRng, assignSlots } from '../js/games/rng.js';
 import { RaceSim, preRunRace, SECTION_KINDS } from '../js/games/race-sim.js';
 import { BattleSim, preRunBattle } from '../js/games/battle-sim.js';
 import { HorseSim, preRunHorse } from '../js/games/horse-sim.js';
+import { BracketSim, preRunBracket, BRACKET_WINNERS } from '../js/games/bracket-sim.js';
 import { matchReport } from '../js/games/match-report.js';
 import { SEASONS, SEASON_IDS, SPRITE_PAL, SEASON_FIGHTER_GRIDS, SEASON_HORSE_GRIDS, seasonOf, withSeason } from '../js/games/seasons.js';
 import { SONGS, CHORDS, songBars } from '../js/games/music.js';
@@ -368,11 +369,38 @@ await test('seasonal themes: every sprite row fits and every colour exists', () 
 });
 
 await test('seasonal themes can never reach a simulation', () => {
-  for (const file of ['race-sim', 'horse-sim', 'battle-sim', 'rng', 'match-report']) {
+  for (const file of ['race-sim', 'horse-sim', 'battle-sim', 'bracket-sim', 'rng', 'match-report']) {
     const src = readFileSync(new URL(`../js/games/${file}.js`, import.meta.url), 'utf8');
     assert.ok(!/season/i.test(src), `${file}.js mentions seasons`);
   }
   assert.ok(!/season/i.test(readFileSync(new URL('../js/fair.js', import.meta.url), 'utf8')));
+});
+
+await test('bracket: same seed replays identically, every size works, and winners are distinct', () => {
+  for (const n of [2, 3, 4, 5, 7, 8, 13, 16, 31, 33, 64]) for (const len of ['quick', 'normal', 'epic']) for (const c of [1, 2, 3, 4]) {
+    const a = preRunBracket(n, `br${n}`, len, c), want = Math.min(c, n, BRACKET_WINNERS);
+    assert.deepEqual(a, preRunBracket(n, `br${n}`, len, c));
+    assert.equal(a.winSlots.length, want, `${n} ${len} x${c}`);
+    assert.equal(new Set(a.winSlots).size, want);
+    for (const w of a.winSlots) assert.ok(w >= 0 && w < n);
+    const sim = new BracketSim(n, `br${n}`, len, c);
+    assert.deepEqual([...sim.ranking()].sort((x, y) => x - y), Array.from({ length: n }, (_, i) => i));
+    assert.ok(a.finishAt <= LEN_LIMIT[len] * 1.3, `${n} ${len}: ${a.finishAt.toFixed(1)}s`);
+    for (const m of sim.rounds.flat()) if (!m.bye) { assert.equal(m.script.at(-1).by, 'w'); assert.equal(m.script.at(-1).move, 'hit'); }
+  }
+});
+
+await test('bracket: any slot can become champion, byes included', () => {
+  const seen = new Set();
+  for (let s = 0; s < 400; s++) seen.add(preRunBracket(5, `any${s}`, 'quick', 1).winSlots[0]);
+  assert.equal(seen.size, 5);
+});
+
+await test('bracket: the match report rebuilds the drawn winners in order', () => {
+  const pool = Array.from({ length: 20 }, (_, i) => ({ name: `P${i}`, weight: 1, i }));
+  const r = matchReport({ mode: 'bracket', length: 'quick', count: 3, seed: 'rep', pool, winnerIdxs: [4, 9, 2] });
+  assert.deepEqual(r.standings, ['P4', 'P9', 'P2']);
+  assert.equal(r.rounds.flat().length, r.rounds.length);
 });
 
 await test('gameSeed is stable, varies per draw, and does not contain the seed', async () => {

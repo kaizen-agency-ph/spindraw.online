@@ -27,7 +27,7 @@ function renderEntries(entries, winners, term = '') {
   $('#more').textContent = list.length > SHOW ? `…and ${list.length - SHOW} more. Search to find a name.` : t && !list.length ? 'No match.' : '';
 }
 
-const LABEL = { wheel: 'Wheel', race: 'Ball Race', horse: 'Horse Race', battle: 'Pixel Battle' };
+const LABEL = { wheel: 'Wheel', race: 'Ball Race', horse: 'Horse Race', battle: 'Pixel Battle', slot: 'Slot Machine', bracket: 'Elimination Bracket' };
 const LENGTH = { quick: 'Quick', normal: 'Normal', epic: 'Epic' };
 const clock = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60) % 60).padStart(2, '0')}`;
 const seconds = s => `${s.toFixed(1)}s`;
@@ -95,6 +95,20 @@ function battleCard(card, r) {
   card.append(fold(`See all ${r.falls.length} eliminations, in order`, table(['Time', 'Out', 'How'], r.falls.map(f => ({ cells: [clock(f.t), f.name, f.by ? `KO’d by ${f.by}` : 'Caught by the zone'] })))));
 }
 
+function bracketCard(card, r) {
+  card.append(stats([['Names', r.players], ['Bracket size', r.size], ['Byes', r.size - r.players], ['Length', clock(r.duration)]]));
+  const places = el('div');
+  places.append(el('h4', 'Final standings'), table(['Place', 'Name'], r.standings.map((nm, i) => ({ won: true, cells: [['Champion', 'Runner-up', 'Third', 'Fourth'][i], nm] })), 1));
+  card.append(places);
+  const rows = [];
+  const total = r.rounds.filter(x => x.round !== 'third').length;
+  for (const x of r.rounds) for (const m of x.matches) {
+    const label = x.round === 'third' ? 'Third-place match' : x.round === total - 1 ? 'Final' : x.round === total - 2 ? 'Semi-final' : `Round ${x.round + 1}`;
+    rows.push({ cells: [label, m.winner, m.bye ? 'Bye' : `beat ${m.loser}`] });
+  }
+  card.append(fold(`See all ${rows.length} matches`, table(['Round', 'Winner', 'Result'], rows)));
+}
+
 // Older links don't say which game was played, so they simply have no match details.
 async function renderMatches(p, entries, eHash, results) {
   const runs = [];
@@ -109,7 +123,7 @@ async function renderMatches(p, entries, eHash, results) {
   for (let i = 0; i < runs.length; i++) {
     const run = runs[i], pool = fair.currentPool(entries, p.draws.slice(0, run.k), p.removeWinners);
     const card = el('article', null, 'match'), head = el('div'), names = run.draws.map(d => entries[d.winner]?.name ?? '(none)');
-    const isWheel = run.mode === 'wheel';
+    const isWheel = run.mode === 'wheel' || run.mode === 'slot';
     head.append(el('h3', `Match ${i + 1}: ${LABEL[run.mode] ?? run.mode}`));
     head.append(el('p', [isWheel ? null : `${LENGTH[run.length] ?? run.length} length`, `${run.draws.map(d => d.prize).join(', ')}`, `${names.length > 1 ? 'Winners' : 'Winner'}: ${names.join(', ')}`].filter(Boolean).join(' · '), 'match-sub'));
     card.append(head);
@@ -117,7 +131,7 @@ async function renderMatches(p, entries, eHash, results) {
     if (!run.draws.every(d => d.ok)) { card.append(el('p', 'Details aren’t available because this draw doesn’t match the seed.', 'muted small')); continue; }
     if (isWheel) {
       const w = pool.find(e => e.i === run.draws[0].winner), tickets = pool.reduce((s, e) => s + e.weight, 0);
-      card.append(stats([['Names on the wheel', pool.length], ['Total entries', tickets], ['Winner’s entries', w.weight], ['Winner’s chance', `${(w.weight / tickets * 100).toFixed(w.weight / tickets < 0.1 ? 2 : 1)}%`]]));
+      card.append(stats([[run.mode === 'slot' ? 'Names on the reel' : 'Names on the wheel', pool.length], ['Total entries', tickets], ['Winner’s entries', w.weight], ['Winner’s chance', `${(w.weight / tickets * 100).toFixed(w.weight / tickets < 0.1 ? 2 : 1)}%`]]));
       continue;
     }
     try {
@@ -125,7 +139,7 @@ async function renderMatches(p, entries, eHash, results) {
       const seed = await fair.gameSeed(p.seed, eHash, p.salt ?? '', run.k);
       const winnerIdxs = run.draws.map(d => pool.findIndex(e => e.i === d.winner));
       const r = matchReport({ mode: run.mode, length: run.length, count: run.count, seed, pool, winnerIdxs });
-      if (r.kind === 'battle') battleCard(card, r); else raceCard(card, r, run.mode);
+      if (r.kind === 'battle') battleCard(card, r); else if (r.kind === 'bracket') bracketCard(card, r); else raceCard(card, r, run.mode);
     } catch { card.append(el('p', 'Details for this match couldn’t be rebuilt.', 'muted small')); }
   }
 }

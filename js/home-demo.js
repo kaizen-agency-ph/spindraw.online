@@ -3,7 +3,7 @@ import { Wheel } from '/js/wheel.js';
 
 const NAMES = ['Maria Santos', 'Juan Dela Cruz', 'Alex Reyes', 'Priya Patel', 'Sam Lee', 'Chris Tan', 'Jordan Kim', 'Aisha Bello', 'Leo Cruz', 'Bea Ramos', 'Noah Garcia', 'Mika Lim'];
 const pool = NAMES.map(name => ({ name, weight: 1 }));
-const MODES = ['wheel', 'race', 'horse', 'battle'];
+const MODES = ['wheel', 'race', 'horse', 'battle', 'slot', 'bracket'];
 const STILL = mode => `/media/game-${mode}.jpg`;
 const RESULT_MS = 2600;
 
@@ -68,7 +68,7 @@ async function playGame(id) {
     seed: `home-${Date.now()}-${Math.random()}`,
     winnerIdxs: [i],
     length: 'quick',
-    onLeader: text => { if (id === run) say(mode === 'battle' ? text : `${text} is leading`); },
+    onLeader: text => { if (id === run) say(mode === 'race' || mode === 'horse' ? `${text} is leading` : text); },
   });
   return NAMES[i];
 }

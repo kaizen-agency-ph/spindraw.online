@@ -247,15 +247,15 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
 .season-switch button:disabled { cursor: not-allowed; opacity: .6; }
 .season-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .mode-switch { display: flex; gap: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 4px; max-width: 460px; width: 100%; margin: 0 auto; }
-.mode-switch button { flex: 1; font: 500 .9rem var(--font); color: var(--muted); background: none; border: 0; border-radius: 7px; padding: 8px 6px; cursor: pointer; }
-.mode-switch button[aria-pressed="true"] { background: var(--panel); color: var(--text); box-shadow: var(--shadow); }
-.mode-switch button:disabled { cursor: not-allowed; }
-.mode-switch button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mode-switch :is(button, a) { text-align: center; text-decoration: none;  flex: 1; font: 500 .9rem var(--font); color: var(--muted); background: none; border: 0; border-radius: 7px; padding: 8px 6px; cursor: pointer; }
+.mode-switch [aria-current="page"] { background: var(--panel); color: var(--text); box-shadow: var(--shadow); }
+.mode-switch [aria-disabled="true"] { cursor: not-allowed; pointer-events: none; opacity: .6; }
+.mode-switch :is(button, a):focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .game-box { position: relative; width: 100%; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: #0d0e12; border: 1px solid var(--line); }
 .game-box canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 @media (max-width: 600px) { .game-box[data-mode="race"], .game-box[data-mode="horse"] { aspect-ratio: 4 / 5; } }
 
-.mode-switch { max-width: 620px; }
+.mode-switch { max-width: 860px; flex-wrap: wrap; }
 .winners-set { flex-wrap: wrap; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; font-size: .95rem; }
 .winners-set label { color: var(--text); font-size: .95rem; }
 .winners-set input { width: 84px; text-align: center; font-weight: 600; }
@@ -285,3 +285,41 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
   .fb-card { left: 8px; bottom: 0; }
 }
 @media print { .fb { display: none; } }
+
+/* Game pages: a compact intro above the app. */
+.game-intro { max-width: 1440px; margin: 0 auto; padding: 18px 20px 0; }
+.game-intro .crumbs { font-size: .8rem; color: var(--muted); }
+.game-intro .crumbs a { color: inherit; }
+.game-intro-title { margin: 6px 0 4px; font-size: clamp(1.3rem, 2.4vw, 1.75rem); font-weight: 700; letter-spacing: -.03em; line-height: 1.15; }
+.game-intro-lede { margin: 0; max-width: 72ch; color: var(--muted); font-size: .95rem; }
+.game-guide { padding-top: 24px; border-top: 1px solid var(--line); margin-top: 24px; }
+@media (max-width: 640px) {
+  .mode-switch { display: grid; grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Game tabs and theme row: one clean line each, sized to the stage column, never wrapping
+   mid-label. Six across when there's room, three by two when there isn't. */
+.stage { container-type: inline-size; container-name: stage; }
+.mode-switch { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: none; width: 100%; }
+.mode-switch :is(button, a) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .86rem; padding: 9px 6px; }
+.mode-switch a:not([aria-current="page"]):hover { color: var(--text); background: color-mix(in srgb, var(--panel) 55%, transparent); }
+@container stage (max-width: 620px) {
+  .mode-switch { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.season-switch { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: safe center; padding: 2px; }
+.season-switch::-webkit-scrollbar { display: none; }
+.season-switch button { white-space: nowrap; flex: none; }
+@container stage (max-width: 600px) {
+  .season-label { display: none; }
+  .season-switch { justify-content: flex-start; }
+  .season-switch button { padding: 4px 9px; font-size: .8rem; }
+}
+
+/* Game pages: the intro lines up with the app below it. */
+.game-intro { padding: 22px 20px 4px; }
+@media (max-width: 900px) { .game-intro { padding: 18px 16px 0; } }
+.game-intro .crumbs { font-size: .8rem; }
+.game-intro .crumbs a { text-decoration: none; }
+.game-intro .crumbs a:hover { color: var(--text); text-decoration: underline; }
+.game-intro-title { font-size: clamp(1.35rem, 2.3vw, 1.8rem); margin: 6px 0 6px; }
+.game-intro-lede { font-size: .95rem; line-height: 1.55; max-width: 68ch; }
