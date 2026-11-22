@@ -439,7 +439,9 @@ function head({ title, description, path, extra = '', noindex = false, image = n
     gtag('config', 'G-Z58QLX9W8M');
   </script>
   <!-- Contentsquare: marketing pages only. Never on the app, verify page or overlay, which show entrants' names. -->
-  <script src="https://t.contentsquare.net/uxa/b5b1532b2b7c1.js" defer></script>
+  <script src="https://t.contentsquare.net/uxa/b5b1532b2b7c1.js" defer></script>${noindex ? '' : `
+  <!-- AdSense: content pages only. Never on the app, the game pages, verify, the overlay or noindex pages. -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6866671951519182" crossorigin="anonymous"></script>`}
   ${IMPORT_MAP}
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
