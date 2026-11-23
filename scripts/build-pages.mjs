@@ -36,6 +36,7 @@ const ICONS = {
   horse: '<path d="M4 21c0-5 1-8 4-10l1-5 3 2 5-3 2 3 3 2-1 3-3-1-2 3 1 6h-3l-1-5-4 1-1 4z"/>',
   race: '<circle cx="8" cy="7" r="3"/><circle cx="16" cy="13" r="3"/><circle cx="9" cy="19" r="2"/><path d="M14 4l6 2M3 14l5 1"/>',
   sword: '<path d="M14.5 3H21v6.5L9 21l-6-6zM6 12l6 6M3 21l3-3"/>',
+  bingo: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M11.2 10.4l1.3-1.1v5.4"/>',
   slot: '<rect x="3" y="5" width="15" height="15" rx="2"/><path d="M8 5v15M13 5v15M18 10h3V4"/><circle cx="21" cy="3" r="1"/>',
   bracket: '<path d="M3 4h5v5H3M3 15h5v5H3M8 6.5h3v11H8M11 12h4M15 9h6v6h-6z"/>',
   wheel: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2"/><path d="M12 3v7M12 14v7M3 12h7M14 12h7"/>',
@@ -479,6 +480,7 @@ const header = `
   <header class="topbar">
     <a class="brand" href="/"><span class="brand-mark"></span>SpinDraw</a>
     <nav class="site-nav" aria-label="Main">
+      <a class="link" href="/online-bingo/">Bingo <span class="nav-new">New</span></a>
       <a class="link" href="/#features">Features</a>
       <a class="link" href="/#how">How it works</a>
       <a class="link" href="/#use-cases">Use cases</a>
@@ -487,6 +489,7 @@ const header = `
       <details class="mnav">
         <summary aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
         <div class="mnav-panel">
+          <a href="/online-bingo/">Online Bingo <span class="nav-new">New</span></a>
           <a href="/#features">Features</a>
           <a href="/#how">How it works</a>
           <a href="/#use-cases">Use cases</a>
@@ -535,6 +538,16 @@ const faqHtml = faq => `<div class="faq">${faq.map(([q, a]) => `<details><summar
 // ---------- patch notes ----------
 // Newest first in each mode. Add an entry here when a mode changes; home and /patch-notes/ follow.
 const PATCHES = [
+  {
+    id: 'online-bingo', name: 'Online Bingo', icon: 'bingo', guide: '/online-bingo/',
+    log: [
+      { v: '1.0', date: '2026-11-24', title: 'Eyes down', notes: [
+        ['new', 'A free bingo caller for 75-ball and 90-ball games, with a big ball, a called-numbers board, auto-call and numbers read aloud.'],
+        ['new', 'Cards on players’ phones from a link or QR code, plus printable numbered cards. Check a winner by typing their card number.'],
+        ['new', 'The call order is locked before the first number, and the verify link replays every call and checks each winning card.'],
+      ] },
+    ],
+  },
   {
     id: 'slot-machine', name: 'Slot Machine', icon: 'slot', guide: '/slot-machine-name-picker/',
     log: [
@@ -702,6 +715,7 @@ const HOME_FAQ = [
   ['Is SpinDraw free?', 'Yes. SpinDraw is free with no sign-up. Tips help keep it running, and if the website ever shows ads, they’ll never appear on the wheel or the games people watch.'],
   ['Can I use it for an office raffle or a family draw?', 'Yes. Paste the names, put the wheel on a big screen or share your screen in a video call, and spin. Afterwards, send the verify link so anyone can check the result, even people who weren’t there.'],
   ['Who decides the winner in the games?', 'The same locked draw as the wheel, in every game: the Ball Race, Horse Race, Pixel Battle, Slot Machine and Bracket. The races, battle and bracket are real simulations with nothing steered, and the drawn names go on whoever comes out on top. Each person’s chance is exactly their share of the entries, and the verify link works the same way.'],
+  ['Can I play bingo online with SpinDraw?', 'Yes. SpinDraw online bingo is a free bingo caller for 75-ball and 90-ball games. Players get a card on their phone from a link or QR code, or you print cards, and you check winners by card number. It works in a room or on Zoom, Teams and Meet, with no money involved.'],
   ['Is there a random name picker game?', 'Yes. SpinDraw has five: a Ball Race (a marble race with names), a Horse Race, a Pixel Battle, a Slot Machine and an Elimination Bracket. Everyone can watch who’s winning as it happens, and they’re free, with no sign-up.'],
   ['Do the games give everyone the same chance?', 'Yes. In many marble race and battle pickers the physics or a fighter’s abilities decide, so the odds aren’t equal. In SpinDraw, a fair draw from the locked list picks the winner first and the game reveals it, so every entry has exactly its share of the chance in every game.'],
   ['Can more than one person win at once?', 'Yes, in every game. Set “How many winners?”, up to 50 (or 4 in the Bracket), and the first ones across the line, the last ones standing or the next pulls of the slot machine win. Each winner is a separate fair draw that the verify link checks.'],
@@ -720,7 +734,7 @@ const homeBody = `
       <div>
         <span class="eyebrow"><b>Free</b> Random name picker</span>
         <h1>Pick a winner with a wheel, a <span class="mark">race</span> or a battle.</h1>
-        <p class="lede">The random name picker people actually want to watch. Spin the wheel, pull a slot machine, race marbles or horses, run a pixel battle or a knockout bracket for your raffle or giveaway. Everyone can see who’s winning live, then check a link that proves it was fair.</p>
+        <p class="lede">The random name picker people actually want to watch. Spin the wheel, pull a slot machine, race marbles or horses, run a pixel battle or a knockout bracket for your raffle or giveaway. Everyone can see who’s winning live, then check a link that proves it was fair. Now with free <a href="/online-bingo/">online bingo</a> too.</p>
         <div class="cta">
           <a class="btn primary big" href="/app.html">Start a raffle, free</a>
           <a class="btn big" href="#modes">See the games</a>
@@ -743,6 +757,21 @@ const homeBody = `
         </div>
         <div class="demo-foot"><span id="demoStatus" aria-live="off">Sample names. Add your own in the app.</span><a href="/app.html">Try it with your names →</a></div>
       </div>
+    </section>
+
+    <section class="section bingo-band" id="bingo">
+      <div class="bingo-band-text">
+        <div class="kicker">New · Online Bingo</div>
+        <h2>Host bingo from one screen</h2>
+        <p>A free bingo caller for your TV, projector or video call. Players get a card on their phone from a link or QR code, or you print them, and you check a winner by typing their card number.</p>
+        <ul class="ticks">
+          <li>75-ball and 90-ball, with lines, corners, X, blackout or full house</li>
+          <li>Auto-call with numbers read aloud, and a full-screen Present view</li>
+          <li>The call order is locked before the first number, with a verify link afterwards</li>
+        </ul>
+        <div class="cta"><a class="btn primary big" href="/online-bingo/">Play online bingo</a><a class="btn big" href="/online-bingo/#how-to">How it works</a></div>
+      </div>
+      <a class="bingo-band-shot" href="/online-bingo/"><img src="/media/game-bingo.jpg" alt="SpinDraw online bingo caller: a big bingo ball, the last calls and a board of called numbers" width="1200" height="900" loading="lazy"></a>
     </section>
 
     <section class="section" id="modes">
@@ -896,13 +925,26 @@ const homeLd = [
 
 // Stylesheets get content fingerprints too, so a browser never pairs a new page with an old,
 // cached stylesheet (Safari holds on to them).
-const CSS_VERSIONS = Object.fromEntries(['style', 'site'].map(n => [n, createHash('sha256').update(readFileSync(join(ROOT, `css/${n}.css`))).digest('hex').slice(0, 10)]));
-const stampCss = html => html.replace(/(href=")(\/?)css\/(style|site)\.css(?:\?v=\w+)?(")/g, (_, a, slash, n, z) => `${a}${slash}css/${n}.css?v=${CSS_VERSIONS[n]}${z}`);
+const CSS_VERSIONS = Object.fromEntries(['style', 'site', 'bingo'].map(n => [n, createHash('sha256').update(readFileSync(join(ROOT, `css/${n}.css`))).digest('hex').slice(0, 10)]));
+const stampCss = html => html.replace(/(href=")(\/?)css\/(style|site|bingo)\.css(?:\?v=\w+)?(")/g, (_, a, slash, n, z) => `${a}${slash}css/${n}.css?v=${CSS_VERSIONS[n]}${z}`);
+
+// Site-wide announcement banner. Dismissing it once (on any page) hides it everywhere, because
+// every page reads the same localStorage key before it paints. Change BANNER_ID for a new one.
+// Never on the stream overlay, and not on the bingo pages it points to.
+const BANNER_ID = 'bingo-2026-11';
+const BANNER_HEAD = `<!--banner-head--><script>try{if(localStorage.getItem('spindraw:banner')==='${BANNER_ID}')document.documentElement.classList.add('no-banner')}catch(e){}</script><!--/banner-head-->`;
+const BANNER_BODY = `<!--banner--><div class="site-banner" role="region" aria-label="Announcement"><a class="site-banner-link" href="/online-bingo/"><span class="site-banner-tag">New</span> Online Bingo: a free bingo caller with phone and printable cards. <b>Play now →</b></a><button class="site-banner-x" type="button" aria-label="Dismiss announcement" onclick="try{localStorage.setItem('spindraw:banner','${BANNER_ID}')}catch(e){}document.documentElement.classList.add('no-banner')">×</button></div><!--/banner-->`;
+const NO_BANNER = /(^|\/)(overlay\.html|online-bingo\/|bingo(-card|-print)?\.html)/;
+function withBanner(html, rel) {
+  html = html.replace(/<!--banner-head-->[\s\S]*?<!--\/banner-head-->/, '').replace(/<!--banner-->[\s\S]*?<!--\/banner-->\n?/, '');
+  if (NO_BANNER.test(rel)) return html;
+  return html.replace('</head>', `  ${BANNER_HEAD}\n</head>`).replace(/(<body[^>]*>)/, `$1\n  ${BANNER_BODY}`);
+}
 
 function write(rel, html) {
   const file = join(ROOT, rel);
   mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, /\.html$/.test(rel) ? stampCss(html) : html);
+  writeFileSync(file, /\.html$/.test(rel) ? withBanner(stampCss(html), rel) : html);
 }
 
 write('index.html', `${head({
@@ -1009,7 +1051,7 @@ write('about/index.html', `${head({
         <h2>So why does this exist?</h2>
         <p>Picking a winner sounds easy until there’s a prize on the line. Someone always asks, “Wait, was that rigged?” Usually as a joke. Usually.</p>
         <p>So SpinDraw locks the list before the draw and gives you a link that lets anyone replay the result. Fewer raised eyebrows, more cheering.</p>
-        <p>Then I figured that if everyone’s already watching, the draw might as well be fun. That’s how a tidy little wheel gained a ball race, a horse race and a pixel battle. No pixel fighters were permanently harmed. They’re all back for your next raffle.</p>
+        <p>Then I figured that if everyone’s already watching, the draw might as well be fun. That’s how a tidy little wheel gained a ball race, a horse race, a pixel battle, a slot machine, a bracket and, most recently, a whole game of bingo. No pixel fighters were permanently harmed. They’re all back for your next raffle.</p>
         <h2>A bit about me</h2>
         <p>I’m a marketer and web builder from Malaybalay City, in Bukidnon, Philippines. I call myself the technician who became a marketer: I studied IT, then spent the last seven years or so working on marketing and the web with clients around the world.</p>
         <p>You can see the full story on <a href="https://vincentbenlot.site">my personal site</a>, which has a little game where you walk my pixel self through my career. Yes, I have a pixel problem.</p>
@@ -1308,14 +1350,18 @@ Allow: /
 Sitemap: ${SITE}/sitemap.xml
 `);
 // The hand-written pages get the same fingerprints.
-for (const page of ['app.html', 'overlay.html', 'verify.html', 'privacy.html']) {
+for (const page of ['app.html', 'overlay.html', 'verify.html', 'privacy.html', 'bingo.html', 'bingo-card.html', 'bingo-print.html']) {
   const file = join(ROOT, page);
-  writeFileSync(file, stampCss(stampScripts(readFileSync(file, 'utf8'), VERSIONS)));
+  writeFileSync(file, withBanner(stampCss(stampScripts(readFileSync(file, 'utf8'), VERSIONS)), page));
 }
+// The bingo player card and print pages live under /online-bingo/.
+write('online-bingo/card/index.html', readFileSync(join(ROOT, 'bingo-card.html'), 'utf8'));
+write('online-bingo/print/index.html', readFileSync(join(ROOT, 'bingo-print.html'), 'utf8'));
 
 // Playable game pages: the full app with that game selected, then the guide below. Built from
 // app.html (already stamped with script fingerprints), so the app itself is only written once.
 const APP_TEMPLATE = readFileSync(join(ROOT, 'app.html'), 'utf8');
+const BINGO_TEMPLATE = readFileSync(join(ROOT, 'bingo.html'), 'utf8');
 const plain = h => h.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 const cap = t => t.replace(/^./, ch => ch.toUpperCase());
 const prettyDate = d => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -1334,7 +1380,8 @@ for (const g of GUIDES.filter(x => x.play)) {
     ? `<tr class="is-current"><td><strong>${esc(name)}</strong> (this page)</td><td>${esc(best)}</td><td>${esc(names)}</td><td>${esc(win)}</td><td>${esc(len)}</td></tr>`
     : `<tr><td><a href="/${slug}/">${esc(name)}</a></td><td>${esc(best)}</td><td>${esc(names)}</td><td>${esc(win)}</td><td>${esc(len)}</td></tr>`).join('\n    ')}</tbody>
 </table></div>`;
-  let html = APP_TEMPLATE;
+  let html = g.play === 'bingo' ? BINGO_TEMPLATE : APP_TEMPLATE;
+  html = html.replace(/\s*<meta name="robots" content="noindex"><!-- template:[^>]*-->/, '');
   const swap = (re, to) => { if (!re.test(html)) throw new Error(`game page ${g.slug}: ${re}`); html = html.replace(re, to); };
   swap(/<title>[^<]*<\/title>/, `<title>${esc(g.title)}</title>`);
   swap(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(g.description)}">`);
@@ -1346,9 +1393,9 @@ for (const g of GUIDES.filter(x => x.play)) {
   swap(/<meta property="og:image:height" content="[^"]*">/, `<meta property="og:image:height" content="900">`);
   swap(/<meta property="og:image:alt" content="[^"]*">/, `<meta property="og:image:alt" content="${esc(`SpinDraw ${g.nav}`)}">`);
   swap(/(<link rel="stylesheet" href="\/css\/style.css(?:\?v=\w+)?">)/, `$1\n  <link rel="stylesheet" href="/css/site.css">\n  ${schema.map(ld).join('\n  ')}`);
-  swap(/<body>/, `<body data-start-mode="${g.play}">`);
-  swap(/\s*<h1 class="sr-only">[^<]*<\/h1>/, '');
-  swap(/<main class="app">/, `<div class="game-intro"><div class="crumbs"><a href="/">SpinDraw</a> / ${esc(cap(g.nav))}</div><h1 class="game-intro-title">${esc(g.h1)}</h1><p class="game-intro-lede">${esc(g.lede)}</p></div>\n  <main class="app">`);
+  swap(/<body([^>]*)>/, `<body$1 data-start-mode="${g.play}">`);
+  html = html.replace(/\s*<h1 class="sr-only">[^<]*<\/h1>/, '');
+  swap(/<main class="(app|bingo-app)">/, `<div class="game-intro"><div class="crumbs"><a href="/">SpinDraw</a> / ${esc(cap(g.nav))}</div><h1 class="game-intro-title">${esc(g.h1)}</h1><p class="game-intro-lede">${esc(g.lede)}</p></div>\n  <main class="$1">`);
   swap(/<\/main>/, `</main>
   <div class="page game-guide">
     <article class="prose">
@@ -1359,9 +1406,9 @@ for (const g of GUIDES.filter(x => x.play)) {
       <h2 id="how-to">${esc(g.stepsTitle)}</h2>
       <ol>${g.steps.map(t => `\n        <li>${t}</li>`).join('')}
       </ol>${g.body}
-      <h2>Which SpinDraw game should you use?</h2>
+${g.play === 'bingo' ? '' : `      <h2>Which SpinDraw game should you use?</h2>
       <p>Every game uses the same locked fair draw, so the odds are identical. Pick the one that suits your list and your crowd.</p>
-      ${table}
+      ${table}`}
       <h2>Questions</h2>
       ${faqHtml(g.faq)}
     </article>

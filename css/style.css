@@ -323,3 +323,26 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
 .game-intro .crumbs a:hover { color: var(--text); text-decoration: underline; }
 .game-intro-title { font-size: clamp(1.35rem, 2.3vw, 1.8rem); margin: 6px 0 6px; }
 .game-intro-lede { font-size: .95rem; line-height: 1.55; max-width: 68ch; }
+
+/* Bingo mini card (host card check and the verify page). */
+.mini-card { display: grid; gap: 3px; max-width: 280px; }
+.mini-card[data-type="75"] { grid-template-columns: repeat(5, 1fr); }
+.mini-card[data-type="90"] { grid-template-columns: repeat(9, 1fr); max-width: 340px; }
+.mc-head { text-align: center; font: 800 .85rem var(--font); color: var(--muted); }
+.mc-cell { display: grid; place-items: center; aspect-ratio: 1; border-radius: 5px; font: 600 .78rem var(--mono); background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); }
+.mc-cell.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.mc-cell.blank { background: transparent; border-style: dashed; }
+.bingo-calls { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0 0 8px; }
+.bingo-calls li { font: 600 .8rem var(--mono); padding: 4px 9px; border-radius: 99px; background: var(--panel-2); border: 1px solid var(--line); }
+.bingo-proof { margin: 0; display: grid; gap: 6px; }
+.bingo-proof figcaption { font-size: .85rem; color: var(--muted); }
+
+/* Site-wide announcement banner (hidden for good once dismissed on any page). */
+.site-banner { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 44px; background: #ffd23f; color: #1a1500; font: 500 .88rem var(--font); text-align: center; }
+.no-banner .site-banner { display: none; }
+.site-banner-link { color: inherit; text-decoration: none; }
+.site-banner-link:hover b { text-decoration: underline; }
+.site-banner-tag { display: inline-block; margin-right: 4px; padding: 1px 7px; border-radius: 99px; background: #1a1500; color: #ffd23f; font: 700 .7rem var(--mono); text-transform: uppercase; letter-spacing: .06em; vertical-align: 1px; }
+.site-banner-x { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; }
+.site-banner-x:hover { background: rgba(0, 0, 0, .08); }
+@media (max-width: 640px) { .site-banner { font-size: .8rem; padding: 7px 40px 7px 12px; } }

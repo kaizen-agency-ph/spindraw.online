@@ -338,6 +338,79 @@ export const GAME_GUIDES = [
       ['Can I show it in OBS or on a projector?', 'Yes. Add the overlay as a Browser source, or click Present for a clean view.'],
     ],
   },
+  {
+    slug: 'online-bingo',
+    play: 'bingo',
+    nav: 'Online bingo',
+    short: 'Bingo',
+    published: '2026-11-24',
+    updated: '2026-11-24',
+    title: 'Online Bingo: Free Bingo Caller and Cards | SpinDraw',
+    description: 'Free online bingo: a bingo caller for your big screen, cards on players’ phones or printed, 75-ball and 90-ball. For Zoom, parties and classrooms.',
+    h1: 'Free online bingo: caller, cards and a fair draw',
+    lede: 'Run bingo from one screen. SpinDraw calls the numbers, players get a card on their phone or on paper, and you check a winner by typing their card number. 75-ball or 90-ball, free, with no money involved.',
+    answer: 'SpinDraw online bingo is a free bingo caller with cards. The host shows the caller on a big screen or a video call, players open their own card on their phone from a link or QR code (or use printed cards), and the host checks a winning card by its number. It supports 75-ball and 90-ball bingo, and the call order comes from a locked fair draw anyone can verify afterwards.',
+    glance: [
+      ['Bingo types', '75-ball (B-I-N-G-O) and 90-ball (UK and housie style)'],
+      ['Cards', 'On phones from a link or QR code, or printed, up to 200 per printout'],
+      ['One card per person', 'Optional: each player gets their own card and link, and only those cards can win'],
+      ['Calls', 'Click or Space, or auto-call every 5 to 20 seconds, read aloud'],
+      ['Prizes', '75-ball: any line, four corners, letter X, blackout. 90-ball: one line, two lines, full house'],
+      ['Fairness', 'Call order locked before the first number, with a verify link afterwards'],
+      ['Price', 'Free, no sign-up, no money involved'],
+    ],
+    stepsTitle: 'How to host online bingo',
+    steps: [
+      'Choose <strong>75-ball</strong> or <strong>90-ball</strong>, and pick what you’re playing for.',
+      'Share the <strong>player link</strong> in your chat, let people scan the QR code on screen, or click <strong>Print cards</strong>.',
+      'Click <strong>Lock game</strong> so everyone sees the code that commits to the call order. Optionally, ask someone for a public word.',
+      'Press <strong>Call next</strong> or Space, or turn on auto-call. Click <strong>Present</strong> to show the caller full screen.',
+      'When someone shouts bingo, type their <strong>card number</strong> under <strong>Check a card</strong> and confirm the win.',
+      'When you’re done, click <strong>Finish &amp; create verify link</strong> and share it.',
+    ],
+    body: `
+<h2>Playing on Zoom, Teams, Meet or a stream</h2>
+<p>Share your screen and click <strong>Present</strong> for a clean, full-screen caller with the board, the last calls and the QR code. Paste the player link in the meeting chat. Each person’s phone opens their own card, and they tap numbers as you call them. Their phones don’t need to connect to yours, so it works on any network. For a live stream, show the Present view and put the player link in your description or chat.</p>
+<h2>Playing in a room</h2>
+<p>Put the caller on a TV or projector. Guests scan the QR code to get a card on their phone, or you hand out printed cards. Calls can be read aloud in the browser’s voice, so a classroom or party can follow along without anyone reading the numbers.</p>
+<h2>75-ball vs 90-ball bingo</h2>
+<div class="table-scroll"><table class="compare">
+  <thead><tr><th></th><th>75-ball</th><th>90-ball</th></tr></thead>
+  <tbody>
+    <tr><td>Where it’s popular</td><td>US and Canada</td><td>UK, Ireland, Australia, India (housie or tambola)</td></tr>
+    <tr><td>Card</td><td>5 × 5 grid under B-I-N-G-O, free centre square</td><td>3 rows × 9 columns, 15 numbers, 5 in each row</td></tr>
+    <tr><td>Numbers</td><td>1 to 75, called with a letter, like “B 12”</td><td>1 to 90</td></tr>
+    <tr><td>Prizes in SpinDraw</td><td>Any line, four corners, letter X or blackout</td><td>One line, then two lines, then full house</td></tr>
+  </tbody>
+</table></div>
+<h2>Printable bingo cards</h2>
+<p>Click <strong>Print cards</strong> to print numbered cards for the current game: two 75-ball cards or six 90-ball tickets per page. Printed cards and phone cards come from the same game code, so you can mix them in one game. Check any of them the same way, by card number.</p>
+<h2>One card per person</h2>
+<p>For a prize game where fairness matters, turn on <strong>One card per person</strong> and paste your player list. Each name gets its own numbered card and a personal link to send them, or print named cards. Nobody shares a card or gets a second one, and only assigned cards can win: if someone shouts bingo on a card that isn’t on the list, the check says so. The player list is locked in with the game before the first call, so the verify link also proves nobody was moved onto a winning card.</p>
+<h2>Checking a winner</h2>
+<p>Type the card number a player shouts out. SpinDraw rebuilds that card from the game code, marks every number called so far and says whether it has the pattern, for example “BINGO! #0042: row 2”, or how many numbers it still needs. Confirm the win and it’s logged with the prize and the call it won on. In 90-ball, the prize moves on from one line to two lines to full house automatically.</p>
+<h2>Is the bingo caller fair?</h2>
+<p>Yes. When you lock the game, SpinDraw picks a secret seed and shows a code that commits to the call order before the first number. Cards come from a separate public game code, so knowing a card tells you nothing about the calls. When the game ends, the seed is revealed and the verify link lets anyone rebuild every call in order and check each winning card against the numbers called before it won.</p>
+<h2>Ideas for virtual bingo</h2>
+<ul>
+  <li><strong>Team building:</strong> a quick 75-ball line game to open a meeting, or blackout for a longer social.</li>
+  <li><strong>Classrooms:</strong> practise number recognition, with calls read aloud.</li>
+  <li><strong>Parties and family calls:</strong> 90-ball with three prizes keeps everyone in the game longer.</li>
+  <li><strong>Fundraisers and events:</strong> printed cards in the room, the caller on the big screen.</li>
+</ul>
+<p>SpinDraw bingo is for fun. There’s no buying in, no money and nothing to win from SpinDraw itself. Any prizes are up to you.</p>`,
+    faq: [
+      ['Is SpinDraw online bingo free?', 'Yes. The caller, phone cards and printable cards are free, with no sign-up and no money involved.'],
+      ['How do players get a bingo card?', 'Share the player link or show the QR code. Each phone that opens it gets its own card, which stays the same if they refresh. You can also print numbered cards.'],
+      ['Do players’ cards mark themselves?', 'No. Players tap numbers as they’re called, like daubing a paper card. Their phones don’t need to connect to the host, so it works on any network.'],
+      ['Can two players get the same card?', 'With the open player link, each phone picks one of 9,999 cards at random, so repeats are rare in small groups but possible in big ones. Turn on One card per person to give everyone their own numbered card instead, so nobody shares a card. Printed cards are numbered in order, so they never repeat.'],
+      ['Can I make sure everyone only plays one card?', 'Yes. Turn on One card per person and paste your player list. Each name gets its own card and personal link, only those cards can win, and the list is locked in with the game, so the verify link shows nobody was moved onto a winning card.'],
+      ['How do I check if someone has bingo?', 'Type their card number under Check a card. SpinDraw shows the card with the called numbers marked and says whether it has the pattern you’re playing for.'],
+      ['What’s the difference between 75-ball and 90-ball bingo?', '75-ball uses a 5 × 5 card under B-I-N-G-O with a free centre and patterns like lines or blackout. 90-ball uses a 3 × 9 ticket with 15 numbers and prizes for one line, two lines and a full house.'],
+      ['Can the caller read numbers aloud?', 'Yes. Turn on Read calls aloud and your browser’s voice announces each number, like “B, 12”.'],
+      ['Can I use it on Zoom or Teams?', 'Yes. Share your screen with the Present view, and paste the player link in the meeting chat.'],
+    ],
+  },
 ];
 
 // One row per game for the "Which game should you use?" table on every game page.

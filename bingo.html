@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script type="importmap">{"imports":{"/js/app.js":"/js/app.js?v=758de17e70","/js/bingo/card.js":"/js/bingo/card.js?v=b48175690d","/js/bingo/core.js":"/js/bingo/core.js?v=25844f877a","/js/bingo/host.js":"/js/bingo/host.js?v=690effc70a","/js/bingo/print.js":"/js/bingo/print.js?v=4dcfcaf101","/js/bingo/ui.js":"/js/bingo/ui.js?v=a38561fa6f","/js/bingo/verify.js":"/js/bingo/verify.js?v=0546bcf84c","/js/fair.js":"/js/fair.js?v=8fe5497132","/js/feedback.js":"/js/feedback.js?v=436371bb66","/js/fx.js":"/js/fx.js?v=047bfc8d2b","/js/games/battle-sim.js":"/js/games/battle-sim.js?v=a8ab03a11a","/js/games/bracket-sim.js":"/js/games/bracket-sim.js?v=a1d99bf709","/js/games/horse-sim.js":"/js/games/horse-sim.js?v=07b5b3f0b1","/js/games/index.js":"/js/games/index.js?v=67c31596e1","/js/games/match-report.js":"/js/games/match-report.js?v=ad4199c1ae","/js/games/music.js":"/js/games/music.js?v=840f939eee","/js/games/race-sim.js":"/js/games/race-sim.js?v=0d236ff439","/js/games/rng.js":"/js/games/rng.js?v=bb782d9059","/js/games/seasons.js":"/js/games/seasons.js?v=3d08bb3984","/js/games/sprites.js":"/js/games/sprites.js?v=e24d19673c","/js/home-demo.js":"/js/home-demo.js?v=4f674c3225","/js/images.js":"/js/images.js?v=bc0b156257","/js/intake.js":"/js/intake.js?v=ee870224d6","/js/overlay.js":"/js/overlay.js?v=2d2f5ee9cd","/js/sync.js":"/js/sync.js?v=2f2cb7fefc","/js/theme.js":"/js/theme.js?v=98a8f19e0c","/js/verify.js":"/js/verify.js?v=22d9d6dc49","/js/wheel.js":"/js/wheel.js?v=f2249f2bf9"}}</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex"><!-- template: the indexable page is /online-bingo/ -->
+  <script>try{var t=localStorage.getItem('spindraw:theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z58QLX9W8M"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Z58QLX9W8M');
+  </script>
+  <link rel="canonical" href="https://spindraw.online/online-bingo/">
+  <link rel="icon" href="/favicon.ico?v=2" sizes="32x32">
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2">
+  <link rel="manifest" href="/site.webmanifest?v=2">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SpinDraw">
+  <meta property="og:title" content="Online Bingo: Free Bingo Caller and Cards | SpinDraw">
+  <meta property="og:description" content="Free online bingo caller with phone and printable cards.">
+  <meta property="og:url" content="https://spindraw.online/online-bingo/">
+  <meta property="og:image" content="https://spindraw.online/media/game-bingo.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="900">
+  <meta property="og:image:alt" content="SpinDraw online bingo caller">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Online Bingo: Free Bingo Caller and Cards | SpinDraw</title>
+  <meta name="description" content="Free online bingo caller with phone and printable cards.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=75c6ea8f17">
+  <link rel="stylesheet" href="/css/bingo.css?v=f684c5e3c2">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
+  <script type="module" src="/js/bingo/host.js?v=690effc70a"></script>
+</head>
+<body class="bingo-page">
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark"></span>SpinDraw</a>
+    <div class="topbar-actions">
+      <button id="presentBtn" class="btn ghost" type="button" title="Show the caller full screen for a projector, a video call or a stream">Present</button>
+      <button class="btn ghost theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme"></button>
+    </div>
+  </header>
+
+  <main class="bingo-app">
+    <section class="bingo-stage" id="stage" aria-label="Bingo caller">
+      <div class="stage-top">
+        <div class="stage-chip">Game <b id="sCode">····</b></div>
+        <div class="stage-chip" id="sType">75-ball</div>
+        <div class="stage-chip" id="sPattern">Any line</div>
+        <div class="stage-chip mono" id="sCommit" hidden></div>
+      </div>
+      <div class="caller">
+        <div class="ball-wrap"><div class="ball" id="ball" data-col="0"><span class="ball-letter" id="ballLetter"></span><span class="ball-num" id="ballNum">?</span></div></div>
+        <div class="caller-side">
+          <p class="call-count" id="callCount">Press <b>Call</b> to start</p>
+          <ol class="recent" id="recent" aria-label="Last calls"></ol>
+          <div class="join" id="join">
+            <div class="join-qr" id="joinQr" aria-hidden="true"></div>
+            <div><p class="join-title">Get a card on your phone</p><p class="join-url" id="joinUrl"></p></div>
+          </div>
+        </div>
+      </div>
+      <div class="board" id="board" aria-label="Called numbers"></div>
+      <div class="win-banner" id="winBanner" hidden><p class="win-big">BINGO!</p><p class="win-sub" id="winSub"></p></div>
+      <p class="stage-foot">Calls come from a locked fair draw. Anyone can check them with the verify link.</p>
+    </section>
+
+    <aside class="bingo-panel">
+      <section class="panel-box" id="setupBox">
+        <h2>1. Set up</h2>
+        <div class="seg" role="group" aria-label="Bingo type">
+          <button type="button" data-type="75" aria-pressed="true">75-ball</button>
+          <button type="button" data-type="90" aria-pressed="false">90-ball</button>
+        </div>
+        <label class="field">Playing for
+          <select id="pattern"></select>
+        </label>
+        <div class="field roster">
+          <label class="check"><input type="checkbox" id="rosterOn"> One card per person</label>
+          <p class="hint">Give each player their own card with a personal link. Nobody shares a card or gets two, and only these cards can win. The list is locked in when the game is locked.</p>
+          <div id="rosterArea" class="roster-area" hidden>
+            <textarea id="rosterNames" rows="5" placeholder="One name per line" aria-label="Player names"></textarea>
+            <div class="row"><button class="btn" type="button" id="rosterSave">Assign cards</button><span class="hint" id="rosterCount"></span></div>
+            <ol class="roster-list" id="rosterList"></ol>
+            <div class="row wrap" id="rosterTools"><button class="btn" type="button" id="copyAll">Copy all links</button><button class="btn" type="button" id="printNamed">Print named cards</button></div>
+          </div>
+        </div>
+        <div class="field" id="openLinkField">
+          <span>Player link</span>
+          <div class="row"><input id="cardLink" readonly aria-label="Player link"><button class="btn" type="button" id="copyLink">Copy</button></div>
+          <p class="hint">Each phone that opens it gets its own card. Share it in chat, or let people scan the code on screen.</p>
+        </div>
+        <div class="field" id="printField">
+          <span>Printable cards</span>
+          <div class="row"><label class="inline">Cards 1 to <input type="number" id="printCount" min="1" max="200" value="20"></label><button class="btn" type="button" id="printBtn">Print cards</button></div>
+        </div>
+        <button class="btn ghost small-btn" type="button" id="newGame">New game</button>
+      </section>
+
+      <section class="panel-box" id="playBox">
+        <h2>2. Call numbers</h2>
+        <div id="lockArea">
+          <p class="hint">Lock the game to show a code that commits to the call order before the first number. Optionally, after locking, ask someone else for a public word.</p>
+          <div class="row"><button class="btn" type="button" id="lockBtn">Lock game</button><input id="salt" placeholder="Public word (optional)" aria-label="Public word" disabled></div>
+        </div>
+        <button class="btn primary big call-btn" type="button" id="callBtn">Call next <kbd>Space</kbd></button>
+        <div class="row wrap">
+          <label class="check"><input type="checkbox" id="auto"> Auto-call every</label>
+          <select id="autoSec" aria-label="Seconds between calls"><option>5</option><option>8</option><option selected>10</option><option>15</option><option>20</option></select><span class="hint">seconds</span>
+        </div>
+        <div class="row wrap">
+          <label class="check"><input type="checkbox" id="voice" checked> Read calls aloud</label>
+          <label class="check"><input type="checkbox" id="sfx" checked> Sounds</label>
+        </div>
+      </section>
+
+      <section class="panel-box" id="checkBox">
+        <h2>3. Check a card</h2>
+        <div class="row"><input type="number" id="checkNum" min="1" max="9999" placeholder="Card number, e.g. 42" aria-label="Card number"><button class="btn" type="button" id="checkBtn">Check</button></div>
+        <div id="checkOut" class="check-out" hidden>
+          <div class="mini-card" id="checkCard"></div>
+          <p class="verdict-line" id="checkVerdict"></p>
+          <button class="btn primary" type="button" id="confirmWin" hidden>Confirm winner</button>
+        </div>
+        <ol class="winners" id="winners"></ol>
+      </section>
+
+      <section class="panel-box" id="finishBox">
+        <h2>4. Finish &amp; share proof</h2>
+        <p class="hint">Reveals the secret seed so anyone can re-run every call and check the winning cards.</p>
+        <button class="btn" type="button" id="finishBtn">Finish &amp; create verify link</button>
+        <div class="row" id="verifyRow" hidden><input id="verifyUrl" readonly aria-label="Verify link"><button class="btn" type="button" id="copyVerify">Copy</button></div>
+      </section>
+    </aside>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <script type="module" src="/js/theme.js?v=98a8f19e0c"></script>
+</body>
+</html>

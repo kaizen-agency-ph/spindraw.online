@@ -199,3 +199,11 @@ footer.site a.kofi-btn, footer.site a.kofi-btn:hover { color: #fff; padding: 8px
 .compare.glance th { width: 34%; background: var(--panel-2); font-size: .88rem; font-weight: 600; }
 .compare tr.is-current td { background: var(--accent-soft); }
 .game-guide .prose > .small { margin-top: 10px; color: var(--muted); }
+/* Homepage: Online Bingo feature band. */
+.bingo-band { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 40px; align-items: center; }
+.bingo-band-text h2 { margin: 6px 0 10px; }
+.bingo-band-text p { color: var(--muted); }
+.bingo-band .ticks { margin: 14px 0 20px; padding-left: 20px; display: grid; gap: 6px; }
+.bingo-band-shot img { width: 100%; height: auto; display: block; border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 12px 40px rgba(0, 0, 0, .18); }
+@media (max-width: 860px) { .bingo-band { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
+.nav-new { display: inline-block; margin-left: 2px; padding: 0 6px; border-radius: 99px; background: var(--accent); color: var(--accent-ink); font: 700 .62rem var(--mono); text-transform: uppercase; letter-spacing: .05em; vertical-align: 2px; }

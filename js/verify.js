@@ -168,6 +168,11 @@ async function main() {
   try { p = await fair.decodePayload(m[1]); } catch { return fail('This link is damaged or cut off. Copy the whole link and try again.'); }
   // replace(): the old address, with its names, doesn't stay in this tab's back button.
   if (fair.linkExpired(p)) return location.replace(new URL('draw-expired/', location.href).href);
+  if (p?.k === 'bingo') {
+    try { const { renderBingo } = await import('./bingo/verify.js'); await renderBingo(p, true); }
+    catch { fail('This bingo link is damaged or incomplete. Copy the whole link and try again.'); }
+    return;
+  }
   run(p, true);
 }
 

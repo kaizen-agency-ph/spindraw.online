@@ -27,5 +27,5 @@ export function stampScripts(html, versions) {
   const tag = importMapTag(versions);
   let out = html.replace(/<script type="importmap">.*?<\/script>/, tag);
   if (!out.includes('type="importmap"')) out = out.replace(/(<meta charset="utf-8">\n)/, `$1  ${tag}\n`);
-  return out.replace(/(<script type="module" src=")(\/?)(js\/[\w-]+\.js)(?:\?v=\w+)?(")/g, (_, a, slash, file, z) => `${a}${slash}${file}?v=${versions[file]}${z}`);
+  return out.replace(/(<script type="module" src=")(\/?)(js\/[\w\/-]+\.js)(?:\?v=\w+)?(")/g, (_, a, slash, file, z) => `${a}${slash}${file}?v=${versions[file]}${z}`);
 }

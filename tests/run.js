@@ -10,6 +10,7 @@ import { BattleSim, preRunBattle } from '../js/games/battle-sim.js';
 import { HorseSim, preRunHorse } from '../js/games/horse-sim.js';
 import { BracketSim, preRunBracket, BRACKET_WINNERS } from '../js/games/bracket-sim.js';
 import { matchReport } from '../js/games/match-report.js';
+import * as BINGO from '../js/bingo/core.js';
 import { SEASONS, SEASON_IDS, SPRITE_PAL, SEASON_FIGHTER_GRIDS, SEASON_HORSE_GRIDS, seasonOf, withSeason } from '../js/games/seasons.js';
 import { SONGS, CHORDS, songBars } from '../js/games/music.js';
 import { ALL_GRIDS, HORSE_GRIDS } from '../js/games/sprites.js';
@@ -401,6 +402,91 @@ await test('bracket: the match report rebuilds the drawn winners in order', () =
   const r = matchReport({ mode: 'bracket', length: 'quick', count: 3, seed: 'rep', pool, winnerIdxs: [4, 9, 2] });
   assert.deepEqual(r.standings, ['P4', 'P9', 'P2']);
   assert.equal(r.rounds.flat().length, r.rounds.length);
+});
+
+await test('bingo: call order is a deterministic permutation, and the salt and code change it', async () => {
+  const seed = 'c'.repeat(64);
+  for (const t of [75, 90]) {
+    const o = await BINGO.callOrder(seed, t, 'K7QM', 'mango');
+    assert.deepEqual([...o].sort((a, b) => a - b), Array.from({ length: t }, (_, i) => i + 1));
+    assert.deepEqual(o, await BINGO.callOrder(seed, t, 'K7QM', 'mango'));
+    assert.notDeepEqual(o, await BINGO.callOrder(seed, t, 'K7QM', 'apple'));
+    assert.notDeepEqual(o, await BINGO.callOrder(seed, t, 'K7QN', 'mango'));
+  }
+  await assert.rejects(BINGO.callOrder('xyz', 75, 'K7QM'));
+});
+
+await test('bingo: first calls are spread evenly', async () => {
+  const counts = Array(76).fill(0), N = 3000;
+  for (let i = 0; i < N; i++) counts[(await BINGO.callOrder(fair.newSeed(), 75, 'K7QM'))[0]]++;
+  const exp = N / 75, chi = counts.slice(1).reduce((s, c) => s + (c - exp) ** 2 / exp, 0);
+  assert.ok(chi < 130, `chi-square ${chi.toFixed(1)}`); // df 74, p ≈ 0.0001
+});
+
+await test('bingo: every card is valid for its type', () => {
+  for (const code of ['K7QM', 'ZZZZ', '2345']) for (let n = 1; n <= 1500; n++) {
+    const c = BINGO.makeCard(code, n, 75), nums = BINGO.cardNumbers(c);
+    assert.equal(nums.length, 24); assert.equal(new Set(nums).size, 24); assert.equal(c.rows[2][2], 0);
+    c.rows.forEach(r => r.forEach((v, col) => v && assert.ok(v >= col * 15 + 1 && v <= col * 15 + 15)));
+    const t = BINGO.makeCard(code, n, 90), tn = BINGO.cardNumbers(t);
+    assert.equal(tn.length, 15); assert.equal(new Set(tn).size, 15);
+    t.rows.forEach(r => assert.equal(r.filter(Boolean).length, 5));
+    for (let col = 0; col < 9; col++) {
+      const vs = t.rows.map(r => r[col]).filter(Boolean), lo = col === 0 ? 1 : col * 10, hi = col === 8 ? 90 : col * 10 + 9;
+      assert.ok(vs.length >= 1 && vs.length <= 3);
+      vs.forEach((v, i) => { assert.ok(v >= lo && v <= hi); if (i) assert.ok(v > vs[i - 1]); });
+    }
+  }
+});
+
+await test('bingo: cards are rebuilt from the game code alone', () => {
+  assert.deepEqual(BINGO.makeCard('K7QM', 42, 75), BINGO.makeCard('K7QM', 42, 75));
+  assert.notDeepEqual(BINGO.makeCard('K7QM', 42, 75).rows, BINGO.makeCard('K7QN', 42, 75).rows);
+  assert.notDeepEqual(BINGO.makeCard('K7QM', 42, 75).rows, BINGO.makeCard('K7QM', 43, 75).rows);
+  assert.ok(BINGO.validCode(BINGO.newCode()));
+  assert.equal(BINGO.cardLabel(42), '#0042');
+  assert.equal(BINGO.ballLabel(12, 75), 'B 12');
+  assert.equal(BINGO.ballLabel(75, 75), 'O 75');
+});
+
+await test('bingo: cards are identical on every engine (pinned fingerprint)', async () => {
+  // Chrome, Safari and Node must deal the same card for the same code and number, or printed
+  // cards, phone cards and the host's check would disagree. This fingerprint was checked in all three.
+  const out = [];
+  for (const n of [1, 42, 777, 9999]) out.push(JSON.stringify(BINGO.makeCard('K7QM', n, 90).rows), JSON.stringify(BINGO.makeCard('K7QM', n, 75).rows));
+  assert.equal((await BINGO.sha256(out.join('|'))).slice(0, 16), '04826cae55b6630b');
+});
+
+await test('bingo: the player list is part of the commitment, and lists are cleaned', async () => {
+  const seed = 'd'.repeat(64);
+  const plain = await BINGO.bingoCommit(seed, 75, 'K7QM');
+  assert.equal(plain, await BINGO.sha256(`spindraw-bingo-v1|${seed}|75|K7QM`)); // unchanged for games without a list
+  const a = await BINGO.bingoCommit(seed, 75, 'K7QM', await BINGO.rosterHash(['Ana', 'Ben']));
+  const b = await BINGO.bingoCommit(seed, 75, 'K7QM', await BINGO.rosterHash(['Ben', 'Ana']));
+  assert.notEqual(a, plain); assert.notEqual(a, b);
+  assert.deepEqual(BINGO.cleanRoster(' Ana \n\nana\n Ben   Cruz\nBEN CRUZ\nCara'), ['Ana', 'Ben Cruz', 'Cara']);
+});
+
+await test('bingo: checkCard gets every pattern right', () => {
+  const c = BINGO.makeCard('K7QM', 7, 75), R = c.rows;
+  assert.ok(BINGO.checkCard(c, R[0], 'line').won);
+  assert.ok(BINGO.checkCard(c, R.map(r => r[1]), 'line').won);
+  assert.ok(BINGO.checkCard(c, [R[0][0], R[1][1], R[3][3], R[4][4]], 'line').won); // diagonal through the free centre
+  assert.equal(BINGO.checkCard(c, R[0].slice(0, 4), 'line').missing, 1);
+  assert.ok(BINGO.checkCard(c, [R[0][0], R[0][4], R[4][0], R[4][4]], 'corners').won);
+  assert.ok(!BINGO.checkCard(c, [R[0][0], R[0][4], R[4][0]], 'corners').won);
+  const x = [0, 1, 3, 4].flatMap(k => [R[k][k], R[k][4 - k]]);
+  assert.ok(BINGO.checkCard(c, x, 'x').won);
+  assert.equal(BINGO.checkCard(c, x.slice(1), 'x').missing, 1);
+  assert.ok(BINGO.checkCard(c, BINGO.cardNumbers(c), 'blackout').won);
+  assert.equal(BINGO.checkCard(c, [], 'blackout').missing, 24);
+  const t = BINGO.makeCard('K7QM', 7, 90), T = t.rows.map(r => r.filter(Boolean));
+  assert.deepEqual(BINGO.checkCard(t, T[1], 'one'), { won: true, detail: 'row 2', missing: 0 });
+  assert.ok(!BINGO.checkCard(t, T[1], 'two').won);
+  assert.ok(BINGO.checkCard(t, [...T[0], ...T[2]], 'two').won);
+  assert.ok(!BINGO.checkCard(t, [...T[0], ...T[2]], 'full').won);
+  assert.ok(BINGO.checkCard(t, BINGO.cardNumbers(t), 'full').won);
+  assert.throws(() => BINGO.checkCard(c, [], 'full'));
 });
 
 await test('gameSeed is stable, varies per draw, and does not contain the seed', async () => {
