@@ -541,6 +541,11 @@ const PATCHES = [
   {
     id: 'online-bingo', name: 'Online Bingo', icon: 'bingo', guide: '/online-bingo/',
     log: [
+      { v: '1.1', date: '2026-11-24', title: 'Draw your own pattern', notes: [
+        ['new', 'Custom patterns for 75-ball: click squares on a 5 × 5 grid, or start from Letter T, Letter L, Plus, Frame, Diamond or Postage stamp, and name it.'],
+        ['new', 'The pattern shows on the big screen, and card checks and the verify link use it.'],
+        ['new', 'One card per person: give each player their own card and personal link. Only assigned cards can win.'],
+      ] },
       { v: '1.0', date: '2026-11-24', title: 'Eyes down', notes: [
         ['new', 'A free bingo caller for 75-ball and 90-ball games, with a big ball, a called-numbers board, auto-call and numbers read aloud.'],
         ['new', 'Cards on players’ phones from a link or QR code, plus printable numbered cards. Check a winner by typing their card number.'],

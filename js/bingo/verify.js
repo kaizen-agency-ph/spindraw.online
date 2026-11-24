@@ -12,12 +12,14 @@ export async function renderBingo(p, fromLink) {
   if (!B.validType(type) || !B.validCode(code) || !/^[0-9a-f]{64}$/.test(p.seed) || !(p.n >= 0)) throw new Error('bad bingo link');
   const salt = typeof p.salt === 'string' ? p.salt : '';
   const roster = Array.isArray(p.r) ? p.r.map(x => String(x)) : null;
+  const cn = p.cn && typeof p.cn === 'object' ? p.cn : {};
+  const pname = pat => B.patternName(pat, B.isCustom(pat) ? String(cn[B.customMask(pat)] ?? '').slice(0, 30) : '');
   const commit = await B.bingoCommit(p.seed, type, code, roster ? await B.rosterHash(roster) : '');
   const order = await B.callOrder(p.seed, type, code, salt);
   const n = Math.min(p.n, order.length), calls = order.slice(0, n);
   const winners = (Array.isArray(p.w) ? p.w : []).map(([card, pattern, at]) => {
     const c = B.makeCard(code, card, type);
-    let res = B.TYPES[type].patterns.includes(pattern) && at >= 1 && at <= n ? B.checkCard(c, calls.slice(0, at), pattern) : { won: false, detail: 'invalid' };
+    let res = B.validPattern(type, pattern) && at >= 1 && at <= n ? B.checkCard(c, calls.slice(0, at), pattern) : { won: false, detail: 'invalid' };
     // With one card per person, a winning card must belong to someone on the locked list.
     const owner = roster ? roster[card - 1] ?? null : null;
     if (roster && !owner) res = { won: false, detail: 'not on the player list' };
@@ -65,7 +67,7 @@ export async function renderBingo(p, fromLink) {
     const tb = $('#draws');
     winners.forEach((w, k) => {
       const tr = document.createElement('tr');
-      [k + 1, B.PATTERN_NAMES[w.pattern] ?? w.pattern, `${B.cardLabel(w.card)}${w.owner ? ` · ${w.owner}` : ''}`, `call ${w.at}${w.res.won ? ` (${w.res.detail})` : ''}`, w.res.won ? '✓' : '✗'].forEach((c, i) => {
+      [k + 1, pname(w.pattern), `${B.cardLabel(w.card)}${w.owner ? ` · ${w.owner}` : ''}`, `call ${w.at}${w.res.won && !B.isCustom(w.pattern) ? ` (${w.res.detail})` : ''}`, w.res.won ? '✓' : '✗'].forEach((c, i) => {
         const td = el('td', c);
         if (i === 4) td.className = w.res.won ? 'ok' : 'bad';
         tr.append(td);
@@ -86,8 +88,8 @@ export async function renderBingo(p, fromLink) {
   winners.forEach(w => {
     const fig = el('figure', null, 'bingo-proof');
     const mc = el('div', null, 'mini-card');
-    renderMiniCard(mc, w.c, new Set(calls.slice(0, w.at)));
- fig.append(mc, el('figcaption', `${B.cardLabel(w.card)}${w.owner ? ` (${w.owner})` : ''} · ${B.PATTERN_NAMES[w.pattern] ?? w.pattern} on call ${w.at}`));
+    renderMiniCard(mc, w.c, new Set(calls.slice(0, w.at)), B.isCustom(w.pattern) ? B.maskCells(B.customMask(w.pattern)) : null);
+ fig.append(mc, el('figcaption', `${B.cardLabel(w.card)}${w.owner ? ` (${w.owner})` : ''} · ${pname(w.pattern)} on call ${w.at}`));
     box.append(fig);
   });
 }

@@ -11,13 +11,15 @@ const COLS = ['#3a86ff', '#e63946', '#9b5de5', '#2f9e44', '#ffd23f'];
 
 // ---------- state ----------
 function fresh(type = 75) {
-  return { v: 1, type, code: B.newCode(), seed: null, commit: null, salt: '', lockedAt: null, n: 0, pattern: B.TYPES[type].patterns[0], winners: [], finished: false, made: null, rosterOn: false, roster: [] };
+  return { v: 1, type, code: B.newCode(), seed: null, commit: null, salt: '', lockedAt: null, n: 0, pattern: B.TYPES[type].patterns[0], winners: [], finished: false, made: null, rosterOn: false, roster: [], customNames: {} };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch {}
 if (!S || S.v !== 1 || !B.validType(S.type) || !B.validCode(S.code)) S = fresh();
 if (!Array.isArray(S.roster)) { S.roster = []; S.rosterOn = false; }
-let prefs = { auto: false, autoSec: 10, voice: true, sfx: true };
+if (!S.customNames || typeof S.customNames !== 'object') S.customNames = {};
+if (!B.validPattern(S.type, S.pattern)) S.pattern = B.TYPES[S.type].patterns[0];
+let prefs = { auto: false, autoSec: 10, voice: true, sfx: true, lastMask: 0 };
 try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem(`${KEY}:prefs`)) }; } catch {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); localStorage.setItem(`${KEY}:prefs`, JSON.stringify(prefs)); } catch {} };
 
@@ -48,6 +50,50 @@ function drawQr() {
   q.addData(cardLink());
   q.make();
   box.innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+}
+
+// ---------- custom patterns (75-ball) ----------
+const sq = (...cells) => B.cellsMask(cells);
+const row = r => [0, 1, 2, 3, 4].map(c => [r, c]), col = c => [0, 1, 2, 3, 4].map(r => [r, c]);
+const PRESETS = [
+  ['Letter T', sq(...row(0), ...col(2))],
+  ['Letter L', sq(...col(0), ...row(4))],
+  ['Plus', sq(...row(2), ...col(2))],
+  ['Frame', sq(...row(0), ...row(4), ...col(0), ...col(4))],
+  ['Diamond', sq([0, 2], [1, 1], [1, 3], [2, 0], [2, 4], [3, 1], [3, 3], [4, 2])],
+  ['Postage stamp', sq([0, 3], [0, 4], [1, 3], [1, 4])],
+];
+const nameOf = p => B.patternName(p, B.isCustom(p) ? S.customNames[B.customMask(p)] : '');
+function setCustom(mask, name) {
+  S.pattern = B.customPattern(mask);
+  if (name !== undefined) { if (name) S.customNames[mask >>> 0] = name; else delete S.customNames[mask >>> 0]; }
+  prefs.lastMask = mask >>> 0;
+  save(); render();
+  if (!$('#checkOut').hidden) checkCard();
+}
+function renderCustom() {
+  const custom = S.type === 75 && B.isCustom(S.pattern), mask = B.customMask(S.pattern);
+  $('#customArea').hidden = !custom;
+  const grid = $('#patGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 25; i++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    const free = i === 12, on = free || ((mask >>> i) & 1) === 1;
+    b.className = 'pat-sq' + (on ? ' on' : '') + (free ? ' free' : '');
+    b.textContent = free ? '★' : '';
+    b.setAttribute('aria-pressed', String(on));
+    b.setAttribute('aria-label', free ? 'Free centre (always marked)' : `${'BINGO'[i % 5]} column, row ${Math.floor(i / 5) + 1}`);
+    b.disabled = free || S.finished;
+    if (!free) b.addEventListener('click', () => setCustom((mask ^ (1 << i)) >>> 0, S.customNames[mask] ?? ''));
+    grid.append(b);
+  }
+  $('#patName').disabled = S.finished;
+  if (document.activeElement !== $('#patName')) $('#patName').value = custom ? S.customNames[mask] ?? '' : '';
+  // Show the shape on the big screen so players know what they're going for.
+  const prev = $('#sPatGrid');
+  prev.hidden = !custom;
+  prev.innerHTML = custom ? Array.from({ length: 25 }, (_, i) => `<i class="${i === 12 || (mask >>> i) & 1 ? 'on' : ''}"></i>`).join('') : '';
 }
 
 // ---------- rendering ----------
@@ -97,14 +143,15 @@ function render() {
   const T = B.TYPES[S.type], locked = !!S.seed;
   $('#sCode').textContent = S.code;
   $('#sType').textContent = T.label;
-  $('#sPattern').textContent = `Playing for: ${B.PATTERN_NAMES[S.pattern]}`;
+  $('#sPattern').textContent = `Playing for: ${nameOf(S.pattern)}`;
   const sc = $('#sCommit');
   sc.hidden = !S.commit;
   sc.textContent = S.commit ? (S.finished ? 'Seed revealed' : `Locked: ${S.commit.slice(0, 16)}`) : '';
   $$('[data-type]').forEach(b => { b.setAttribute('aria-pressed', String(+b.dataset.type === S.type)); b.disabled = locked; });
   const sel = $('#pattern');
-  if (sel.dataset.type !== String(S.type)) { sel.innerHTML = T.patterns.map(p => `<option value="${p}">${B.PATTERN_NAMES[p]}</option>`).join(''); sel.dataset.type = String(S.type); }
-  sel.value = S.pattern;
+  if (sel.dataset.type !== String(S.type)) { sel.innerHTML = T.patterns.map(p => `<option value="${p}">${B.PATTERN_NAMES[p]}</option>`).join('') + (S.type === 75 ? '<option value="custom">Custom pattern…</option>' : ''); sel.dataset.type = String(S.type); }
+  sel.value = B.isCustom(S.pattern) ? 'custom' : S.pattern;
+  renderCustom();
   sel.disabled = S.finished;
   $('#cardLink').value = cardLink();
   $('#joinUrl').textContent = cardLink().replace(/^https?:\/\//, '');
@@ -128,7 +175,7 @@ function render() {
   renderBoard();
   const w = $('#winners');
   w.innerHTML = '';
-  S.winners.forEach(([card, pattern, at, name]) => { const li = document.createElement('li'); li.textContent = `${B.cardLabel(card)}${name ? ` (${name})` : ''} · ${B.PATTERN_NAMES[pattern]} · on call ${at}`; w.append(li); });
+  S.winners.forEach(([card, pattern, at, name]) => { const li = document.createElement('li'); li.textContent = `${B.cardLabel(card)}${name ? ` (${name})` : ''} · ${nameOf(pattern)} · on call ${at}`; w.append(li); });
   $('#finishBtn').disabled = !S.seed || S.finished;
   $('#verifyRow').hidden = !S.finished;
   if (S.finished) buildVerify();
@@ -190,17 +237,18 @@ let checking = null;
 function checkCard() {
   const num = parseInt($('#checkNum').value, 10);
   if (!(num >= 1 && num <= B.MAX_CARD)) return toast('Type a card number from 1 to 9999');
+  if (!B.validPattern(S.type, S.pattern)) return toast('Add at least one square to your custom pattern');
   const card = B.makeCard(S.code, num, S.type), set = new Set(called());
   const res = B.checkCard(card, set, S.pattern), owner = ownerOf(num);
   const unassigned = !!assigned() && !owner;
   checking = { num, res, owner, unassigned };
   $('#checkOut').hidden = false;
-  renderMiniCard($('#checkCard'), card, set);
+  renderMiniCard($('#checkCard'), card, set, B.isCustom(S.pattern) ? B.maskCells(B.customMask(S.pattern)) : null);
   const v = $('#checkVerdict');
   v.className = `verdict-line ${res.won ? 'ok' : 'no'}`;
   const who = owner ? ` (${owner})` : '';
   if (unassigned) { v.className = 'verdict-line bad'; v.textContent = `${B.cardLabel(num)} isn’t assigned to anyone. With one card per person on, only cards #0001 to ${B.cardLabel(S.roster.length)} can win.`; }
-  else v.textContent = res.won ? `BINGO! ${B.cardLabel(num)}${who}: ${res.detail}` : `Not yet${who}: ${res.missing} number${res.missing === 1 ? '' : 's'} missing for ${B.PATTERN_NAMES[S.pattern].toLowerCase()}`;
+  else v.textContent = res.won ? `BINGO! ${B.cardLabel(num)}${who}: ${B.isCustom(S.pattern) ? nameOf(S.pattern) : res.detail}` : `Not yet${who}: ${res.missing} number${res.missing === 1 ? '' : 's'} missing for ${nameOf(S.pattern).toLowerCase()}`;
   const dupe = S.winners.some(([c, p]) => c === num && p === S.pattern);
   $('#confirmWin').hidden = !res.won || unassigned || dupe || S.finished;
 }
@@ -213,7 +261,7 @@ function confirmWin() {
   // 90-ball prizes go one line, two lines, full house.
   if (S.type === 90) { const p = B.TYPES[90].patterns, i = p.indexOf(S.pattern); if (i < p.length - 1) S.pattern = p[i + 1]; }
   save();
-  $('#winSub').textContent = `${checking.owner ? `${checking.owner} · ` : ''}${B.cardLabel(checking.num)} · ${checking.res.detail}`;
+  $('#winSub').textContent = `${checking.owner ? `${checking.owner} · ` : ''}${B.cardLabel(checking.num)} · ${B.isCustom(S.winners.at(-1)[1]) ? nameOf(S.winners.at(-1)[1]) : checking.res.detail}`;
   $('#winBanner').hidden = false;
   if (prefs.sfx) sound.tada();
   confetti(160);
@@ -223,8 +271,14 @@ function confirmWin() {
 }
 
 // ---------- finish ----------
+// Names of the custom patterns that were actually won, for the verify page.
+function customNamesUsed() {
+  const cn = {};
+  S.winners.forEach(([, p]) => { if (B.isCustom(p) && S.customNames[B.customMask(p)]) cn[B.customMask(p)] = S.customNames[B.customMask(p)]; });
+  return Object.keys(cn).length ? { cn } : {};
+}
 async function buildVerify() {
-  const p = { k: 'bingo', t: S.type, g: S.code, seed: S.seed, salt: S.salt, n: S.n, w: S.winners, lockedAt: S.lockedAt, made: S.made, ...(S.rosterOn ? { r: S.roster } : {}) };
+  const p = { k: 'bingo', t: S.type, g: S.code, seed: S.seed, salt: S.salt, n: S.n, w: S.winners, lockedAt: S.lockedAt, made: S.made, ...(S.rosterOn ? { r: S.roster } : {}), ...customNamesUsed() };
   $('#verifyUrl').value = new URL(`/verify.html#d=${await encodePayload(p)}`, location.origin).href;
 }
 async function finish() {
@@ -240,7 +294,7 @@ async function finish() {
 function newGame() {
   if (S.n && !S.finished && !confirm('Start a new game? This one hasn’t been finished.')) return;
   stopAuto();
-  const keep = { rosterOn: S.rosterOn, roster: S.roster }; // the same players often play again
+  const keep = { rosterOn: S.rosterOn, roster: S.roster, customNames: S.customNames }; // the same players and patterns often come back
   S = { ...fresh(S.type), ...keep };
   order = null;
   save(); render();
@@ -295,7 +349,22 @@ $$('[data-type]').forEach(b => b.addEventListener('click', () => {
   S.pattern = B.TYPES[t].patterns[0];
   save(); render();
 }));
-$('#pattern').addEventListener('change', e => { S.pattern = e.target.value; save(); render(); if (!$('#checkOut').hidden) checkCard(); });
+$('#pattern').addEventListener('change', e => {
+  if (e.target.value === 'custom') return prefs.lastMask && B.validCustom(B.customPattern(prefs.lastMask)) ? setCustom(prefs.lastMask) : setCustom(PRESETS[0][1], PRESETS[0][0]);
+  S.pattern = e.target.value; save(); render(); if (!$('#checkOut').hidden) checkCard();
+});
+PRESETS.forEach(([name, mask]) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'btn ghost tiny'; b.textContent = name;
+  b.addEventListener('click', () => setCustom(mask, name));
+  $('#patPresets').append(b);
+});
+$('#patName').addEventListener('input', e => {
+  const mask = B.customMask(S.pattern), name = e.target.value.replace(/\s+/g, ' ').trim().slice(0, 30);
+  if (name) S.customNames[mask] = name; else delete S.customNames[mask];
+  save();
+  $('#sPattern').textContent = `Playing for: ${nameOf(S.pattern)}`;
+});
 $('#copyLink').addEventListener('click', () => navigator.clipboard?.writeText(cardLink()).then(() => toast('Player link copied')));
 $('#printBtn').addEventListener('click', () => {
   const n = Math.max(1, Math.min(200, parseInt($('#printCount').value, 10) || 20));

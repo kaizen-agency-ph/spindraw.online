@@ -467,6 +467,21 @@ await test('bingo: the player list is part of the commitment, and lists are clea
   assert.deepEqual(BINGO.cleanRoster(' Ana \n\nana\n Ben   Cruz\nBEN CRUZ\nCara'), ['Ana', 'Ben Cruz', 'Cara']);
 });
 
+await test('bingo: custom 75-ball patterns', () => {
+  const c = BINGO.makeCard('K7QM', 9, 75), R = c.rows;
+  const T = BINGO.customPattern(BINGO.cellsMask([[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [1, 2], [2, 2], [3, 2], [4, 2]]));
+  assert.ok(BINGO.validCustom(T) && BINGO.validPattern(75, T) && !BINGO.validPattern(90, T));
+  const nums = [...R[0], R[1][2], R[3][2], R[4][2]]; // the centre is free
+  assert.ok(BINGO.checkCard(c, nums, T).won);
+  assert.equal(BINGO.checkCard(c, nums.slice(1), T).missing, 1);
+  assert.ok(!BINGO.validCustom('c:4096'));                     // only the free centre
+  assert.ok(!BINGO.validCustom('c:99999999') && !BINGO.validCustom('c:-1') && !BINGO.validCustom('line'));
+  assert.deepEqual(BINGO.maskCells(BINGO.customMask(T)).length, 9);
+  assert.equal(BINGO.patternName(T, 'Letter T'), 'Letter T');
+  assert.equal(BINGO.patternName(T), 'Custom pattern');
+  assert.equal(BINGO.patternName('corners'), 'Four corners');
+});
+
 await test('bingo: checkCard gets every pattern right', () => {
   const c = BINGO.makeCard('K7QM', 7, 75), R = c.rows;
   assert.ok(BINGO.checkCard(c, R[0], 'line').won);

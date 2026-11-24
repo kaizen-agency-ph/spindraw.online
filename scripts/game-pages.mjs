@@ -355,7 +355,7 @@ export const GAME_GUIDES = [
       ['Cards', 'On phones from a link or QR code, or printed, up to 200 per printout'],
       ['One card per person', 'Optional: each player gets their own card and link, and only those cards can win'],
       ['Calls', 'Click or Space, or auto-call every 5 to 20 seconds, read aloud'],
-      ['Prizes', '75-ball: any line, four corners, letter X, blackout. 90-ball: one line, two lines, full house'],
+      ['Prizes', '75-ball: any line, four corners, letter X, blackout or your own custom pattern. 90-ball: one line, two lines, full house'],
       ['Fairness', 'Call order locked before the first number, with a verify link afterwards'],
       ['Price', 'Free, no sign-up, no money involved'],
     ],
@@ -380,11 +380,13 @@ export const GAME_GUIDES = [
     <tr><td>Where it’s popular</td><td>US and Canada</td><td>UK, Ireland, Australia, India (housie or tambola)</td></tr>
     <tr><td>Card</td><td>5 × 5 grid under B-I-N-G-O, free centre square</td><td>3 rows × 9 columns, 15 numbers, 5 in each row</td></tr>
     <tr><td>Numbers</td><td>1 to 75, called with a letter, like “B 12”</td><td>1 to 90</td></tr>
-    <tr><td>Prizes in SpinDraw</td><td>Any line, four corners, letter X or blackout</td><td>One line, then two lines, then full house</td></tr>
+    <tr><td>Prizes in SpinDraw</td><td>Any line, four corners, letter X, blackout or a custom pattern you draw</td><td>One line, then two lines, then full house</td></tr>
   </tbody>
 </table></div>
 <h2>Printable bingo cards</h2>
 <p>Click <strong>Print cards</strong> to print numbered cards for the current game: two 75-ball cards or six 90-ball tickets per page. Printed cards and phone cards come from the same game code, so you can mix them in one game. Check any of them the same way, by card number.</p>
+<h2>Custom bingo patterns</h2>
+<p>In 75-ball, choose <strong>Custom pattern…</strong> under <strong>Playing for</strong> and click squares on the 5 × 5 grid to draw any shape: a letter, a frame, a diamond or a postage stamp in the corner. Start from a ready-made shape like Letter T, Plus or Frame, then change it, and give it a name if you like. The pattern shows on the big screen so players know what they’re going for, and checking a card works the same way. The free centre always counts as marked.</p>
 <h2>One card per person</h2>
 <p>For a prize game where fairness matters, turn on <strong>One card per person</strong> and paste your player list. Each name gets its own numbered card and a personal link to send them, or print named cards. Nobody shares a card or gets a second one, and only assigned cards can win: if someone shouts bingo on a card that isn’t on the list, the check says so. The player list is locked in with the game before the first call, so the verify link also proves nobody was moved onto a winning card.</p>
 <h2>Checking a winner</h2>
@@ -407,6 +409,7 @@ export const GAME_GUIDES = [
       ['Can I make sure everyone only plays one card?', 'Yes. Turn on One card per person and paste your player list. Each name gets its own card and personal link, only those cards can win, and the list is locked in with the game, so the verify link shows nobody was moved onto a winning card.'],
       ['How do I check if someone has bingo?', 'Type their card number under Check a card. SpinDraw shows the card with the called numbers marked and says whether it has the pattern you’re playing for.'],
       ['What’s the difference between 75-ball and 90-ball bingo?', '75-ball uses a 5 × 5 card under B-I-N-G-O with a free centre and patterns like lines or blackout. 90-ball uses a 3 × 9 ticket with 15 numbers and prizes for one line, two lines and a full house.'],
+      ['Can I make my own bingo pattern?', 'Yes, in 75-ball. Choose Custom pattern under Playing for, click squares to draw the shape or start from one like Letter T, Plus or Frame, and name it if you like. It shows on the big screen, and card checks and the verify link use it.'],
       ['Can the caller read numbers aloud?', 'Yes. Turn on Read calls aloud and your browser’s voice announces each number, like “B, 12”.'],
       ['Can I use it on Zoom or Teams?', 'Yes. Share your screen with the Present view, and paste the player link in the meeting chat.'],
     ],

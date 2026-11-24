@@ -22,6 +22,18 @@ export const PATTERN_NAMES = {
   one: 'One line', two: 'Two lines', full: 'Full house',
 };
 export const MAX_CARD = 9999;
+
+// Custom 75-ball patterns: "c:<mask>", where bit (row * 5 + col) marks a square of the 5 × 5 card.
+// The free centre is always marked, so a pattern needs at least one other square.
+const FREE_BIT = 12;
+export const isCustom = p => typeof p === 'string' && /^c:\d{1,8}$/.test(p) && +p.slice(2) < 2 ** 25;
+export const customMask = p => (isCustom(p) ? +p.slice(2) : 0);
+export const maskCells = mask => Array.from({ length: 25 }, (_, i) => i).filter(i => (mask >>> i) & 1).map(i => [Math.floor(i / 5), i % 5]);
+export const cellsMask = cells => cells.reduce((m, [r, c]) => (m | (1 << (r * 5 + c))) >>> 0, 0);
+export const customPattern = mask => `c:${mask >>> 0}`;
+export const validCustom = p => isCustom(p) && (customMask(p) & ~(1 << FREE_BIT)) !== 0;
+export const validPattern = (type, p) => TYPES[type]?.patterns.includes(p) || (type === 75 && validCustom(p));
+export const patternName = (p, customName = '') => (isCustom(p) ? (customName || 'Custom pattern') : PATTERN_NAMES[p] ?? p);
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O or 1/I, easy to read aloud
 
 export function newCode() {
@@ -141,7 +153,7 @@ export function checkCard(card, called, pattern) {
   const has = called instanceof Set ? called : new Set(called);
   const marked = (r, c) => { const v = card.rows[r][c]; return v === 0 ? card.type === 75 : has.has(v); };
   if (card.type === 75) {
-    const shapes = pattern === 'line' ? lines75() : SHAPES75[pattern];
+    const shapes = validCustom(pattern) ? [{ name: 'custom pattern', cells: maskCells(customMask(pattern)) }] : pattern === 'line' ? lines75() : SHAPES75[pattern];
     if (!shapes) throw new Error('bad pattern');
     let best = null;
     for (const s of shapes) {

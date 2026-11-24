@@ -8,7 +8,7 @@
   background: radial-gradient(120% 90% at 30% 0%, #2a2140 0%, #15131f 55%, #0c0c11 100%);
   border: 1px solid #2a2736; box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
 }
-.stage-top { display: flex; flex-wrap: wrap; gap: 6px; }
+.stage-top { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .stage-chip { font: 500 .8rem var(--font); padding: 5px 11px; border-radius: 99px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .1); color: #d4d4d8; }
 .stage-chip b { color: #ffd23f; font-family: var(--mono); letter-spacing: .08em; }
 .stage-chip.mono { font-family: var(--mono); font-size: .74rem; }
@@ -178,3 +178,20 @@
 .btn.tiny { padding: 3px 9px; font-size: .75rem; flex: none; }
 .verdict-line.bad { color: var(--coral); }
 .print-card-name { margin: -2px 0 8px; font: 700 1.1rem var(--font); }
+
+/* Custom pattern editor (75-ball) and its preview on the big screen. */
+.custom-area { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+.custom-area[hidden] { display: none; }
+.pat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; max-width: 230px; }
+.pat-sq { aspect-ratio: 1; border-radius: 7px; border: 1px solid var(--line-strong); background: var(--panel); cursor: pointer; padding: 0; font-size: .9rem; color: var(--accent-ink); }
+.pat-sq:hover:not(:disabled) { border-color: var(--accent); }
+.pat-sq.on { background: var(--accent); border-color: var(--accent); }
+.pat-sq.free { cursor: default; opacity: .75; }
+.pat-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.custom-area input { font-weight: 400; }
+.stage-pattern { display: grid; grid-template-columns: repeat(5, 9px); gap: 2px; padding: 5px 7px; border-radius: 8px; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .1); align-self: center; }
+.stage-pattern[hidden] { display: none; }
+.stage-pattern i { width: 9px; height: 9px; border-radius: 2px; background: rgba(255, 255, 255, .14); }
+.stage-pattern i.on { background: #ffd23f; }
+.bingo-stage:fullscreen .stage-pattern, .bingo-stage.presenting .stage-pattern { grid-template-columns: repeat(5, 16px); gap: 3px; }
+.bingo-stage:fullscreen .stage-pattern i, .bingo-stage.presenting .stage-pattern i { width: 16px; height: 16px; }

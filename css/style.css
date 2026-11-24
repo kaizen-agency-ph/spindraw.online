@@ -346,3 +346,4 @@ input[type="range"] { padding: 0; accent-color: var(--accent); }
 .site-banner-x { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: inherit; font-size: 1.3rem; line-height: 1; cursor: pointer; }
 .site-banner-x:hover { background: rgba(0, 0, 0, .08); }
 @media (max-width: 640px) { .site-banner { font-size: .8rem; padding: 7px 40px 7px 12px; } }
+.mc-cell.pat { box-shadow: inset 0 0 0 2px var(--coral); }
