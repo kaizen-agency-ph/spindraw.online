@@ -1029,12 +1029,11 @@ const aboutLd = {
     image: `${SITE}/media/vince-pixel.webp`,
     address: { '@type': 'PostalAddress', addressLocality: 'Malaybalay City', addressRegion: 'Bukidnon', addressCountry: 'PH' },
     sameAs: ['https://www.linkedin.com/in/vincent-carl-benlot'],
-    owns: { '@type': 'Organization', name: 'Kaizen', url: 'https://kaizenagency.online' },
   },
 };
 write('about/index.html', `${head({
   title: 'About SpinDraw: Meet Vincent Carl Benlot, the Person Behind It',
-  description: 'Hi, I’m Vincent Carl Benlot, a marketer and web builder from the Philippines. I made SpinDraw, the name picker where horses settle your raffle, and I own Kaizen.',
+  description: 'Hi, I’m Vincent Carl Benlot, a marketer and web builder from the Philippines. I made SpinDraw, the name picker where horses settle your raffle.',
   path: '/about/',
   extra: ld(aboutLd),
 })}
@@ -1060,9 +1059,6 @@ write('about/index.html', `${head({
         <h2>A bit about me</h2>
         <p>I’m a marketer and web builder from Malaybalay City, in Bukidnon, Philippines. I call myself the technician who became a marketer: I studied IT, then spent the last seven years or so working on marketing and the web with clients around the world.</p>
         <p>You can see the full story on <a href="https://vincentbenlot.site">my personal site</a>, which has a little game where you walk my pixel self through my career. Yes, I have a pixel problem.</p>
-        <h2>I also own Kaizen</h2>
-        <p><a href="https://kaizenagency.online">Kaizen</a> is my web and automation studio. We build websites and automations for founders and service businesses, then keep making them better. The name comes from the Japanese practice of continuous improvement, and our motto is “Built sharp. Improved forever.”</p>
-        <p>If you like how SpinDraw works and want something built for your own business, that’s the place to say hello.</p>
       </div>
       <aside class="about-facts" aria-label="Quick facts">
         <h2>Quick facts</h2>
@@ -1071,7 +1067,6 @@ write('about/index.html', `${head({
           <div><dt>Goes by</dt><dd>Vince</dd></div>
           <div><dt>Home base</dt><dd>Bukidnon, Philippines</dd></div>
           <div><dt>Speaks</dt><dd>English and Tagalog</dd></div>
-          <div><dt>Also owns</dt><dd>Kaizen</dd></div>
           <div><dt>Horses per race</dt><dd>Up to 100</dd></div>
         </dl>
       </aside>
@@ -1094,7 +1089,6 @@ write('about/index.html', `${head({
       <div class="about-links">
         <a class="btn big" href="https://www.linkedin.com/in/vincent-carl-benlot">LinkedIn</a>
         <a class="btn big" href="https://vincentbenlot.site">My site</a>
-        <a class="btn big" href="https://kaizenagency.online">Kaizen</a>
         <a class="btn primary big" href="/app.html">Start a draw</a>
       </div>
     </div>
